@@ -2,38 +2,28 @@
   "compilerOptions": {
     "target": "ES2020",
     "module": "CommonJS",
+    "outDir": "dist",
     "strict": true,
     "esModuleInterop": true,
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
     "lib": [
-      "dom",
-      "dom.iterable",
       "esnext"
     ],
     "allowJs": true,
-    "noEmit": true,
     "incremental": true,
     "moduleResolution": "node",
     "resolveJsonModule": true,
     "isolatedModules": true,
-    "jsx": "preserve", 
     "baseUrl": ".",
     "paths": {
       "@/*": ["./*"]
     }
   },
   "include": [
-    "next-env.d.ts",
-     "custom.d.ts",   
-    "**/*.ts",
-    "**/*.tsx"
+    "src/**/*"
   ],
-
-
-  
   "exclude": [
     "node_modules"
   ]
-  
 }
