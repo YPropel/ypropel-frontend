@@ -1,0 +1,813 @@
+[
+  {
+    "title": "Alaska Technical Center",
+    "state": "AK",
+    "city": "Kotzebue",
+    "country": "United States",
+    "description": "Provides vocational training in various trades, serving the northwest region of Alaska.",
+    "website": "https://www.aktc.edu/"
+  },
+  {
+    "title": "Southwest Alaska Vocational and Education Center",
+    "state": "AK",
+    "city": "King Salmon",
+    "country": "United States",
+    "description": "Offers training programs in welding, construction, and other trades for the southwest region.",
+    "website": "https://www.savok.org/"
+  },
+  {
+    "title": "Ilisagvik College",
+    "state": "AK",
+    "city": "Barrow",
+    "country": "United States",
+    "description": "The only accredited tribal college in Alaska, offering a range of vocational programs.",
+    "website": "https://www.ilisagvik.edu/"
+  },
+  {
+    "title": "Carrington College",
+    "state": "AZ",
+    "city": "Phoenix",
+    "country": "United States",
+    "description": "Offers programs in dental hygiene, medical assisting, and other health-related fields.",
+    "website": "https://www.carrington.edu/"
+  },
+  {
+    "title": "Refrigeration School Inc.",
+    "state": "AZ",
+    "city": "Phoenix",
+    "country": "United States",
+    "description": "Specializes in HVAC and refrigeration training programs.",
+    "website": "https://www.refrigerationschool.com/"
+  },
+  {
+    "title": "Platt College-Arizona Automotive Institute",
+    "state": "AZ",
+    "city": "Glendale",
+    "country": "United States",
+    "description": "Provides automotive repair and diesel technology programs.",
+    "website": "https://www.plattcollege.edu/"
+  },
+  {
+    "title": "Arkansas Northeastern College",
+    "state": "AR",
+    "city": "Blytheville",
+    "country": "United States",
+    "description": "Offers a variety of technical programs including welding and industrial maintenance.",
+    "website": "https://www.anc.edu/"
+  },
+  {
+    "title": "Black River Technical College",
+    "state": "AR",
+    "city": "Pocahontas",
+    "country": "United States",
+    "description": "Provides programs in automotive technology, welding, and other trades.",
+    "website": "https://blackrivertech.org/"
+  },
+  {
+    "title": "University of Arkansas Community College",
+    "state": "AR",
+    "city": "Batesville",
+    "country": "United States",
+    "description": "Offers a range of technical programs including nursing and industrial technology.",
+    "website": "https://www.uaccb.edu/"
+  },
+  
+  {
+    "title": "Middle Georgia Technical College",
+    "state": "GA",
+    "city": "Warner Robins",
+    "country": "United States",
+    "description": "Offers programs in welding, automotive technology, and other trades.",
+    "website": "https://www.mgtech.edu/"
+  },
+  {
+    "title": "Darton College",
+    "state": "GA",
+    "city": "Albany",
+    "country": "United States",
+    "description": "Provides vocational training in fields like automotive technology and welding.",
+    "website": "https://www.asurams.edu/"
+  },
+  {
+    "title": "East Georgia College",
+    "state": "GA",
+    "city": "Swainsboro",
+    "country": "United States",
+    "description": "Offers programs in welding, automotive technology, and other trades.",
+    "website": "https://www.egc.edu/"
+  },
+  {
+    "title": "Kapiolani Community College",
+    "state": "HI",
+    "city": "Honolulu",
+    "country": "United States",
+    "description": "Provides vocational programs in various trades including culinary arts and welding.",
+    "website": "https://www.kapiolani.hawaii.edu/"
+  },
+  {
+    "title": "Windward Community College",
+    "state": "HI",
+    "city": "Kaneohe",
+    "country": "United States",
+    "description": "Offers programs in fields like automotive technology and welding.",
+    "website": "https://www.windward.hawaii.edu/"
+  },
+  {
+    "title": "Leeward Community College",
+    "state": "HI",
+    "city": "Pearl City",
+    "country": "United States",
+    "description": "Provides vocational training in various trades including welding and automotive technology.",
+    "website": "https://www.leeward.hawaii.edu/"
+  },
+  {
+    "title": "College of Southern Idaho",
+    "state": "ID",
+    "city": "Twin Falls",
+    "country": "United States",
+    "description": "Offers programs in welding, automotive technology, and other trades.",
+    "website": "https://www.csi.edu/"
+  },
+  {
+    "title": "North Idaho College",
+    "state": "ID",
+    "city": "Coeur d'Alene",
+    "country": "United States",
+    "description": "Provides vocational training in fields like welding and automotive technology.",
+    "website": "https://www.nic.edu/"
+  },
+  {
+    "title": "College of Eastern Idaho",
+    "state": "ID",
+    "city": "Idaho Falls",
+    "country": "United States",
+    "description": "Offers programs in welding, automotive technology, and other trades.",
+    "website": "https://www.cei.edu/"
+  },
+  {
+  "title": "City Colleges of Chicago - Kennedy-King College",
+  "state": "IL",
+  "city": "Chicago",
+  "country": "United States",
+  "description": "Offers programs in automotive technology, welding, and industrial maintenance.",
+  "website": "https://www.ccc.edu/colleges/kennedy-king"
+},
+{
+  "title": "Illinois Central College",
+  "state": "IL",
+  "city": "East Peoria",
+  "country": "United States",
+  "description": "Provides vocational training in automotive technology, welding, and HVAC.",
+  "website": "https://icc.edu/"
+},
+{
+  "title": "Richland Community College",
+  "state": "IL",
+  "city": "Decatur",
+  "country": "United States",
+  "description": "Offers technical programs including automotive technology and welding.",
+  "website": "https://richland.edu/"
+},
+{
+  "title": "Jefferson Community College",
+  "state": "IN",
+  "city": "Madison",
+  "country": "United States",
+  "description": "Provides vocational programs in welding, automotive technology, and HVAC.",
+  "website": "https://www.jefferson.kyschools.us/"
+},
+{
+  "title": "Ivy Tech Community College",
+  "state": "IN",
+  "city": "Multiple Locations",
+  "country": "United States",
+  "description": "Offers a wide range of technical programs including welding, automotive, and HVAC.",
+  "website": "https://www.ivytech.edu/"
+},
+{
+  "title": "Kokomo Area Career Center",
+  "state": "IN",
+  "city": "Kokomo",
+  "country": "United States",
+  "description": "Vocational training in trades like automotive, welding, and construction.",
+  "website": "https://www.kokomo.k12.in.us/ksc"
+},
+{
+  "title": "Bluegrass Community and Technical College",
+  "state": "KY",
+  "city": "Lexington",
+  "country": "United States",
+  "description": "Offers programs in welding, automotive technology, and industrial maintenance.",
+  "website": "https://bluegrass.kctcs.edu/"
+},
+{
+  "title": "Owensboro Community and Technical College",
+  "state": "KY",
+  "city": "Owensboro",
+  "country": "United States",
+  "description": "Provides vocational training in automotive technology, welding, and HVAC.",
+  "website": "https://owensboro.kctcs.edu/"
+},
+{
+  "title": "Madisonville Community College",
+  "state": "KY",
+  "city": "Madisonville",
+  "country": "United States",
+  "description": "Offers programs in welding, automotive technology, and industrial maintenance.",
+  "website": "https://madisonville.kctcs.edu/"
+},
+{
+  "title": "Northwest Louisiana Technical College",
+  "state": "LA",
+  "city": "Minden",
+  "country": "United States",
+  "description": "Provides vocational programs including welding, automotive technology, and HVAC.",
+  "website": "https://nwtc.edu/"
+},
+{
+  "title": "Bossier Parish Community College",
+  "state": "LA",
+  "city": "Bossier City",
+  "country": "United States",
+  "description": "Offers programs in automotive technology, welding, and industrial maintenance.",
+  "website": "https://bpcc.edu/"
+},
+{
+  "title": "River Parishes Community College",
+  "state": "LA",
+  "city": "Sorrento",
+  "country": "United States",
+  "description": "Vocational training in welding, HVAC, and other technical trades.",
+  "website": "https://rpcc.edu/"
+},
+{
+  "title": "Anne Arundel Community College",
+  "state": "MD",
+  "city": "Arnold",
+  "country": "United States",
+  "description": "Offers vocational programs in automotive technology, welding, and HVAC.",
+  "website": "https://www.aacc.edu/"
+},
+{
+  "title": "Montgomery College",
+  "state": "MD",
+  "city": "Rockville",
+  "country": "United States",
+  "description": "Provides training in welding, automotive repair, and construction trades.",
+  "website": "https://www.montgomerycollege.edu/"
+},
+{
+  "title": "Prince George's Community College",
+  "state": "MD",
+  "city": "Largo",
+  "country": "United States",
+  "description": "Offers programs in welding, HVAC, and automotive technology.",
+  "website": "https://www.pgcc.edu/"
+},
+{
+  "title": "Bristol Community College",
+  "state": "MA",
+  "city": "Fall River",
+  "country": "United States",
+  "description": "Offers programs in welding, automotive technology, and HVAC.",
+  "website": "https://www.bristolcc.edu/"
+},
+{
+  "title": "Quinsigamond Community College",
+  "state": "MA",
+  "city": "Worcester",
+  "country": "United States",
+  "description": "Provides vocational training in welding, automotive repair, and construction.",
+  "website": "https://www.qcc.edu/"
+},
+{
+  "title": "Holyoke Community College",
+  "state": "MA",
+  "city": "Holyoke",
+  "country": "United States",
+  "description": "Offers programs in automotive technology, welding, and HVAC.",
+  "website": "https://www.hcc.edu/"
+},
+{
+  "title": "Central Lakes College",
+  "state": "MN",
+  "city": "Brainerd",
+  "country": "United States",
+  "description": "Provides vocational programs in welding, automotive technology, and HVAC.",
+  "website": "https://www.clcmn.edu/"
+},
+{
+  "title": "Hennepin Technical College",
+  "state": "MN",
+  "city": "Brooklyn Park",
+  "country": "United States",
+  "description": "Offers programs in welding, automotive technology, and industrial maintenance.",
+  "website": "https://www.hennepintech.edu/"
+},
+{
+  "title": "Ridgewater College",
+  "state": "MN",
+  "city": "Willmar",
+  "country": "United States",
+  "description": "Vocational training in welding, automotive repair, and HVAC.",
+  "website": "https://www.ridgewater.edu/"
+},
+{
+  "title": "Mississippi Gulf Coast Community College",
+  "state": "MS",
+  "city": "Perkinston",
+  "country": "United States",
+  "description": "Offers programs in welding, automotive technology, and HVAC.",
+  "website": "https://www.mgcc.edu/"
+},
+{
+  "title": "East Mississippi Community College",
+  "state": "MS",
+  "city": "Scooba",
+  "country": "United States",
+  "description": "Provides vocational training in welding, automotive technology, and construction.",
+  "website": "https://www.eastms.edu/"
+},
+{
+  "title": "Hinds Community College",
+  "state": "MS",
+  "city": "Raymond",
+  "country": "United States",
+  "description": "Offers technical programs including welding, HVAC, and automotive repair.",
+  "website": "https://www.hindscc.edu/"
+},
+{
+  "title": "State Fair Community College",
+  "state": "MO",
+  "city": "Sedalia",
+  "country": "United States",
+  "description": "Provides programs in welding, automotive technology, and HVAC.",
+  "website": "https://www.sfccmo.edu/"
+},
+{
+  "title": "Jefferson College",
+  "state": "MO",
+  "city": "Hillsboro",
+  "country": "United States",
+  "description": "Offers vocational training in welding, automotive technology, and construction.",
+  "website": "https://www.jeffco.edu/"
+},
+{
+  "title": "Metropolitan Community College",
+  "state": "MO",
+  "city": "Kansas City",
+  "country": "United States",
+  "description": "Provides technical programs including welding, HVAC, and automotive repair.",
+  "website": "https://www.mcckc.edu/"
+},
+
+{
+  "title": "Flathead Valley Community College",
+  "state": "MT",
+  "city": "Kalispell",
+  "country": "United States",
+  "description": "Offers programs in welding, automotive technology, and HVAC.",
+  "website": "https://www.fvcc.edu/"
+},
+{
+  "title": "Miles Community College",
+  "state": "MT",
+  "city": "Miles City",
+  "country": "United States",
+  "description": "Provides vocational training in welding, automotive technology, and construction.",
+  "website": "https://www.milescc.edu/"
+},
+{
+  "title": "Helena College University of Montana",
+  "state": "MT",
+  "city": "Helena",
+  "country": "United States",
+  "description": "Offers technical programs including welding, HVAC, and automotive repair.",
+  "website": "https://helenacollege.edu/"
+},
+{
+  "title": "Burlington County College",
+  "state": "NJ",
+  "city": "Pemberton",
+  "country": "United States",
+  "description": "Provides vocational programs in welding, automotive technology, and HVAC.",
+  "website": "https://www.burlingtoncountycllege.edu/"
+},
+{
+  "title": "Rowan College at Burlington County",
+  "state": "NJ",
+  "city": "Mount Laurel",
+  "country": "United States",
+  "description": "Offers programs in welding, automotive technology, and industrial maintenance.",
+  "website": "https://www.rcbc.edu/"
+},
+{
+  "title": "County College of Morris",
+  "state": "NJ",
+  "city": "Randolph",
+  "country": "United States",
+  "description": "Provides vocational training in welding, HVAC, and automotive repair.",
+  "website": "https://www.ccm.edu/"
+},
+{
+  "title": "Central New Mexico Community College",
+  "state": "NM",
+  "city": "Albuquerque",
+  "country": "United States",
+  "description": "Offers programs in welding, automotive technology, and HVAC.",
+  "website": "https://www.cnm.edu/"
+},
+{
+  "title": "Santa Fe Community College",
+  "state": "NM",
+  "city": "Santa Fe",
+  "country": "United States",
+  "description": "Provides vocational training in welding, automotive technology, and construction.",
+  "website": "https://www.sfcc.edu/"
+},
+{
+  "title": "Clovis Community College",
+  "state": "NM",
+  "city": "Clovis",
+  "country": "United States",
+  "description": "Offers technical programs including welding, HVAC, and automotive repair.",
+  "website": "https://www.clovis.edu/"
+},
+{
+  "title": "Central Carolina Community College",
+  "state": "NC",
+  "city": "Sanford",
+  "country": "United States",
+  "description": "Provides vocational programs in welding, automotive technology, and HVAC.",
+  "website": "https://www.cccc.edu/"
+},
+{
+  "title": "Wake Technical Community College",
+  "state": "NC",
+  "city": "Raleigh",
+  "country": "United States",
+  "description": "Offers programs in welding, automotive technology, and industrial maintenance.",
+  "website": "https://www.waketech.edu/"
+},
+{
+  "title": "Guilford Technical Community College",
+  "state": "NC",
+  "city": "Jamestown",
+  "country": "United States",
+  "description": "Provides vocational training in welding, HVAC, and automotive repair.",
+  "website": "https://www.gtcc.edu/"
+},
+
+{
+  "title": "North Dakota State College of Science",
+  "state": "ND",
+  "city": "Wahpeton",
+  "country": "United States",
+  "description": "Offers programs in welding, automotive technology, and HVAC.",
+  "website": "https://www.ndscs.edu/"
+},
+{
+  "title": "Williston State College",
+  "state": "ND",
+  "city": "Williston",
+  "country": "United States",
+  "description": "Provides vocational training in welding, automotive technology, and construction.",
+  "website": "https://www.willistonstate.edu/"
+},
+{
+  "title": "Cuyahoga Community College",
+  "state": "OH",
+  "city": "Cleveland",
+  "country": "United States",
+  "description": "Offers programs in welding, automotive technology, and HVAC.",
+  "website": "https://www.tri-c.edu/"
+},
+{
+  "title": "Owens Community College",
+  "state": "OH",
+  "city": "Toledo",
+  "country": "United States",
+  "description": "Provides vocational programs in welding, automotive technology, and construction.",
+  "website": "https://www.owens.edu/"
+},
+{
+  "title": "Lorain County Community College",
+  "state": "OH",
+  "city": "Elyria",
+  "country": "United States",
+  "description": "Offers technical programs including welding, HVAC, and automotive repair.",
+  "website": "https://www.lorainccc.edu/"
+},
+{
+  "title": "Tulsa Technology Center",
+  "state": "OK",
+  "city": "Tulsa",
+  "country": "United States",
+  "description": "Provides vocational training in welding, automotive technology, and construction trades.",
+  "website": "https://www.tulsatech.edu/"
+},
+{
+  "title": "Oklahoma State University Institute of Technology",
+  "state": "OK",
+  "city": "Okmulgee",
+  "country": "United States",
+  "description": "Offers programs in welding, HVAC, automotive technology, and industrial maintenance.",
+  "website": "https://www.osuit.edu/"
+},
+{
+  "title": "Clackamas Community College",
+  "state": "OR",
+  "city": "Oregon City",
+  "country": "United States",
+  "description": "Offers programs in welding, automotive technology, and HVAC.",
+  "website": "https://www.clackamas.edu/"
+},
+{
+  "title": "Portland Community College",
+  "state": "OR",
+  "city": "Portland",
+  "country": "United States",
+  "description": "Provides vocational training in welding, automotive technology, and construction.",
+  "website": "https://www.pcc.edu/"
+},
+{
+  "title": "Lane Community College",
+  "state": "OR",
+  "city": "Eugene",
+  "country": "United States",
+  "description": "Offers technical programs including welding, HVAC, and automotive repair.",
+  "website": "https://www.lanecc.edu/"
+},
+{
+  "title": "Community College of Allegheny County",
+  "state": "PA",
+  "city": "Pittsburgh",
+  "country": "United States",
+  "description": "Offers programs in welding, automotive technology, and HVAC.",
+  "website": "https://www.ccac.edu/"
+},
+{
+  "title": "Harrisburg Area Community College",
+  "state": "PA",
+  "city": "Harrisburg",
+  "country": "United States",
+  "description": "Provides vocational training in welding, automotive technology, and construction.",
+  "website": "https://www.hacc.edu/"
+},
+{
+  "title": "Reading Area Community College",
+  "state": "PA",
+  "city": "Reading",
+  "country": "United States",
+  "description": "Offers technical programs including welding, HVAC, and automotive repair.",
+  "website": "https://www.racc.edu/"
+},
+{
+  "title": "Rhode Island College",
+  "state": "RI",
+  "city": "Providence",
+  "country": "United States",
+  "description": "Provides vocational training in welding, automotive technology, and HVAC.",
+  "website": "https://www.ric.edu/"
+},
+{
+  "title": "Community College of Rhode Island",
+  "state": "RI",
+  "city": "Warwick",
+  "country": "United States",
+  "description": "Offers programs in welding, automotive technology, and construction trades.",
+  "website": "https://www.ccri.edu/"
+},
+{
+  "title": "Spartanburg Community College",
+  "state": "SC",
+  "city": "Spartanburg",
+  "country": "United States",
+  "description": "Offers programs in welding, automotive technology, and HVAC.",
+  "website": "https://www.sccsc.edu/"
+},
+{
+  "title": "Piedmont Technical College",
+  "state": "SC",
+  "city": "Greenwood",
+  "country": "United States",
+  "description": "Provides vocational training in welding, automotive technology, and construction.",
+  "website": "https://www.ptc.edu/"
+},
+{
+  "title": "Trident Technical College",
+  "state": "SC",
+  "city": "Charleston",
+  "country": "United States",
+  "description": "Offers technical programs including welding, HVAC, and automotive repair.",
+  "website": "https://www.tridenttech.edu/"
+},
+{
+  "title": "Mitchell Technical College",
+  "state": "SD",
+  "city": "Mitchell",
+  "country": "United States",
+  "description": "Provides vocational training in welding, automotive technology, and construction.",
+  "website": "https://www.mitchelltech.edu/"
+},
+{
+  "title": "Southeastern Technical Institute",
+  "state": "SD",
+  "city": "Sioux Falls",
+  "country": "United States",
+  "description": "Offers programs in welding, automotive technology, and HVAC.",
+  "website": "https://www.southeasterntech.edu/"
+},
+{
+  "title": "Western Dakota Technical College",
+  "state": "SD",
+  "city": "Rapid City",
+  "country": "United States",
+  "description": "Provides technical programs including welding, HVAC, and automotive repair.",
+  "website": "https://www.wdt.edu/"
+},
+{
+  "title": "Nashville State Community College",
+  "state": "TN",
+  "city": "Nashville",
+  "country": "United States",
+  "description": "Offers programs in welding, automotive technology, and HVAC.",
+  "website": "https://www.nscc.edu/"
+},
+{
+  "title": "Chattanooga State Community College",
+  "state": "TN",
+  "city": "Chattanooga",
+  "country": "United States",
+  "description": "Provides vocational training in welding, automotive technology, and construction.",
+  "website": "https://www.chattanoogastate.edu/"
+},
+{
+  "title": "Volunteer State Community College",
+  "state": "TN",
+  "city": "Gallatin",
+  "country": "United States",
+  "description": "Offers technical programs including welding, HVAC, and automotive repair.",
+  "website": "https://www.volstate.edu/"
+},
+{
+  "title": "Lone Star College",
+  "state": "TX",
+  "city": "The Woodlands",
+  "country": "United States",
+  "description": "Provides vocational training in welding, automotive technology, and HVAC.",
+  "website": "https://www.lonestar.edu/"
+},
+{
+  "title": "Tarrant County College",
+  "state": "TX",
+  "city": "Fort Worth",
+  "country": "United States",
+  "description": "Offers programs in welding, automotive technology, and construction trades.",
+  "website": "https://www.tccd.edu/"
+},
+{
+  "title": "Austin Community College",
+  "state": "TX",
+  "city": "Austin",
+  "country": "United States",
+  "description": "Provides technical programs including welding, HVAC, and automotive repair.",
+  "website": "https://www.austincc.edu/"
+},
+{
+  "title": "Salt Lake Community College",
+  "state": "UT",
+  "city": "Salt Lake City",
+  "country": "United States",
+  "description": "Offers programs in welding, automotive technology, and HVAC.",
+  "website": "https://www.slcc.edu/"
+},
+{
+  "title": "Davis Technical College",
+  "state": "UT",
+  "city": "Kaysville",
+  "country": "United States",
+  "description": "Provides vocational training in welding, automotive technology, and construction trades.",
+  "website": "https://www.davistech.edu/"
+},
+{
+  "title": "Bridgerland Technical College",
+  "state": "UT",
+  "city": "Logan",
+  "country": "United States",
+  "description": "Offers technical programs including welding, HVAC, and automotive repair.",
+  "website": "https://www.bridgerlandtech.edu/"
+},
+{
+  "title": "Vermont Technical College",
+  "state": "VT",
+  "city": "Randolph Center",
+  "country": "United States",
+  "description": "Provides vocational training in welding, automotive technology, and construction.",
+  "website": "https://www.vtc.edu/"
+},
+{
+  "title": "Community College of Vermont",
+  "state": "VT",
+  "city": "Multiple Locations",
+  "country": "United States",
+  "description": "Offers programs in welding, automotive technology, and HVAC.",
+  "website": "https://www.ccv.edu/"
+},
+{
+  "title": "Northern Virginia Community College",
+  "state": "VA",
+  "city": "Annandale",
+  "country": "United States",
+  "description": "Offers programs in welding, automotive technology, and HVAC.",
+  "website": "https://www.nvcc.edu/"
+},
+{
+  "title": "Virginia Western Community College",
+  "state": "VA",
+  "city": "Roanoke",
+  "country": "United States",
+  "description": "Provides vocational training in welding, automotive technology, and construction.",
+  "website": "https://www.virginiawestern.edu/"
+},
+{
+  "title": "Blue Ridge Community College",
+  "state": "VA",
+  "city": "Weyers Cave",
+  "country": "United States",
+  "description": "Offers technical programs including welding, HVAC, and automotive repair.",
+  "website": "https://www.brcc.edu/"
+},
+{
+  "title": "Green River College",
+  "state": "WA",
+  "city": "Auburn",
+  "country": "United States",
+  "description": "Provides vocational training in welding, automotive technology, and construction.",
+  "website": "https://www.greenriver.edu/"
+},
+{
+  "title": "Seattle Central College",
+  "state": "WA",
+  "city": "Seattle",
+  "country": "United States",
+  "description": "Offers programs in welding, automotive technology, and HVAC.",
+  "website": "https://seattlecentral.edu/"
+},
+{
+  "title": "South Seattle College",
+  "state": "WA",
+  "city": "Seattle",
+  "country": "United States",
+  "description": "Provides technical programs including welding, HVAC, and automotive repair.",
+  "website": "https://southseattle.edu/"
+},
+{
+  "title": "Pierpont Community and Technical College",
+  "state": "WV",
+  "city": "Fairmont",
+  "country": "United States",
+  "description": "Offers programs in welding, automotive technology, and HVAC.",
+  "website": "https://www.pierpont.edu/"
+},
+{
+  "title": "BridgeValley Community and Technical College",
+  "state": "WV",
+  "city": "South Charleston",
+  "country": "United States",
+  "description": "Provides vocational training in welding, automotive technology, and construction.",
+  "website": "https://www.bridgevalley.edu/"
+},
+{
+  "title": "West Virginia Northern Community College",
+  "state": "WV",
+  "city": "Wheeling",
+  "country": "United States",
+  "description": "Offers technical programs including welding, HVAC, and automotive repair.",
+  "website": "https://www.wvncc.edu/"
+},
+{
+  "title": "Laramie County Community College",
+  "state": "WY",
+  "city": "Cheyenne",
+  "country": "United States",
+  "description": "Provides vocational training in welding, automotive technology, and construction.",
+  "website": "https://lccc.wy.edu/"
+},
+{
+  "title": "Central Wyoming College",
+  "state": "WY",
+  "city": "Riverton",
+  "country": "United States",
+  "description": "Offers programs in welding, automotive technology, and HVAC.",
+  "website": "https://www.cwc.edu/"
+}
+]
+
+
+
+
+
+
+
+

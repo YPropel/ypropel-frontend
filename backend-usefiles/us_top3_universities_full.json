@@ -1,0 +1,874 @@
+[
+  {
+    "title": "University of Alabama",
+    "state": "AL",
+    "country": "United States",
+    "description": "Known for Business, Engineering, and Law programs."
+  },
+  {
+    "title": "Auburn University",
+    "state": "AL",
+    "country": "United States",
+    "description": "Strong programs in Engineering, Agriculture, and Veterinary Medicine."
+  },
+  {
+    "title": "University of South Alabama",
+    "state": "AL",
+    "country": "United States",
+    "description": "Famous for Health Sciences, Business, and Education."
+  },
+  {
+    "title": "University of Alaska Fairbanks",
+    "state": "AK",
+    "country": "United States",
+    "description": "Known for Arctic Biology, Engineering, and Environmental Sciences."
+  },
+  {
+    "title": "Alaska Pacific University",
+    "state": "AK",
+    "country": "United States",
+    "description": "Strong in Environmental Studies, Human Services, and Business."
+  },
+  {
+    "title": "University of Alaska Anchorage",
+    "state": "AK",
+    "country": "United States",
+    "description": "Programs in Health Sciences, Business, and Education."
+  },
+  {
+    "title": "Arizona State University",
+    "state": "AZ",
+    "country": "United States",
+    "description": "Renowned for Business, Engineering, and Journalism."
+  },
+  {
+    "title": "University of Arizona",
+    "state": "AZ",
+    "country": "United States",
+    "description": "Strong in Astronomy, Medicine, and Environmental Science."
+  },
+  {
+    "title": "Northern Arizona University",
+    "state": "AZ",
+    "country": "United States",
+    "description": "Known for Forestry, Education, and Health Sciences."
+  },
+  {
+    "title": "University of Arkansas",
+    "state": "AR",
+    "country": "United States",
+    "description": "Strong in Business, Engineering, and Agriculture."
+  },
+
+    {
+    "title": "Arkansas State University",
+    "state": "AR",
+    "country": "United States",
+    "description": "Known for Business, Nursing, and Engineering programs."
+  },
+  {
+    "title": "University of Central Arkansas",
+    "state": "AR",
+    "country": "United States",
+    "description": "Strong in Education, Business, and Health Sciences."
+  },
+  {
+    "title": "Hendrix College",
+    "state": "AR",
+    "country": "United States",
+    "description": "Liberal arts college with strengths in Humanities and Sciences."
+  },
+  {
+    "title": "University of California, Berkeley",
+    "state": "CA",
+    "country": "United States",
+    "description": "Well-known for Environmental Science, Engineering, Business, and Law."
+  },
+  {
+    "title": "Stanford University",
+    "state": "CA",
+    "country": "United States",
+    "description": "Renowned for strengths in Computer Science, Engineering, Business, and Entrepreneurship."
+  },
+  {
+    "title": "University of Southern California",
+    "state": "CA",
+    "country": "United States",
+    "description": "Famous for Film, Business, Engineering, and Communications."
+  },
+  {
+    "title": "University of Colorado Boulder",
+    "state": "CO",
+    "country": "United States",
+    "description": "Known for Aerospace Engineering, Environmental Law, and Business."
+  },
+  {
+    "title": "Colorado State University",
+    "state": "CO",
+    "country": "United States",
+    "description": "Strong in Veterinary Medicine, Agriculture, and Engineering."
+  },
+  {
+    "title": "University of Denver",
+    "state": "CO",
+    "country": "United States",
+    "description": "Programs in Business, Law, and International Studies."
+  },
+  {
+    "title": "University of Connecticut",
+    "state": "CT",
+    "country": "United States",
+    "description": "Known for Pharmacy, Business, and Engineering."
+  },
+    {
+    "title": "Yale University",
+    "state": "CT",
+    "country": "United States",
+    "description": "Renowned for Law, Drama, Medicine, and Environmental Studies."
+  },
+  {
+    "title": "University of Delaware",
+    "state": "DE",
+    "country": "United States",
+    "description": "Known for Chemical Engineering, Business, and Biological Sciences."
+  },
+  {
+    "title": "Wesley College",
+    "state": "DE",
+    "country": "United States",
+    "description": "Strong in Health Sciences, Education, and Business."
+  },
+  {
+    "title": "University of Florida",
+    "state": "FL",
+    "country": "United States",
+    "description": "Strong programs in Engineering, Business, Law, and Health Sciences."
+  },
+  {
+    "title": "Florida State University",
+    "state": "FL",
+    "country": "United States",
+    "description": "Known for Criminology, Business, and Film."
+  },
+  {
+    "title": "University of Miami",
+    "state": "FL",
+    "country": "United States",
+    "description": "Famous for Marine Science, Medicine, and Music."
+  },
+  {
+    "title": "Emory University",
+    "state": "GA",
+    "country": "United States",
+    "description": "Renowned for Medicine, Law, and Business."
+  },
+  {
+    "title": "Georgia Institute of Technology",
+    "state": "GA",
+    "country": "United States",
+    "description": "Known for Engineering, Computer Science, and Business."
+  },
+  {
+    "title": "University of Georgia",
+    "state": "GA",
+    "country": "United States",
+    "description": "Strong in Agriculture, Law, and Education."
+  },
+  {
+    "title": "University of Hawaii at Manoa",
+    "state": "HI",
+    "country": "United States",
+    "description": "Known for Marine Biology, Pacific Studies, and Astronomy."
+  },
+
+  {
+    "title": "Hawai'i Pacific University",
+    "state": "HI",
+    "country": "United States",
+    "description": "Known for Business, Marine Science, and International Relations."
+  },
+  {
+    "title": "Chaminade University of Honolulu",
+    "state": "HI",
+    "country": "United States",
+    "description": "Strong programs in Nursing, Education, and Criminal Justice."
+  },
+  {
+    "title": "University of Idaho",
+    "state": "ID",
+    "country": "United States",
+    "description": "Known for Agricultural Science, Engineering, and Business."
+  },
+  {
+    "title": "Boise State University",
+    "state": "ID",
+    "country": "United States",
+    "description": "Strong in Business, Education, and Health Sciences."
+  },
+  {
+    "title": "Lewis-Clark State College",
+    "state": "ID",
+    "country": "United States",
+    "description": "Known for Nursing, Education, and Criminal Justice."
+  },
+  {
+    "title": "University of Illinois Urbana-Champaign",
+    "state": "IL",
+    "country": "United States",
+    "description": "Renowned for Engineering, Computer Science, and Business."
+  },
+  {
+    "title": "Northwestern University",
+    "state": "IL",
+    "country": "United States",
+    "description": "Known for Journalism, Business, Engineering, and Law."
+  },
+  {
+    "title": "University of Chicago",
+    "state": "IL",
+    "country": "United States",
+    "description": "Known for Economics, Sociology, Law, and Humanities."
+  },
+  {
+    "title": "Indiana University Bloomington",
+    "state": "IN",
+    "country": "United States",
+    "description": "Strong programs in Business, Music, and Informatics."
+  },
+  {
+    "title": "Purdue University",
+    "state": "IN",
+    "country": "United States",
+    "description": "Known for Engineering, Agriculture, and Pharmacy."
+  },
+  {
+    "title": "University of Notre Dame",
+    "state": "IN",
+    "country": "United States",
+    "description": "Renowned for Business, Law, and Theology."
+  },
+  {
+    "title": "University of Iowa",
+    "state": "IA",
+    "country": "United States",
+    "description": "Known for Writing, Medicine, and Engineering."
+  },
+  {
+    "title": "Iowa State University",
+    "state": "IA",
+    "country": "United States",
+    "description": "Strong programs in Agriculture, Engineering, and Veterinary Medicine."
+  },
+  {
+    "title": "Grinnell College",
+    "state": "IA",
+    "country": "United States",
+    "description": "Liberal arts college famous for Humanities and Sciences."
+  },
+  {
+    "title": "University of Kansas",
+    "state": "KS",
+    "country": "United States",
+    "description": "Known for Pharmacy, Engineering, and Journalism."
+  },
+  {
+    "title": "Kansas State University",
+    "state": "KS",
+    "country": "United States",
+    "description": "Strong in Agriculture, Engineering, and Veterinary Medicine."
+  },
+  {
+    "title": "Wichita State University",
+    "state": "KS",
+    "country": "United States",
+    "description": "Known for Business, Engineering, and Aerospace."
+  },
+  {
+    "title": "University of Kentucky",
+    "state": "KY",
+    "country": "United States",
+    "description": "Strong in Medicine, Engineering, and Business."
+  },
+  {
+    "title": "Western Kentucky University",
+    "state": "KY",
+    "country": "United States",
+    "description": "Known for Education, Health Sciences, and Business."
+  },
+  {
+    "title": "Bellarmine University",
+    "state": "KY",
+    "country": "United States",
+    "description": "Strong programs in Nursing, Education, and Business."
+  },
+  {
+    "title": "Louisiana State University",
+    "state": "LA",
+    "country": "United States",
+    "description": "Known for Engineering, Agriculture, and Business."
+  },
+  {
+    "title": "Tulane University",
+    "state": "LA",
+    "country": "United States",
+    "description": "Renowned for Law, Medicine, and Public Health."
+  },
+  {
+    "title": "University of New Orleans",
+    "state": "LA",
+    "country": "United States",
+    "description": "Strong programs in Business, Engineering, and Education."
+  },
+  {
+    "title": "University of Maine",
+    "state": "ME",
+    "country": "United States",
+    "description": "Known for Marine Sciences, Forestry, and Engineering."
+  },
+  {
+    "title": "Bowdoin College",
+    "state": "ME",
+    "country": "United States",
+    "description": "Liberal arts college with strengths in Humanities and Sciences."
+  },
+  {
+    "title": "Colby College",
+    "state": "ME",
+    "country": "United States",
+    "description": "Known for Environmental Studies, Economics, and History."
+  },
+  {
+    "title": "University of Maryland",
+    "state": "MD",
+    "country": "United States",
+    "description": "Renowned for Engineering, Business, and Public Policy."
+  },
+  {
+    "title": "Johns Hopkins University",
+    "state": "MD",
+    "country": "United States",
+    "description": "World leader in Medicine, Public Health, Engineering, and International Studies."
+  },
+  {
+    "title": "Towson University",
+    "state": "MD",
+    "country": "United States",
+    "description": "Strong in Education, Business, and Health Professions."
+  },
+  {
+    "title": "Boston University",
+    "state": "MA",
+    "country": "United States",
+    "description": "Known for Communications, Business, and Health Sciences."
+  },
+  {
+    "title": "Harvard University",
+    "state": "MA",
+    "country": "United States",
+    "description": "Famous for programs in Law, Business, Medicine, and Political Science."
+  },
+  {
+    "title": "Massachusetts Institute of Technology",
+    "state": "MA",
+    "country": "United States",
+    "description": "Known for Engineering, Computer Science, Physics, and Economics."
+  },
+  {
+    "title": "University of Michigan",
+    "state": "MI",
+    "country": "United States",
+    "description": "Renowned for Engineering, Business, Medicine, and Social Sciences."
+  },
+  {
+    "title": "Michigan State University",
+    "state": "MI",
+    "country": "United States",
+    "description": "Known for Agriculture, Education, and Veterinary Medicine."
+  },
+  {
+    "title": "Wayne State University",
+    "state": "MI",
+    "country": "United States",
+    "description": "Strong programs in Medicine, Law, and Business."
+  },
+  {
+    "title": "University of Minnesota",
+    "state": "MN",
+    "country": "United States",
+    "description": "Known for Engineering, Medicine, and Environmental Science."
+  },
+  {
+    "title": "Carleton College",
+    "state": "MN",
+    "country": "United States",
+    "description": "Liberal arts college with strengths in Humanities and Sciences."
+  },
+  {
+    "title": "Macalester College",
+    "state": "MN",
+    "country": "United States",
+    "description": "Known for International Relations, Economics, and Environmental Studies."
+  },
+  {
+    "title": "University of Mississippi",
+    "state": "MS",
+    "country": "United States",
+    "description": "Known for Business, Medicine, and Law."
+  },
+  {
+    "title": "Mississippi State University",
+    "state": "MS",
+    "country": "United States",
+    "description": "Strong in Engineering, Agriculture, and Veterinary Medicine."
+  },
+  {
+    "title": "University of Southern Mississippi",
+    "state": "MS",
+    "country": "United States",
+    "description": "Known for Education, Business, and Marine Science."
+  },
+  {
+    "title": "University of Missouri",
+    "state": "MO",
+    "country": "United States",
+    "description": "Renowned for Journalism, Medicine, and Law."
+  },
+  {
+    "title": "Washington University in St. Louis",
+    "state": "MO",
+    "country": "United States",
+    "description": "Known for Medicine, Law, Business, and Social Work."
+  },
+  {
+    "title": "Missouri University of Science and Technology",
+    "state": "MO",
+    "country": "United States",
+    "description": "Strong in Engineering, Computer Science, and Sciences."
+  },
+  {
+    "title": "Montana State University",
+    "state": "MT",
+    "country": "United States",
+    "description": "Known for Engineering, Agriculture, and Health Professions."
+  },
+  {
+    "title": "University of Montana",
+    "state": "MT",
+    "country": "United States",
+    "description": "Strong programs in Forestry, Wildlife Biology, and Health Sciences."
+  },
+  {
+    "title": "Carroll College",
+    "state": "MT",
+    "country": "United States",
+    "description": "Liberal arts college known for Sciences and Humanities."
+  },
+  {
+    "title": "University of Nebraska–Lincoln",
+    "state": "NE",
+    "country": "United States",
+    "description": "Known for Agriculture, Engineering, and Business."
+  },
+  {
+    "title": "Creighton University",
+    "state": "NE",
+    "country": "United States",
+    "description": "Strong in Health Sciences, Law, and Business."
+  },
+  {
+    "title": "University of Nebraska at Omaha",
+    "state": "NE",
+    "country": "United States",
+    "description": "Known for Business, Public Affairs, and Education."
+  },
+  {
+    "title": "University of Nevada, Reno",
+    "state": "NV",
+    "country": "United States",
+    "description": "Strong programs in Engineering, Business, and Environmental Science."
+  },
+  {
+    "title": "University of Nevada, Las Vegas",
+    "state": "NV",
+    "country": "United States",
+    "description": "Known for Hospitality, Business, and Fine Arts."
+  },
+  {
+    "title": "Nevada State College",
+    "state": "NV",
+    "country": "United States",
+    "description": "Strong in Education, Health Sciences, and Social Work."
+  },
+  {
+    "title": "Dartmouth College",
+    "state": "NH",
+    "country": "United States",
+    "description": "Ivy League school known for Liberal Arts, Medicine, and Business."
+  },
+  {
+    "title": "University of New Hampshire",
+    "state": "NH",
+    "country": "United States",
+    "description": "Known for Environmental Science, Business, and Engineering."
+  },
+  {
+    "title": "Keene State College",
+    "state": "NH",
+    "country": "United States",
+    "description": "Strong in Education, Business, and Arts."
+  },
+  {
+    "title": "Princeton University",
+    "state": "NJ",
+    "country": "United States",
+    "description": "Strong programs in Mathematics, Physics, Public Affairs, and Humanities."
+  },
+  {
+    "title": "Rutgers University",
+    "state": "NJ",
+    "country": "United States",
+    "description": "Known for Business, Pharmacy, and Engineering."
+  },
+  {
+    "title": "Stevens Institute of Technology",
+    "state": "NJ",
+    "country": "United States",
+    "description": "Renowned for Engineering, Computer Science, and Business."
+  },
+  {
+    "title": "Columbia University",
+    "state": "NY",
+    "country": "United States",
+    "description": "Known for Journalism, Business, Law, and Medicine."
+  },
+  {
+    "title": "New York University",
+    "state": "NY",
+    "country": "United States",
+    "description": "Famous for Film, Business, Law, and Arts."
+  },
+  {
+    "title": "Cornell University",
+    "state": "NY",
+    "country": "United States",
+    "description": "Known for Agriculture, Hotel Management, Engineering, and Veterinary Medicine."
+  },
+  {
+    "title": "Syracuse University",
+    "state": "NY",
+    "country": "United States",
+    "description": "Strong in Communications, Business, and Public Affairs."
+  },
+  {
+    "title": "University at Buffalo",
+    "state": "NY",
+    "country": "United States",
+    "description": "Known for Medicine, Engineering, and Law."
+  },
+  {
+    "title": "Rensselaer Polytechnic Institute",
+    "state": "NY",
+    "country": "United States",
+    "description": "Renowned for Engineering, Computer Science, and Sciences."
+  },
+  {
+    "title": "Duke University",
+    "state": "NC",
+    "country": "United States",
+    "description": "Strong programs in Medicine, Law, Public Policy, and Business."
+  },
+  {
+    "title": "University of North Carolina at Chapel Hill",
+    "state": "NC",
+    "country": "United States",
+    "description": "Known for Medicine, Public Health, and Business."
+  },
+  {
+    "title": "North Carolina State University",
+    "state": "NC",
+    "country": "United States",
+    "description": "Renowned for Engineering, Textiles, and Agriculture."
+  },
+  {
+    "title": "University of Cincinnati",
+    "state": "OH",
+    "country": "United States",
+    "description": "Strong in Health Sciences, Engineering, and Architecture."
+  },
+  {
+    "title": "Ohio State University",
+    "state": "OH",
+    "country": "United States",
+    "description": "Known for Business, Engineering, and Agriculture."
+  },
+  {
+    "title": "Case Western Reserve University",
+    "state": "OH",
+    "country": "United States",
+    "description": "Renowned for Medicine, Law, and Engineering."
+  },
+  {
+    "title": "Miami University",
+    "state": "OH",
+    "country": "United States",
+    "description": "Strong programs in Business, Education, and Health Sciences."
+  },
+  {
+    "title": "Kent State University",
+    "state": "OH",
+    "country": "United States",
+    "description": "Known for Fashion Design, Business, and Nursing."
+  },
+  {
+    "title": "University of Oklahoma",
+    "state": "OK",
+    "country": "United States",
+    "description": "Known for Petroleum Engineering, Meteorology, and Law."
+  },
+  {
+    "title": "Oklahoma State University",
+    "state": "OK",
+    "country": "United States",
+    "description": "Strong in Agriculture, Engineering, and Business."
+  },
+  {
+    "title": "University of Tulsa",
+    "state": "OK",
+    "country": "United States",
+    "description": "Known for Petroleum Engineering, Law, and Business."
+  },
+  {
+    "title": "University of Oregon",
+    "state": "OR",
+    "country": "United States",
+    "description": "Known for Environmental Science, Journalism, and Business."
+  },
+  {
+    "title": "Oregon State University",
+    "state": "OR",
+    "country": "United States",
+    "description": "Strong programs in Forestry, Engineering, and Marine Sciences."
+  },
+  {
+    "title": "Portland State University",
+    "state": "OR",
+    "country": "United States",
+    "description": "Known for Urban Planning, Business, and Engineering."
+  },
+  {
+    "title": "University of Pennsylvania",
+    "state": "PA",
+    "country": "United States",
+    "description": "Famous for Business, Medicine, Law, and Social Sciences."
+  },
+  {
+    "title": "Pennsylvania State University",
+    "state": "PA",
+    "country": "United States",
+    "description": "Known for Engineering, Business, and Agriculture."
+  },
+  {
+    "title": "University of Pittsburgh",
+    "state": "PA",
+    "country": "United States",
+    "description": "Renowned for Medicine, Engineering, and Philosophy."
+  },
+  {
+    "title": "Lehigh University",
+    "state": "PA",
+    "country": "United States",
+    "description": "Strong in Engineering, Business, and Arts."
+  },
+  {
+    "title": "Brown University",
+    "state": "RI",
+    "country": "United States",
+    "description": "Ivy League school known for Liberal Arts, Medicine, and Engineering."
+  },
+  {
+    "title": "University of Rhode Island",
+    "state": "RI",
+    "country": "United States",
+    "description": "Known for Pharmacy, Engineering, and Oceanography."
+  },
+  {
+    "title": "Providence College",
+    "state": "RI",
+    "country": "United States",
+    "description": "Strong programs in Liberal Arts, Business, and Education."
+  },
+  {
+    "title": "Clemson University",
+    "state": "SC",
+    "country": "United States",
+    "description": "Known for Engineering, Business, and Agriculture."
+  },
+  {
+    "title": "University of South Carolina",
+    "state": "SC",
+    "country": "United States",
+    "description": "Strong in Business, Engineering, and Public Health."
+  },
+  {
+    "title": "College of Charleston",
+    "state": "SC",
+    "country": "United States",
+    "description": "Known for Liberal Arts, Business, and Environmental Studies."
+  },
+  {
+    "title": "University of South Dakota",
+    "state": "SD",
+    "country": "United States",
+    "description": "Strong in Law, Business, and Health Sciences."
+  },
+  {
+    "title": "South Dakota State University",
+    "state": "SD",
+    "country": "United States",
+    "description": "Known for Agriculture, Engineering, and Nursing."
+  },
+  {
+    "title": "Augustana University",
+    "state": "SD",
+    "country": "United States",
+    "description": "Liberal arts college known for Education and Sciences."
+  },
+  {
+    "title": "Vanderbilt University",
+    "state": "TN",
+    "country": "United States",
+    "description": "Renowned for Medicine, Education, and Business."
+  },
+  {
+    "title": "University of Tennessee, Knoxville",
+    "state": "TN",
+    "country": "United States",
+    "description": "Known for Engineering, Agriculture, and Veterinary Medicine."
+  },
+  {
+    "title": "Middle Tennessee State University",
+    "state": "TN",
+    "country": "United States",
+    "description": "Strong programs in Recording Industry, Business, and Education."
+  },
+  {
+    "title": "University of Texas at Austin",
+    "state": "TX",
+    "country": "United States",
+    "description": "Strong programs in Engineering, Business, Law, and Architecture."
+  },
+  {
+    "title": "Texas A&M University",
+    "state": "TX",
+    "country": "United States",
+    "description": "Known for Engineering, Agriculture, and Veterinary Medicine."
+  },
+  {
+    "title": "Rice University",
+    "state": "TX",
+    "country": "United States",
+    "description": "Renowned for Engineering, Business, and Natural Sciences."
+  },
+  {
+    "title": "Brigham Young University",
+    "state": "UT",
+    "country": "United States",
+    "description": "Known for Business, Engineering, and Humanities."
+  },
+  {
+    "title": "University of Utah",
+    "state": "UT",
+    "country": "United States",
+    "description": "Strong in Medicine, Engineering, and Computer Science."
+  },
+  {
+    "title": "Utah State University",
+    "state": "UT",
+    "country": "United States",
+    "description": "Known for Agriculture, Education, and Engineering."
+  },
+  {
+    "title": "University of Vermont",
+    "state": "VT",
+    "country": "United States",
+    "description": "Known for Environmental Science, Medicine, and Social Work."
+  },
+  {
+    "title": "University of Virginia",
+    "state": "VA",
+    "country": "United States",
+    "description": "Renowned for Law, Business, and Humanities."
+  },
+  {
+    "title": "Virginia Tech",
+    "state": "VA",
+    "country": "United States",
+    "description": "Known for Engineering, Architecture, and Business."
+  },
+  {
+    "title": "George Mason University",
+    "state": "VA",
+    "country": "United States",
+    "description": "Strong programs in Economics, Law, and Public Policy."
+  },
+  {
+    "title": "University of Washington",
+    "state": "WA",
+    "country": "United States",
+    "description": "Known for Medicine, Engineering, and Environmental Science."
+  },
+  {
+    "title": "Washington State University",
+    "state": "WA",
+    "country": "United States",
+    "description": "Strong in Agriculture, Veterinary Medicine, and Engineering."
+  },
+  {
+    "title": "Seattle University",
+    "state": "WA",
+    "country": "United States",
+    "description": "Known for Business, Law, and Nursing."
+  },
+  {
+    "title": "West Virginia University",
+    "state": "WV",
+    "country": "United States",
+    "description": "Known for Engineering, Health Sciences, and Business."
+  },
+  {
+    "title": "Marshall University",
+    "state": "WV",
+    "country": "United States",
+    "description": "Strong in Business, Education, and Health Sciences."
+  },
+  {
+    "title": "University of Wisconsin–Madison",
+    "state": "WI",
+    "country": "United States",
+    "description": "Renowned for Biology, Engineering, Business, and Environmental Studies."
+  },
+  {
+    "title": "Milwaukee School of Engineering",
+    "state": "WI",
+    "country": "United States",
+    "description": "Known for Engineering, Business, and Nursing."
+  },
+  {
+    "title": "University of Wyoming",
+    "state": "WY",
+    "country": "United States",
+    "description": "Strong programs in Engineering, Agriculture, and Natural Resources."
+  },
+  {
+    "title": "Laramie County Community College",
+    "state": "WY",
+    "country": "United States",
+    "description": "Known for Vocational Training, Business, and Health Sciences."
+  },
+  {
+    "title": "Casper College",
+    "state": "WY",
+    "country": "United States",
+    "description": "Strong in Health Sciences, Energy Technology, and Business."
+  }
+]

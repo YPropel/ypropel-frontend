@@ -1,0 +1,731 @@
+[
+  {
+    "title": "Massachusetts Institute of Technology",
+    "state": "MA",
+    "country": "United States",
+    "description": "MIT is a private research university in Cambridge, Massachusetts.",
+    "website": "http://web.mit.edu/",
+    "cover_photo_url": "https://via.placeholder.com/400x200?text=MIT"
+  },
+  {
+    "title": "Harvard University",
+    "state": "MA",
+    "country": "United States",
+    "description": "Harvard is a private Ivy League university in Cambridge, Massachusetts.",
+    "website": "https://www.harvard.edu/",
+    "cover_photo_url": "https://via.placeholder.com/400x200?text=Harvard"
+  },
+  {
+    "title": "Boston University",
+    "state": "MA",
+    "country": "United States",
+    "description": "Boston University is a private research university in Boston, Massachusetts.",
+    "website": "https://www.bu.edu/",
+    "cover_photo_url": "https://via.placeholder.com/400x200?text=Boston+University"
+  },
+  {
+    "title": "Stanford University",
+    "state": "CA",
+    "country": "United States",
+    "description": "Stanford is a private research university near Palo Alto, California.",
+    "website": "https://www.stanford.edu/",
+    "cover_photo_url": "https://via.placeholder.com/400x200?text=Stanford"
+  },
+  {
+    "title": "University of California, Berkeley",
+    "state": "CA",
+    "country": "United States",
+    "description": "UC Berkeley is a public research university in Berkeley, California.",
+    "website": "https://www.berkeley.edu/",
+    "cover_photo_url": "https://via.placeholder.com/400x200?text=UC+Berkeley"
+  },
+  {
+    "title": "University of Southern California",
+    "state": "CA",
+    "country": "United States",
+    "description": "USC is a private research university in Los Angeles, California.",
+    "website": "https://www.usc.edu/",
+    "cover_photo_url": "https://via.placeholder.com/400x200?text=USC"
+  },
+  {
+    "title": "University of Texas at Austin",
+    "state": "TX",
+    "country": "United States",
+    "description": "UT Austin is a public research university in Austin, Texas.",
+    "website": "https://www.utexas.edu/",
+    "cover_photo_url": "https://via.placeholder.com/400x200?text=UT+Austin"
+  },
+  {
+    "title": "Rice University",
+    "state": "TX",
+    "country": "United States",
+    "description": "Rice is a private research university in Houston, Texas.",
+    "website": "https://www.rice.edu/",
+    "cover_photo_url": "https://via.placeholder.com/400x200?text=Rice"
+  },
+  {
+    "title": "Texas A&M University",
+    "state": "TX",
+    "country": "United States",
+    "description": "Texas A&M is a public research university in College Station, Texas.",
+    "website": "https://www.tamu.edu/",
+    "cover_photo_url": "https://via.placeholder.com/400x200?text=Texas+A%26M"
+  }
+,
+  {
+    "title": "Columbia University",
+    "state": "NY",
+    "country": "United States",
+    "description": "Columbia is a private Ivy League university in New York City, New York.",
+    "website": "https://www.columbia.edu/",
+    "cover_photo_url": "https://via.placeholder.com/400x200?text=Columbia"
+  },
+  {
+    "title": "New York University",
+    "state": "NY",
+    "country": "United States",
+    "description": "NYU is a private research university in New York City, New York.",
+    "website": "https://www.nyu.edu/",
+    "cover_photo_url": "https://via.placeholder.com/400x200?text=NYU"
+  },
+  {
+    "title": "Cornell University",
+    "state": "NY",
+    "country": "United States",
+    "description": "Cornell is a private Ivy League university in Ithaca, New York.",
+    "website": "https://www.cornell.edu/",
+    "cover_photo_url": "https://via.placeholder.com/400x200?text=Cornell"
+  },
+  {
+    "title": "University of Florida",
+    "state": "FL",
+    "country": "United States",
+    "description": "UF is a public research university in Gainesville, Florida.",
+    "website": "https://www.ufl.edu/",
+    "cover_photo_url": "https://via.placeholder.com/400x200?text=UF"
+  },
+  {
+    "title": "Florida State University",
+    "state": "FL",
+    "country": "United States",
+    "description": "FSU is a public research university in Tallahassee, Florida.",
+    "website": "https://www.fsu.edu/",
+    "cover_photo_url": "https://via.placeholder.com/400x200?text=FSU"
+  },
+  {
+    "title": "University of Miami",
+    "state": "FL",
+    "country": "United States",
+    "description": "UM is a private research university in Coral Gables, Florida.",
+    "website": "https://welcome.miami.edu/",
+    "cover_photo_url": "https://via.placeholder.com/400x200?text=UM"
+  },
+  {
+    "title": "University of Chicago",
+    "state": "IL",
+    "country": "United States",
+    "description": "UChicago is a private research university in Chicago, Illinois.",
+    "website": "https://www.uchicago.edu/",
+    "cover_photo_url": "https://via.placeholder.com/400x200?text=UChicago"
+  },
+  {
+    "title": "Northwestern University",
+    "state": "IL",
+    "country": "United States",
+    "description": "Northwestern is a private research university in Evanston, Illinois.",
+    "website": "https://www.northwestern.edu/",
+    "cover_photo_url": "https://via.placeholder.com/400x200?text=Northwestern"
+  },
+  {
+    "title": "University of Illinois at Urbana-Champaign",
+    "state": "IL",
+    "country": "United States",
+    "description": "UIUC is a public research university in Urbana and Champaign, Illinois.",
+    "website": "https://illinois.edu/",
+    "cover_photo_url": "https://via.placeholder.com/400x200?text=UIUC"
+  }
+,
+  {
+    "title": "University of Pennsylvania",
+    "state": "PA",
+    "country": "United States",
+    "description": "UPenn is a private Ivy League university in Philadelphia, Pennsylvania.",
+    "website": "https://www.upenn.edu/",
+    "cover_photo_url": "https://via.placeholder.com/400x200?text=UPenn"
+  },
+  {
+    "title": "Penn State University",
+    "state": "PA",
+    "country": "United States",
+    "description": "Penn State is a public research university with campuses throughout Pennsylvania.",
+    "website": "https://www.psu.edu/",
+    "cover_photo_url": "https://via.placeholder.com/400x200?text=Penn+State"
+  },
+  {
+    "title": "Carnegie Mellon University",
+    "state": "PA",
+    "country": "United States",
+    "description": "CMU is a private research university in Pittsburgh, Pennsylvania.",
+    "website": "https://www.cmu.edu/",
+    "cover_photo_url": "https://via.placeholder.com/400x200?text=CMU"
+  },
+  {
+    "title": "Ohio State University",
+    "state": "OH",
+    "country": "United States",
+    "description": "Ohio State is a public research university in Columbus, Ohio.",
+    "website": "https://www.osu.edu/",
+    "cover_photo_url": "https://via.placeholder.com/400x200?text=Ohio+State"
+  },
+  {
+    "title": "Case Western Reserve University",
+    "state": "OH",
+    "country": "United States",
+    "description": "Case Western is a private research university in Cleveland, Ohio.",
+    "website": "https://case.edu/",
+    "cover_photo_url": "https://via.placeholder.com/400x200?text=Case+Western"
+  },
+  {
+    "title": "University of Cincinnati",
+    "state": "OH",
+    "country": "United States",
+    "description": "University of Cincinnati is a public research university in Cincinnati, Ohio.",
+    "website": "https://www.uc.edu/",
+    "cover_photo_url": "https://via.placeholder.com/400x200?text=UC"
+  },
+  {
+    "title": "Emory University",
+    "state": "GA",
+    "country": "United States",
+    "description": "Emory is a private research university in Atlanta, Georgia.",
+    "website": "https://www.emory.edu/",
+    "cover_photo_url": "https://via.placeholder.com/400x200?text=Emory"
+  },
+  {
+    "title": "University of Georgia",
+    "state": "GA",
+    "country": "United States",
+    "description": "UGA is a public research university in Athens, Georgia.",
+    "website": "https://www.uga.edu/",
+    "cover_photo_url": "https://via.placeholder.com/400x200?text=UGA"
+  },
+  {
+    "title": "Georgia Institute of Technology",
+    "state": "GA",
+    "country": "United States",
+    "description": "Georgia Tech is a public research university in Atlanta, Georgia.",
+    "website": "https://www.gatech.edu/",
+    "cover_photo_url": "https://via.placeholder.com/400x200?text=Georgia+Tech"
+  }
+,
+  {
+    "title": "Duke University",
+    "state": "NC",
+    "country": "United States",
+    "description": "Duke is a private research university in Durham, North Carolina.",
+    "website": "https://www.duke.edu/",
+    "cover_photo_url": "https://via.placeholder.com/400x200?text=Duke"
+  },
+  {
+    "title": "University of North Carolina at Chapel Hill",
+    "state": "NC",
+    "country": "United States",
+    "description": "UNC Chapel Hill is a public research university in Chapel Hill, North Carolina.",
+    "website": "https://www.unc.edu/",
+    "cover_photo_url": "https://via.placeholder.com/400x200?text=UNC+Chapel+Hill"
+  },
+  {
+    "title": "North Carolina State University",
+    "state": "NC",
+    "country": "United States",
+    "description": "NC State is a public research university in Raleigh, North Carolina.",
+    "website": "https://www.ncsu.edu/",
+    "cover_photo_url": "https://via.placeholder.com/400x200?text=NC+State"
+  },
+  {
+    "title": "University of Michigan",
+    "state": "MI",
+    "country": "United States",
+    "description": "University of Michigan is a public research university in Ann Arbor, Michigan.",
+    "website": "https://umich.edu/",
+    "cover_photo_url": "https://via.placeholder.com/400x200?text=UMich"
+  },
+  {
+    "title": "Michigan State University",
+    "state": "MI",
+    "country": "United States",
+    "description": "Michigan State is a public research university in East Lansing, Michigan.",
+    "website": "https://msu.edu/",
+    "cover_photo_url": "https://via.placeholder.com/400x200?text=MSU"
+  },
+  {
+    "title": "Wayne State University",
+    "state": "MI",
+    "country": "United States",
+    "description": "Wayne State is a public research university in Detroit, Michigan.",
+    "website": "https://wayne.edu/",
+    "cover_photo_url": "https://via.placeholder.com/400x200?text=Wayne+State"
+  },
+  {
+    "title": "University of Washington",
+    "state": "WA",
+    "country": "United States",
+    "description": "University of Washington is a public research university in Seattle, Washington.",
+    "website": "https://www.washington.edu/",
+    "cover_photo_url": "https://via.placeholder.com/400x200?text=UW"
+  },
+  {
+    "title": "Washington State University",
+    "state": "WA",
+    "country": "United States",
+    "description": "Washington State is a public research university in Pullman, Washington.",
+    "website": "https://wsu.edu/",
+    "cover_photo_url": "https://via.placeholder.com/400x200?text=WSU"
+  },
+  {
+    "title": "Seattle University",
+    "state": "WA",
+    "country": "United States",
+    "description": "Seattle University is a private Jesuit university in Seattle, Washington.",
+    "website": "https://www.seattleu.edu/",
+    "cover_photo_url": "https://via.placeholder.com/400x200?text=Seattle+U"
+  }
+,
+  {
+    "title": "Princeton University",
+    "state": "NJ",
+    "country": "United States",
+    "description": "Princeton is a private Ivy League university in Princeton, New Jersey.",
+    "website": "https://www.princeton.edu/",
+    "cover_photo_url": "https://via.placeholder.com/400x200?text=Princeton"
+  },
+  {
+    "title": "Rutgers University",
+    "state": "NJ",
+    "country": "United States",
+    "description": "Rutgers is a public research university with campuses across New Jersey.",
+    "website": "https://www.rutgers.edu/",
+    "cover_photo_url": "https://via.placeholder.com/400x200?text=Rutgers"
+  },
+  {
+    "title": "New Jersey Institute of Technology",
+    "state": "NJ",
+    "country": "United States",
+    "description": "NJIT is a public research university in Newark, New Jersey.",
+    "website": "https://www.njit.edu/",
+    "cover_photo_url": "https://via.placeholder.com/400x200?text=NJIT"
+  },
+  {
+    "title": "University of Virginia",
+    "state": "VA",
+    "country": "United States",
+    "description": "UVA is a public research university in Charlottesville, Virginia.",
+    "website": "https://www.virginia.edu/",
+    "cover_photo_url": "https://via.placeholder.com/400x200?text=UVA"
+  },
+  {
+    "title": "Virginia Tech",
+    "state": "VA",
+    "country": "United States",
+    "description": "Virginia Tech is a public research university in Blacksburg, Virginia.",
+    "website": "https://vt.edu/",
+    "cover_photo_url": "https://via.placeholder.com/400x200?text=Virginia+Tech"
+  },
+  {
+    "title": "George Mason University",
+    "state": "VA",
+    "country": "United States",
+    "description": "George Mason is a public research university in Fairfax, Virginia.",
+    "website": "https://www.gmu.edu/",
+    "cover_photo_url": "https://via.placeholder.com/400x200?text=George+Mason"
+  },
+  {
+    "title": "Arizona State University",
+    "state": "AZ",
+    "country": "United States",
+    "description": "ASU is a public research university with campuses in the Phoenix metropolitan area.",
+    "website": "https://www.asu.edu/",
+    "cover_photo_url": "https://via.placeholder.com/400x200?text=ASU"
+  },
+  {
+    "title": "University of Arizona",
+    "state": "AZ",
+    "country": "United States",
+    "description": "University of Arizona is a public research university in Tucson, Arizona.",
+    "website": "https://www.arizona.edu/",
+    "cover_photo_url": "https://via.placeholder.com/400x200?text=UArizona"
+  },
+  {
+    "title": "Northern Arizona University",
+    "state": "AZ",
+    "country": "United States",
+    "description": "Northern Arizona University is a public university in Flagstaff, Arizona.",
+    "website": "https://nau.edu/",
+    "cover_photo_url": "https://via.placeholder.com/400x200?text=NAU"
+  }
+,
+  {
+    "title": "University of Colorado Boulder",
+    "state": "CO",
+    "country": "United States",
+    "description": "CU Boulder is a public research university in Boulder, Colorado.",
+    "website": "https://www.colorado.edu/",
+    "cover_photo_url": "https://via.placeholder.com/400x200?text=CU+Boulder"
+  },
+  {
+    "title": "Colorado State University",
+    "state": "CO",
+    "country": "United States",
+    "description": "Colorado State is a public research university in Fort Collins, Colorado.",
+    "website": "https://www.colostate.edu/",
+    "cover_photo_url": "https://via.placeholder.com/400x200?text=Colorado+State"
+  },
+  {
+    "title": "University of Denver",
+    "state": "CO",
+    "country": "United States",
+    "description": "University of Denver is a private research university in Denver, Colorado.",
+    "website": "https://www.du.edu/",
+    "cover_photo_url": "https://via.placeholder.com/400x200?text=University+of+Denver"
+  },
+  {
+    "title": "University of Wisconsin-Madison",
+    "state": "WI",
+    "country": "United States",
+    "description": "UW-Madison is a public research university in Madison, Wisconsin.",
+    "website": "https://www.wisc.edu/",
+    "cover_photo_url": "https://via.placeholder.com/400x200?text=UW-Madison"
+  },
+  {
+    "title": "Marquette University",
+    "state": "WI",
+    "country": "United States",
+    "description": "Marquette is a private university in Milwaukee, Wisconsin.",
+    "website": "https://www.marquette.edu/",
+    "cover_photo_url": "https://via.placeholder.com/400x200?text=Marquette"
+  },
+  {
+    "title": "University of Wisconsin-Milwaukee",
+    "state": "WI",
+    "country": "United States",
+    "description": "UW-Milwaukee is a public research university in Milwaukee, Wisconsin.",
+    "website": "https://uwm.edu/",
+    "cover_photo_url": "https://via.placeholder.com/400x200?text=UW-Milwaukee"
+  },
+  {
+    "title": "Indiana University Bloomington",
+    "state": "IN",
+    "country": "United States",
+    "description": "Indiana University Bloomington is a public research university in Bloomington, Indiana.",
+    "website": "https://www.indiana.edu/",
+    "cover_photo_url": "https://via.placeholder.com/400x200?text=Indiana+University"
+  },
+  {
+    "title": "Purdue University",
+    "state": "IN",
+    "country": "United States",
+    "description": "Purdue University is a public research university in West Lafayette, Indiana.",
+    "website": "https://www.purdue.edu/",
+    "cover_photo_url": "https://via.placeholder.com/400x200?text=Purdue"
+  },
+  {
+    "title": "University of Notre Dame",
+    "state": "IN",
+    "country": "United States",
+    "description": "University of Notre Dame is a private Catholic research university in Notre Dame, Indiana.",
+    "website": "https://www.nd.edu/",
+    "cover_photo_url": "https://via.placeholder.com/400x200?text=Notre+Dame"
+  }
+,
+  {
+    "title": "Louisiana State University",
+    "state": "LA",
+    "country": "United States",
+    "description": "LSU is a public research university in Baton Rouge, Louisiana.",
+    "website": "https://www.lsu.edu/",
+    "cover_photo_url": "https://via.placeholder.com/400x200?text=LSU"
+  },
+  {
+    "title": "Tulane University",
+    "state": "LA",
+    "country": "United States",
+    "description": "Tulane is a private research university in New Orleans, Louisiana.",
+    "website": "https://tulane.edu/",
+    "cover_photo_url": "https://via.placeholder.com/400x200?text=Tulane"
+  },
+  {
+    "title": "University of Louisiana at Lafayette",
+    "state": "LA",
+    "country": "United States",
+    "description": "UL Lafayette is a public research university in Lafayette, Louisiana.",
+    "website": "https://louisiana.edu/",
+    "cover_photo_url": "https://via.placeholder.com/400x200?text=UL+Lafayette"
+  },
+  {
+    "title": "University of Minnesota",
+    "state": "MN",
+    "country": "United States",
+    "description": "UMN is a public research university in Minneapolis and Saint Paul, Minnesota.",
+    "website": "https://twin-cities.umn.edu/",
+    "cover_photo_url": "https://via.placeholder.com/400x200?text=UMN"
+  },
+  {
+    "title": "Macalester College",
+    "state": "MN",
+    "country": "United States",
+    "description": "Macalester is a private liberal arts college in Saint Paul, Minnesota.",
+    "website": "https://www.macalester.edu/",
+    "cover_photo_url": "https://via.placeholder.com/400x200?text=Macalester"
+  },
+  {
+    "title": "Carleton College",
+    "state": "MN",
+    "country": "United States",
+    "description": "Carleton is a private liberal arts college in Northfield, Minnesota.",
+    "website": "https://www.carleton.edu/",
+    "cover_photo_url": "https://via.placeholder.com/400x200?text=Carleton"
+  },
+  {
+    "title": "Washington University in St. Louis",
+    "state": "MO",
+    "country": "United States",
+    "description": "WashU is a private research university in St. Louis, Missouri.",
+    "website": "https://wustl.edu/",
+    "cover_photo_url": "https://via.placeholder.com/400x200?text=WashU"
+  },
+  {
+    "title": "University of Missouri",
+    "state": "MO",
+    "country": "United States",
+    "description": "University of Missouri is a public research university in Columbia, Missouri.",
+    "website": "https://missouri.edu/",
+    "cover_photo_url": "https://via.placeholder.com/400x200?text=Mizzou"
+  },
+  {
+    "title": "Saint Louis University",
+    "state": "MO",
+    "country": "United States",
+    "description": "Saint Louis University is a private Jesuit research university in St. Louis, Missouri.",
+    "website": "https://www.slu.edu/",
+    "cover_photo_url": "https://via.placeholder.com/400x200?text=SLU"
+  }
+,
+  {
+    "title": "University of North Dakota",
+    "state": "ND",
+    "country": "United States",
+    "description": "University of North Dakota is a public research university in Grand Forks, North Dakota.",
+    "website": "https://und.edu/",
+    "cover_photo_url": "https://via.placeholder.com/400x200?text=UND"
+  },
+  {
+    "title": "North Dakota State University",
+    "state": "ND",
+    "country": "United States",
+    "description": "North Dakota State University is a public research university in Fargo, North Dakota.",
+    "website": "https://www.ndsu.edu/",
+    "cover_photo_url": "https://via.placeholder.com/400x200?text=NDSU"
+  },
+  {
+    "title": "Mayville State University",
+    "state": "ND",
+    "country": "United States",
+    "description": "Mayville State University is a public university in Mayville, North Dakota.",
+    "website": "https://mayvillestate.edu/",
+    "cover_photo_url": "https://via.placeholder.com/400x200?text=Mayville+State"
+  },
+  {
+    "title": "University of Nebraska–Lincoln",
+    "state": "NE",
+    "country": "United States",
+    "description": "UNL is a public research university in Lincoln, Nebraska.",
+    "website": "https://unl.edu/",
+    "cover_photo_url": "https://via.placeholder.com/400x200?text=UNL"
+  },
+  {
+    "title": "Creighton University",
+    "state": "NE",
+    "country": "United States",
+    "description": "Creighton University is a private Jesuit university in Omaha, Nebraska.",
+    "website": "https://creighton.edu/",
+    "cover_photo_url": "https://via.placeholder.com/400x200?text=Creighton"
+  },
+  {
+    "title": "Nebraska Wesleyan University",
+    "state": "NE",
+    "country": "United States",
+    "description": "Nebraska Wesleyan University is a private Methodist university in Lincoln, Nebraska.",
+    "website": "https://nebrwesleyan.edu/",
+    "cover_photo_url": "https://via.placeholder.com/400x200?text=NWU"
+  },
+  {
+    "title": "University of Oklahoma",
+    "state": "OK",
+    "country": "United States",
+    "description": "University of Oklahoma is a public research university in Norman, Oklahoma.",
+    "website": "https://ou.edu/",
+    "cover_photo_url": "https://via.placeholder.com/400x200?text=OU"
+  },
+  {
+    "title": "Oklahoma State University",
+    "state": "OK",
+    "country": "United States",
+    "description": "Oklahoma State University is a public research university in Stillwater, Oklahoma.",
+    "website": "https://okstate.edu/",
+    "cover_photo_url": "https://via.placeholder.com/400x200?text=OSU"
+  },
+  {
+    "title": "University of Tulsa",
+    "state": "OK",
+    "country": "United States",
+    "description": "University of Tulsa is a private research university in Tulsa, Oklahoma.",
+    "website": "https://utulsa.edu/",
+    "cover_photo_url": "https://via.placeholder.com/400x200?text=UTulsa"
+  }
+,
+  {
+    "title": "University of Oregon",
+    "state": "OR",
+    "country": "United States",
+    "description": "University of Oregon is a public research university in Eugene, Oregon.",
+    "website": "https://uoregon.edu/",
+    "cover_photo_url": "https://via.placeholder.com/400x200?text=UOregon"
+  },
+  {
+    "title": "Oregon State University",
+    "state": "OR",
+    "country": "United States",
+    "description": "Oregon State is a public research university in Corvallis, Oregon.",
+    "website": "https://oregonstate.edu/",
+    "cover_photo_url": "https://via.placeholder.com/400x200?text=OSU"
+  },
+  {
+    "title": "Portland State University",
+    "state": "OR",
+    "country": "United States",
+    "description": "Portland State is a public research university in Portland, Oregon.",
+    "website": "https://pdx.edu/",
+    "cover_photo_url": "https://via.placeholder.com/400x200?text=PSU"
+  },
+  {
+    "title": "University of Kentucky",
+    "state": "KY",
+    "country": "United States",
+    "description": "University of Kentucky is a public research university in Lexington, Kentucky.",
+    "website": "https://uky.edu/",
+    "cover_photo_url": "https://via.placeholder.com/400x200?text=UKentucky"
+  },
+  {
+    "title": "University of Louisville",
+    "state": "KY",
+    "country": "United States",
+    "description": "University of Louisville is a public research university in Louisville, Kentucky.",
+    "website": "https://louisville.edu/",
+    "cover_photo_url": "https://via.placeholder.com/400x200?text=ULouisville"
+  },
+  {
+    "title": "Northern Kentucky University",
+    "state": "KY",
+    "country": "United States",
+    "description": "Northern Kentucky University is a public university in Highland Heights, Kentucky.",
+    "website": "https://nku.edu/",
+    "cover_photo_url": "https://via.placeholder.com/400x200?text=NKU"
+  },
+  {
+    "title": "Vanderbilt University",
+    "state": "TN",
+    "country": "United States",
+    "description": "Vanderbilt is a private research university in Nashville, Tennessee.",
+    "website": "https://vanderbilt.edu/",
+    "cover_photo_url": "https://via.placeholder.com/400x200?text=Vanderbilt"
+  },
+  {
+    "title": "University of Tennessee, Knoxville",
+    "state": "TN",
+    "country": "United States",
+    "description": "UT Knoxville is a public research university in Knoxville, Tennessee.",
+    "website": "https://tennessee.edu/",
+    "cover_photo_url": "https://via.placeholder.com/400x200?text=UTK"
+  },
+  {
+    "title": "Tennessee State University",
+    "state": "TN",
+    "country": "United States",
+    "description": "Tennessee State is a public university in Nashville, Tennessee.",
+    "website": "https://tnstate.edu/",
+    "cover_photo_url": "https://via.placeholder.com/400x200?text=TSU"
+  }
+,
+  {
+    "title": "University of Alabama",
+    "state": "AL",
+    "country": "United States",
+    "description": "University of Alabama is a public research university in Tuscaloosa, Alabama.",
+    "website": "https://ua.edu/",
+    "cover_photo_url": "https://via.placeholder.com/400x200?text=UAlabama"
+  },
+  {
+    "title": "Auburn University",
+    "state": "AL",
+    "country": "United States",
+    "description": "Auburn University is a public research university in Auburn, Alabama.",
+    "website": "https://auburn.edu/",
+    "cover_photo_url": "https://via.placeholder.com/400x200?text=Auburn"
+  },
+  {
+    "title": "University of South Alabama",
+    "state": "AL",
+    "country": "United States",
+    "description": "University of South Alabama is a public university in Mobile, Alabama.",
+    "website": "https://www.southalabama.edu/",
+    "cover_photo_url": "https://via.placeholder.com/400x200?text=USA"
+  },
+  {
+    "title": "University of Hawaii at Manoa",
+    "state": "HI",
+    "country": "United States",
+    "description": "UH Manoa is a public research university in Honolulu, Hawaii.",
+    "website": "https://manoa.hawaii.edu/",
+    "cover_photo_url": "https://via.placeholder.com/400x200?text=UH+Manoa"
+  },
+  {
+    "title": "Hawaii Pacific University",
+    "state": "HI",
+    "country": "United States",
+    "description": "Hawaii Pacific University is a private university in Honolulu, Hawaii.",
+    "website": "https://www.hpu.edu/",
+    "cover_photo_url": "https://via.placeholder.com/400x200?text=HPU"
+  },
+  {
+    "title": "Chaminade University of Honolulu",
+    "state": "HI",
+    "country": "United States",
+    "description": "Chaminade University is a private Marianist university in Honolulu, Hawaii.",
+    "website": "https://chaminade.edu/",
+    "cover_photo_url": "https://via.placeholder.com/400x200?text=Chaminade"
+  },
+  {
+    "title": "University of Alaska Fairbanks",
+    "state": "AK",
+    "country": "United States",
+    "description": "UAF is a public research university in Fairbanks, Alaska.",
+    "website": "https://uaf.edu/",
+    "cover_photo_url": "https://via.placeholder.com/400x200?text=UAF"
+  },
+  {
+    "title": "University of Alaska Anchorage",
+    "state": "AK",
+    "country": "United States",
+    "description": "UAA is a public university in Anchorage, Alaska.",
+    "website": "https://uaa.alaska.edu/",
+    "cover_photo_url": "https://via.placeholder.com/400x200?text=UAA"
+  },
+  {
+    "title": "Alaska Pacific University",
+    "state": "AK",
+    "country": "United States",
+    "description": "Alaska Pacific University is a private university in Anchorage, Alaska.",
+    "website": "https://www.alaskapacific.edu/",
+    "cover_photo_url": "https://via.placeholder.com/400x200?text=APU"
+  }
+]
