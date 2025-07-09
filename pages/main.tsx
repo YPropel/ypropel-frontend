@@ -145,12 +145,14 @@ export default function LandingPage() {
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    try {
-      const res = await fetch("http://localhost:4000/auth/signin", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(loginData),
-      });
+   try {
+  const res = await fetch("http://localhost:4000/auth/signin", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(loginData),
+  });
+
+
 
       if (!res.ok) {
         const err = await res.json();
