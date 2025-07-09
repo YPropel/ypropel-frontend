@@ -17,11 +17,15 @@
     "isolatedModules": true,
     "baseUrl": ".",
     "paths": {
-      "@/*": ["./*"]
-    }
+      "@/*": [
+        "./*"
+      ]
+    },
+    "noEmit": true,
+    "jsx": "preserve"
   },
   "include": [
-    "src/**/*"
+    "ypropel-backend/**/*.ts"
   ],
   "exclude": [
     "node_modules"
