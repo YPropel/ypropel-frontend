@@ -7,20 +7,24 @@ type Props = {
 
 export default function AuthGuard({ children }: Props) {
   const router = useRouter();
-  const [isVerified, setIsVerified] = useState(false);
+  const [isClient, setIsClient] = useState(false);
 
   useEffect(() => {
-    if (typeof window !== "undefined") {
-      const token = localStorage.getItem("token");
+    // Mark that we are running client-side
+    setIsClient(true);
+  }, []);
+
+  useEffect(() => {
+    if (isClient) {
+      const token = window.localStorage.getItem("token");
       if (!token) {
-        router.replace("/main");
-      } else {
-        setIsVerified(true);
+        router.replace("/main"); // Redirect to login/signup page
       }
     }
-  }, [router]);
+  }, [isClient, router]);
 
-  if (!isVerified) {
+  if (!isClient) {
+    // Don't render children until on client side (localStorage is accessible)
     return null;
   }
 
