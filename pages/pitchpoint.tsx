@@ -89,7 +89,9 @@ export default function PitchPoint() {
       const formData = new FormData();
       formData.append("file", file);
 
-      const res = await fetch("/api/upload-video", {
+     const backendBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:4000";
+
+      const res = await fetch(`${backendBaseUrl}/api/upload-video`, {
         method: "POST",
         headers: {
           Authorization: `Bearer ${token}`,
