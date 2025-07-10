@@ -28,7 +28,9 @@
     "**/*.tsx"
   ],
   "exclude": [
-    "node_modules",
-    "backend-usefiles"
-  ]
+  "node_modules",
+  "backend-usefiles",
+  "ypropel-backend"
+]
+
 }
