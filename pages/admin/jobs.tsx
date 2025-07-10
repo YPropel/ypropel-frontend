@@ -174,15 +174,20 @@ export default function AdminJobsPage() {
     }
   }, [selectedJob]);
 
-  function handleChange(e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) {
-    const { name, value, type, checked } = e.target;
-    const val = type === "checkbox" ? checked : value;
+ function handleChange(
+  e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
+) {
+  const { name, value, type } = e.target;
+  // checked only exists on input elements of type checkbox or radio, so we need to check that safely
+  const val = type === "checkbox" && "checked" in e.target ? (e.target as HTMLInputElement).checked : value;
 
-    setFormData((prev) => ({
-      ...prev,
-      [name]: val,
-    }));
-  }
+  setFormData((prev) => ({
+    ...prev,
+    [name]: val,
+  }));
+}
+
+
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
