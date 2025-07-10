@@ -211,7 +211,8 @@ export default function AdminMiniCourses() {
         <textarea
           name="brief"
           placeholder="Brief (Course Goals / What you'll learn)"
-          value={formData.brief}
+          value={formData.brief || ""}
+
           onChange={handleChange}
           className="w-full border rounded px-3 py-2"
           rows={3}
