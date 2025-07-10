@@ -208,44 +208,44 @@ export default function FreelancePage() {
   };
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
+  e.preventDefault();
 
-    try {
-      const token = localStorage.getItem("token");
-      if (!token) throw new Error("Not authenticated");
+  try {
+    const token = localStorage.getItem("token");
+    if (!token) throw new Error("Not authenticated");
 
-      const body = { ...formData };
-      delete body.id;
+    // Exclude 'id' from the body to send
+    const { id, ...body } = formData;
 
-      let url = "/freelance-services";
-      let method = "POST";
+    let url = "/freelance-services";
+    let method = "POST";
 
-      if (formData.id && formData.id > 0) {
-        url = `/freelance-services/${formData.id}`;
-        method = "PUT";
-      }
-
-      const res = await apiFetch(url, {
-        method,
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify(body),
-      });
-
-      if (!res.ok) {
-        const errorData = await res.json();
-        throw new Error(errorData.error || "Failed to submit service");
-      }
-
-      await fetchServices();
-      resetForm();
-    } catch (err: any) {
-      alert(err.message || "Error submitting form");
+    if (formData.id && formData.id > 0) {
+      url = `/freelance-services/${formData.id}`;
+      method = "PUT";
     }
-  };
 
+    const res = await apiFetch(url, {
+      method,
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify(body),
+    });
+
+    if (!res.ok) {
+      const errorData = await res.json();
+      throw new Error(errorData.error || "Failed to submit service");
+    }
+
+    await fetchServices();
+    resetForm();
+  } catch (err: any) {
+    alert(err.message || "Error submitting form");
+  }
+};
+//-------------
   const handleDelete = async (id: number) => {
     if (!confirm("Are you sure you want to delete this service?")) return;
 

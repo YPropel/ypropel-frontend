@@ -1,3 +1,10 @@
+declare global {
+  interface Window {
+    google: any;
+  }
+}
+
+
 import React, { useState, useEffect } from "react";
 import { useRouter } from "next/router";
 import Script from "next/script";

@@ -3,6 +3,21 @@ import { useRouter } from "next/router";
 import AuthGuard from "../components/AuthGuard";
 import { apiFetch } from "../apiClient"; 
 
+
+type CircleMessage = {
+  sender?: string;
+  message: string;
+};
+
+
+type DiscussionComment = {
+  id: number;
+  userId: number;
+  userName: string;
+  content: string;
+  createdAt: string;
+};
+
 type DiscussionTopic = {
   id: number;
   author: string;
@@ -13,7 +28,7 @@ type DiscussionTopic = {
   likes: number;
   upvoted: boolean; 
   upvotes: number;
-  comments: Comment[];
+  comments: DiscussionComment[];
 };
 
 
@@ -22,6 +37,7 @@ type StudyCircle = {
   name: string;
   isPublic: boolean;
   members: string[];
+  created_by?: number;  // or just number if always present
 };
 
 export default function DiscussionBoard() {
@@ -41,7 +57,7 @@ const [editText, setEditText] = useState<string>("");
 const [collapsedComments, setCollapsedComments] = useState<{ [key: number]: boolean }>({});
 const [userEmail, setUserEmail] = useState<string>("");
 const [activeChatCircle, setActiveChatCircle] = useState<number | null>(null);
-const [circleMessages, setCircleMessages] = useState<{ [circleId: number]: string[] }>({});
+const [circleMessages, setCircleMessages] = useState<{ [circleId: number]: CircleMessage[] }>({});
 const [newMessage, setNewMessage] = useState<string>("");
 const router = useRouter(); 
 const [userSearchQuery, setUserSearchQuery] = useState("");
@@ -60,14 +76,6 @@ const [editingCommentId, setEditingCommentId] = useState<number | null>(null);
 
 //---delete and edit discussion-topics comment components----
 
-
-type Comment = {
-  id: number;
-  userId: number;
-  userName: string;
-  content: string;
-  createdAt: string;
-};
 
 
 
@@ -133,19 +141,27 @@ useEffect(() => {
           console.log("Discussion IDs after posting:", discussions.map((d: any) => d.id)); // ✅ here
 
           setDiscussionTopics(
-            discussions.map((d: any) => ({
-              id: d.id,
-              author: d.author,
-              topic: d.topic,
-              liked: d.liked ?? false,
-              followed: d.followed ?? false,
-              shares: d.shares || 0,
-              likes: d.likes || 0,
-              upvotes: d.upvotes || 0,
-              upvoted: d.upvoted || false,
-              comments: d.comments || [],
-            }))
-          );
+  discussions.map((d: any) => ({
+    id: d.id,
+    author: d.author,
+    topic: d.topic,
+    liked: d.liked ?? false,
+    followed: d.followed ?? false,
+    shares: d.shares || 0,
+    likes: d.likes || 0,
+    upvotes: d.upvotes || 0,
+    upvoted: d.upvoted || false,
+    comments: (d.comments || []).map((c: any, idx: number): DiscussionComment => ({
+    id: c.id ?? idx,
+    userId: c.user_id,         // Note: from DB, field is user_id
+    userName: c.user_name,     // matches the alias in query
+    content: c.content,
+    createdAt: c.created_at,
+    })),
+
+  }))
+);
+
         }
       }
 
@@ -384,8 +400,8 @@ const handleAddComment = async (discussionId: number) => {
 //----------------------
 
   const handleCommentSubmit = async (discussionId: number) => {
-  const comment = newCommentText[discussionId];
-  if (!comment?.trim()) return;
+  const DiscussionComment = newCommentText[discussionId];
+  if (!DiscussionComment?.trim()) return;
 
   const token = localStorage.getItem("token");
   if (!token) return;
@@ -396,7 +412,7 @@ const handleAddComment = async (discussionId: number) => {
       "Content-Type": "application/json",
       Authorization: `Bearer ${token}`,
     },
-    body: JSON.stringify({ content: comment }),
+    body: JSON.stringify({ content: DiscussionComment }),
   });
 
   if (res.ok) {
@@ -430,6 +446,8 @@ const handleDeleteComment = async (topicId: number, commentId: number) => {
         topic.id === topicId
           ? { ...topic, comments: topic.comments.filter((c) => c.id !== commentId) }
           : topic
+        
+          
       )
     );
   }
@@ -452,6 +470,7 @@ const handleSaveEditedComment = async (topicId: number, commentId: number) => {
   if (res.ok) {
     setDiscussionTopics((prev) =>
       prev.map((topic) =>
+        
         topic.id === topicId
           ? {
               ...topic,
@@ -509,8 +528,10 @@ console.log("🔍 Create circle response status:", res.status);
     }
 
     // ✅ Refresh circles
-    await fetchStudyCircles();
-
+    if (userId && userEmail) {
+    await fetchStudyCircles(userId, userEmail);
+    }
+   
     setShowCreateCircleForm(false);
     setNewCircleName("");
     setNewCircleIsPublic(true);
@@ -622,7 +643,9 @@ const handleAddMember = async (userId: number, circleId: number) => {
   if (res.ok) {
     alert("Member added!");
     setShowDropdownForCircle(null);
-    await fetchStudyCircles(); // ✅ Refresh circles so member list updates
+    if (userId && userEmail) {
+    await fetchStudyCircles(userId, userEmail); // ✅ Refresh circles so member list updates
+    }
   } else {
     alert("Failed to add member.");
   }
@@ -942,8 +965,8 @@ const topTopics = [...discussionTopics].sort((a, b) => b.likes - a.likes).slice(
   <>
     <div className="mt-3 space-y-1 text-sm">
   {comments.map((comment) => (
-   <div key={comment.id} className="border-t pt-2 text-gray-700 relative group">
-  <span className="font-semibold text-blue-800">{comment.userName}</span>:{" "}
+  <div key={comment.id}>
+    <span>{comment.userName}</span>: {comment.content}
   {collapsedComments[comment.id] ? (
     <>
       <span className="text-gray-600 italic">(collapsed)</span>

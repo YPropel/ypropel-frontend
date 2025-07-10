@@ -213,7 +213,8 @@ function EditMemberForm({
       setOtherMajorText("");
       setDisplayMajorText("");
       setMember((prev) =>
-        prev ? { ...prev, major_id: null, major_other: "", major: null } : prev
+        prev ? { ...prev, major_id: null, major_other: "", major: undefined
+ } : prev
       );
     } else {
       const id = Number(val);
@@ -222,7 +223,8 @@ function EditMemberForm({
       setOtherMajorText("");
       setDisplayMajorText(majorObj?.name || "");
       setMember((prev) =>
-        prev ? { ...prev, major_id: id, major_other: null, major: null } : prev
+        prev ? { ...prev, major_id: id, major_other: null, major: undefined
+ } : prev
       );
     }
   }
@@ -245,13 +247,15 @@ function EditMemberForm({
       setSelectedMajorId(matched.id);
       setOtherMajorText("");
       setMember((prev) =>
-        prev ? { ...prev, major_id: matched.id, major_other: null, major: null } : prev
+        prev ? { ...prev, major_id: matched.id, major_other: null, major: undefined
+ } : prev
       );
     } else {
       setSelectedMajorId("other");
       setOtherMajorText(val);
       setMember((prev) =>
-        prev ? { ...prev, major_id: null, major_other: val, major: null } : prev
+        prev ? { ...prev, major_id: null, major_other: val, major: undefined
+ } : prev
       );
     }
   }
