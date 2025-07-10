@@ -202,7 +202,8 @@ export default function AdminMiniCourses() {
         <textarea
           name="description"
           placeholder="Description"
-          value={formData.description}
+          value={formData.description || ""}
+
           onChange={handleChange}
           className="w-full border rounded px-3 py-2"
         />
