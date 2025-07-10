@@ -1,7 +1,5 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import Avatar from "../components/Avatar";
-import { apiFetch } from "../apiClient";  // Adjust path as needed
-
 
 type UserType = {
   id: number;
@@ -9,61 +7,27 @@ type UserType = {
   photo_url?: string;
 };
 
-export default function MembersList({
-  onMemberClick,
-  selectedUserId,
-}: {
+type MembersListProps = {
+  recentMembers: UserType[];
+  otherMembers: UserType[];
+  unreadCounts: Record<number, number>;
   onMemberClick: (user: UserType) => void;
   selectedUserId?: number | null;
-}) {
-  const [recentMembers, setRecentMembers] = useState<UserType[]>([]);
-  const [otherMembers, setOtherMembers] = useState<UserType[]>([]);
-  const [loading, setLoading] = useState(true);
+};
+
+export default function MembersList({
+   recentMembers,
+  otherMembers,
+  unreadCounts,
+  onMemberClick,
+  selectedUserId,
+}: MembersListProps) {
   const [searchTerm, setSearchTerm] = useState("");
-  const [unreadCounts, setUnreadCounts] = useState<Record<number, number>>({});
 
-  useEffect(() => {
-    const token = localStorage.getItem("token");
-    if (!token) {
-      setLoading(false);
-      return;
-    }
-
-    async function fetchMembersAndUnread() {
-      try {
-        // Fetch combined members
-        const resMembers = await apiFetch("/members/combined-list", {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        if (!resMembers.ok) throw new Error("Failed to fetch members");
-        const data = await resMembers.json();
-        setRecentMembers(data.recentMembers);
-        setOtherMembers(data.otherMembers);
-
-        // Fetch unread counts
-        const resUnread = await apiFetch("/messages/unread-count-by-sender", {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        if (!resUnread.ok) throw new Error("Failed to fetch unread counts");
-        const unreadData: Record<number, number> = await resUnread.json();
-        setUnreadCounts(unreadData);
-      } catch (error) {
-        console.error(error);
-      } finally {
-        setLoading(false);
-      }
-    }
-
-    fetchMembersAndUnread();
-  }, []);
-
-  // Filter function
   const filterMembers = (members: UserType[]) =>
     members.filter((user) =>
       user.name.toLowerCase().includes(searchTerm.toLowerCase())
     );
-
-  if (loading) return <p>Loading members...</p>;
 
   return (
     <div>
@@ -96,7 +60,6 @@ export default function MembersList({
             <span className="ml-2">{user.name}</span>
           </div>
 
-          {/* Red badge for unread count */}
           {unreadCounts[user.id] > 0 && (
             <span className="ml-2 inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-red-100 bg-red-600 rounded-full">
               {unreadCounts[user.id]}
@@ -125,7 +88,6 @@ export default function MembersList({
             <span className="ml-2">{user.name}</span>
           </div>
 
-          {/* Red badge for unread count */}
           {unreadCounts[user.id] > 0 && (
             <span className="ml-2 inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-red-100 bg-red-600 rounded-full">
               {unreadCounts[user.id]}
