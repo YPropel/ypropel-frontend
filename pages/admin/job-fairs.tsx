@@ -1,6 +1,7 @@
 // pages/admin/job-fairs.tsx
 
 import React, { useEffect, useState, useRef } from "react";
+import { apiFetch } from "../../apiClient"; 
 
 export default function AdminJobFairs() {
   const [jobFairs, setJobFairs] = useState<any[]>([]);
@@ -21,19 +22,19 @@ export default function AdminJobFairs() {
   });
 
   const fetchStates = async () => {
-    const res = await fetch("http://localhost:4000/us-states");
+    const res = await apiFetch("/us-states");
     const data = await res.json();
     setStates(data);
   };
 
   const fetchCities = async (state: string) => {
-    const res = await fetch(`http://localhost:4000/us-cities?state=${encodeURIComponent(state)}`);
+    const res = await apiFetch(`/us-cities?state=${encodeURIComponent(state)}`);
     const data = await res.json();
     setCities(data);
   };
 
   const fetchJobFairs = async () => {
-    const res = await fetch("http://localhost:4000/job-fairs");
+    const res = await apiFetch("/job-fairs");
     const data = await res.json();
     setJobFairs(data);
   };
@@ -109,7 +110,7 @@ export default function AdminJobFairs() {
 
   console.log("📤 Submitting job fair:", JSON.stringify(payload, null, 2));
 
-  const res = await fetch("http://localhost:4000/admin/job-fairs", {
+  const res = await apiFetch("/admin/job-fairs", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -142,7 +143,7 @@ export default function AdminJobFairs() {
 
   const handleDelete = async (id: number) => {
     const token = localStorage.getItem("token");
-    const res = await fetch(`http://localhost:4000/admin/job-fairs/${id}`, {
+    const res = await apiFetch(`/admin/job-fairs/${id}`, {
       method: "DELETE",
       headers: { Authorization: `Bearer ${token}` },
     });

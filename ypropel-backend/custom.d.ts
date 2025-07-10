@@ -5,8 +5,12 @@ declare global {
     interface Request {
       user?: {
         userId: number;
-        email: string;
+        email?: string;
+        isAdmin?: boolean;
       };
     }
   }
 }
+
+declare module "cloudinary";
+declare module "multer-storage-cloudinary";

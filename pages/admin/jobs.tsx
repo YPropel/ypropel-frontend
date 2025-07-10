@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-
+import { apiFetch } from "../../apiClient"; 
 type Job = {
   id: number;
   title: string;
@@ -77,7 +77,7 @@ export default function AdminJobsPage() {
       setError(null);
 
       try {
-        const res = await fetch("http://localhost:4000/admin/jobs", {
+        const res = await apiFetch("/admin/jobs", {
           headers: { Authorization: `Bearer ${token}` },
         });
 
@@ -101,7 +101,7 @@ export default function AdminJobsPage() {
   // Fetch categories list
   useEffect(() => {
     if (!token) return;
-    fetch("http://localhost:4000/admin/job-categories", {
+    apiFetch("/admin/job-categories", {
       headers: { Authorization: `Bearer ${token}` },
     })
       .then((res) => {
@@ -114,7 +114,7 @@ export default function AdminJobsPage() {
 
   // Fetch countries once
   useEffect(() => {
-    fetch("http://localhost:4000/countries")
+    apiFetch("/countries")
       .then((res) => res.json())
       .then(setCountries)
       .catch(console.error);
@@ -128,7 +128,7 @@ export default function AdminJobsPage() {
       return;
     }
 
-    fetch("http://localhost:4000/us-states")
+    apiFetch("/us-states")
       .then((res) => res.json())
       .then(setStates)
       .catch(() => setStates([]));
@@ -142,7 +142,7 @@ export default function AdminJobsPage() {
       return;
     }
 
-    fetch(`http://localhost:4000/us-cities?state=${encodeURIComponent(formData.state)}`)
+    apiFetch(`/us-cities?state=${encodeURIComponent(formData.state)}`)
       .then((res) => res.json())
       .then(setCities)
       .catch(() => setCities([]));
@@ -215,8 +215,8 @@ export default function AdminJobsPage() {
     try {
       const method = selectedJob ? "PUT" : "POST";
       const url = selectedJob
-        ? `http://localhost:4000/admin/jobs/${selectedJob.id}`
-        : "http://localhost:4000/admin/jobs";
+        ? `/admin/jobs/${selectedJob.id}`
+        : "/admin/jobs";
 
       const res = await fetch(url, {
         method,
@@ -248,7 +248,7 @@ export default function AdminJobsPage() {
     }
 
     try {
-      const res = await fetch(`http://localhost:4000/admin/jobs/${id}`, {
+      const res = await apiFetch(`/admin/jobs/${id}`, {
         method: "DELETE",
         headers: { Authorization: `Bearer ${token}` },
       });
@@ -334,7 +334,7 @@ export default function AdminJobsPage() {
               onClick={async () => {
                 if (!newCategoryName.trim()) return alert("Category name required");
                 try {
-                  const res = await fetch("http://localhost:4000/admin/job-categories", {
+                  const res = await apiFetch("/admin/job-categories", {
                     method: "POST",
                     headers: {
                       "Content-Type": "application/json",
@@ -378,7 +378,7 @@ export default function AdminJobsPage() {
                     onClick={async () => {
                       if (!confirm(`Delete category "${cat.name}"?`)) return;
                       try {
-                        const res = await fetch(`http://localhost:4000/admin/job-categories/${cat.id}`, {
+                        const res = await apiFetch(`/admin/job-categories/${cat.id}`, {
                           method: "DELETE",
                           headers: {
                             Authorization: `Bearer ${token}`,

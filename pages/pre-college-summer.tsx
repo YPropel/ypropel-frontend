@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import AuthGuard from "../components/AuthGuard";
-
+import { apiFetch } from "../apiClient"; 
 export default function PreCollegeSummer() {
   const [programs, setPrograms] = useState<any[]>([]);
   const [programTypes, setProgramTypes] = useState<string[]>([]);
@@ -10,7 +10,7 @@ export default function PreCollegeSummer() {
   useEffect(() => {
     const fetchPrograms = async () => {
       try {
-        const res = await fetch("http://localhost:4000/summer-programs");
+        const res = await apiFetch("/summer-programs");
         const data = await res.json();
         setPrograms(data);
       } catch (err) {
@@ -20,7 +20,7 @@ export default function PreCollegeSummer() {
 
     const fetchProgramTypes = async () => {
       try {
-        const res = await fetch("http://localhost:4000/program-types");
+        const res = await apiFetch("/program-types");
         const data = await res.json();
         const typeNames = data.map((type: any) => type.name);
         setProgramTypes(typeNames);

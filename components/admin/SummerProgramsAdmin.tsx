@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useRef } from "react";
 
+import { apiFetch } from "../../apiClient";
 export default function SummerProgramsAdmin() {
   const [programs, setPrograms] = useState<any[]>([]);
   const [newProgram, setNewProgram] = useState({
@@ -34,7 +35,7 @@ export default function SummerProgramsAdmin() {
 
   const fetchPrograms = async () => {
     try {
-      const res = await fetch("http://localhost:4000/summer-programs");
+      const res = await apiFetch("summer-programs");
       const data = await res.json();
       setPrograms(data);
     } catch (err) {
@@ -47,7 +48,7 @@ export default function SummerProgramsAdmin() {
 
   const fetchProgramTypes = async () => {
     try {
-      const res = await fetch("http://localhost:4000/program-types");
+      const res = await apiFetch("/program-types");
       const data = await res.json();
       setProgramTypes(data.map((t: any) => t.name));
     } catch (err) {
@@ -63,7 +64,7 @@ export default function SummerProgramsAdmin() {
   const handleDelete = async (id: number) => {
     const token = localStorage.getItem("token");
     try {
-      const res = await fetch(`http://localhost:4000/admin/summer-programs/${id}`, {
+      const res = await apiFetch(`/admin/summer-programs/${id}`, {
         method: "DELETE",
         headers: { Authorization: `Bearer ${token}` },
       });
@@ -86,7 +87,7 @@ export default function SummerProgramsAdmin() {
     if (!validateFields()) return;
 
     try {
-      const res = await fetch("http://localhost:4000/admin/summer-programs", {
+      const res = await apiFetch("/admin/summer-programs", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -177,7 +178,7 @@ export default function SummerProgramsAdmin() {
                   if (!newTypeInput.trim() || !token) return;
 
                   try {
-                    const res = await fetch("http://localhost:4000/admin/program-types", {
+                    const res = await apiFetch("/admin/program-types", {
                       method: "POST",
                       headers: {
                         "Content-Type": "application/json",

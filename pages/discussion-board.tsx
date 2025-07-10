@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useRouter } from "next/router";
 import AuthGuard from "../components/AuthGuard";
-
+import { apiFetch } from "../apiClient"; 
 
 type DiscussionTopic = {
   id: number;
@@ -76,7 +76,7 @@ type Comment = {
   if (!token) return;
 
   try {
-    const res = await fetch(`http://localhost:4000/discussion_topics/${id}/like`, {
+    const res = await apiFetch(`/discussion_topics/${id}/like`, {
       method: "POST",
       headers: {
         Authorization: `Bearer ${token}`,
@@ -112,7 +112,7 @@ useEffect(() => {
     if (!token) return;
 
     try {
-      const userRes = await fetch("http://localhost:4000/users/me", {
+      const userRes = await apiFetch("/users/me", {
         headers: { Authorization: `Bearer ${token}` },
       });
 
@@ -124,7 +124,7 @@ useEffect(() => {
         // ✅ Only fetch circles *after* userId/userEmail are available
         await fetchStudyCircles(user.id, user.email);
 
-        const discussionRes = await fetch("http://localhost:4000/discussion_topics", {
+        const discussionRes = await apiFetch("/discussion_topics", {
           headers: { Authorization: `Bearer ${token}` },
         });
 
@@ -168,7 +168,7 @@ const sendMessageToCircle = async (circleId: number) => {
   const token = localStorage.getItem("token");
   if (!token) return;
   console.log("Sending message:", newMessage);
-  const res = await fetch(`http://localhost:4000/study-circles/${circleId}/messages`, {
+  const res = await apiFetch(`/study-circles/${circleId}/messages`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -198,7 +198,7 @@ const sendMessageToCircle = async (circleId: number) => {
   if (!token || !userEmail) return; // ✅ check userEmail too
 
   try {
-    const res = await fetch(`http://localhost:4000/study-circles/${circleId}/join`, {
+    const res = await apiFetch(`/study-circles/${circleId}/join`, {
       method: "POST",
       headers: {
         Authorization: `Bearer ${token}`,
@@ -235,7 +235,7 @@ const sendMessageToCircle = async (circleId: number) => {
   if (!token) return;
 
   try {
-    const res = await fetch(`http://localhost:4000/discussion_topics/${id}/follow`, {
+    const res = await apiFetch(`/discussion_topics/${id}/follow`, {
       method: "POST",
       headers: {
         Authorization: `Bearer ${token}`,
@@ -264,7 +264,7 @@ const toggleUpvote = async (id: number) => {
   const token = localStorage.getItem("token");
   if (!token) return;
 
-  const res = await fetch(`http://localhost:4000/discussion_topics/${id}/upvote`, {
+  const res = await apiFetch(`/discussion_topics/${id}/upvote`, {
     method: "POST",
     headers: {
       Authorization: `Bearer ${token}`,
@@ -297,7 +297,7 @@ const handleAddComment = async (discussionId: number) => {
   const token = localStorage.getItem("token");
   if (!content || !token) return;
 
-  const res = await fetch(`http://localhost:4000/discussion_topics/${discussionId}/comments`, {
+  const res = await apiFetch(`/discussion_topics/${discussionId}/comments`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -339,7 +339,7 @@ const handleAddComment = async (discussionId: number) => {
   const token = localStorage.getItem("token");
   if (!token) return;
 
-  const res = await fetch("http://localhost:4000/discussion_topics", {
+  const res = await apiFetch("/discussion_topics", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -350,7 +350,7 @@ const handleAddComment = async (discussionId: number) => {
 
   if (res.ok) {
     // Re-fetch all topics so likes/follows/comments are correct
-    const discussionRes = await fetch("http://localhost:4000/discussion_topics", {
+    const discussionRes = await apiFetch("/discussion_topics", {
       headers: { Authorization: `Bearer ${token}` },
     });
 
@@ -390,7 +390,7 @@ const handleAddComment = async (discussionId: number) => {
   const token = localStorage.getItem("token");
   if (!token) return;
 
-  const res = await fetch(`http://localhost:4000/discussion_topics/${discussionId}/comments`, {
+  const res = await apiFetch(`/discussion_topics/${discussionId}/comments`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -419,7 +419,7 @@ const handleDeleteComment = async (topicId: number, commentId: number) => {
   const token = localStorage.getItem("token");
   if (!token) return;
 
-  const res = await fetch(`http://localhost:4000/discussion_topics/comments/${commentId}`, {
+  const res = await apiFetch(`/discussion_topics/comments/${commentId}`, {
     method: "DELETE",
     headers: { Authorization: `Bearer ${token}` },
   });
@@ -440,7 +440,7 @@ const handleSaveEditedComment = async (topicId: number, commentId: number) => {
   const newText = editCommentText[commentId];
   if (!token || !newText?.trim()) return;
 
-  const res = await fetch(`http://localhost:4000/discussion_topics/comments/${commentId}`, {
+  const res = await apiFetch(`/discussion_topics/comments/${commentId}`, {
     method: "PUT",
     headers: {
       "Content-Type": "application/json",
@@ -489,7 +489,7 @@ const handleSaveEditedComment = async (topicId: number, commentId: number) => {
       memberList.push(userEmail);
     }
 
-    const res = await fetch("http://localhost:4000/study-circles", {
+    const res = await apiFetch("/study-circles", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -564,7 +564,7 @@ const searchUsers = async () => {
   const token = localStorage.getItem("token");
   if (!token) return;
 
-  const res = await fetch(`http://localhost:4000/users/search?query=${encodeURIComponent(userSearchQuery)}`, {
+  const res = await apiFetch(`/users/search?query=${encodeURIComponent(userSearchQuery)}`, {
     headers: { Authorization: `Bearer ${token}` },
   });
 
@@ -592,7 +592,7 @@ const handleSearchChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
   if (!query.trim()) return setSearchResults([]);
 
   const token = localStorage.getItem("token");
-  const res = await fetch(`http://localhost:4000/users/search?query=${encodeURIComponent(query)}`, {
+  const res = await apiFetch(`/users/search?query=${encodeURIComponent(query)}`, {
     headers: {
       Authorization: `Bearer ${token}`,
     },
@@ -610,7 +610,7 @@ const handleAddMember = async (userId: number, circleId: number) => {
 
   console.log("Adding user", userId, "to circle", circleId);
 
-  const res = await fetch(`http://localhost:4000/study-circles/${circleId}/add-member`, {
+  const res = await apiFetch(`/study-circles/${circleId}/add-member`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -634,7 +634,7 @@ const handleAddMember = async (userId: number, circleId: number) => {
   const token = localStorage.getItem("token");
   if (!token) return;
 
-  const res = await fetch("http://localhost:4000/study-circles", {
+  const res = await apiFetch("/study-circles", {
     headers: {
       Authorization: `Bearer ${token}`,
     },
@@ -674,7 +674,7 @@ const handleDeleteCircle = async (circleId: number) => {
   if (!confirmed) return;
 
   try {
-    const res = await fetch(`http://localhost:4000/study-circles/${circleId}`, {
+    const res = await apiFetch(`/study-circles/${circleId}`, {
       method: "DELETE",
       headers: {
         Authorization: `Bearer ${token}`,
@@ -703,7 +703,7 @@ const handleDeleteCircle = async (circleId: number) => {
   if (!token) return;
 
   try {
-    const res = await fetch(`http://localhost:4000/discussion_topics/${id}`, {
+    const res = await apiFetch(`/discussion_topics/${id}`, {
       method: "DELETE",
       headers: {
         Authorization: `Bearer ${token}`,
@@ -728,7 +728,7 @@ const saveEditedTopic = async (id: number, updatedText: string) => {
   if (!token || !updatedText.trim()) return;
 
   try {
-    const res = await fetch(`http://localhost:4000/discussion_topics/${id}`, {
+    const res = await apiFetch(`/discussion_topics/${id}`, {
       method: "PUT",
       headers: {
         "Content-Type": "application/json",
@@ -854,34 +854,37 @@ const topTopics = [...discussionTopics].sort((a, b) => b.likes - a.likes).slice(
     {/* Author */}
     <p className="font-semibold text-blue-900 mb-1">{author}</p>
 
-    {/* Topic Content or Editing */}
-    {editTopicId === id ? (
-      <>
-        <textarea
-          className="w-full border rounded p-2 mb-2"
-          rows={2}
-          value={editText}
-          onChange={(e) => setEditText(e.target.value)}
-        />
-        <button
-          className="bg-blue-900 text-white px-3 py-1 rounded mr-2"
-          onClick={() => saveEditedTopic(id, editText)}
-        >
-          Save
-        </button>
-        <button
-          className="text-gray-600"
-          onClick={() => setEditTopicId(null)}
-        >
-          Cancel
-        </button>
-      </>
-    ) : (
-      <p className="mb-4">{topic}</p>
-    )}
-
-    <p className="font-semibold text-blue-900 mb-1">{author}</p>
+   {/* Topic Content or Editing */}
+{editTopicId === id ? (
+  <>
+    <textarea
+      className="w-full border rounded p-2 mb-2"
+      rows={2}
+      value={editText}
+      onChange={(e) => setEditText(e.target.value)}
+    />
+    <button
+      className="bg-blue-900 text-white px-3 py-1 rounded mr-2"
+      onClick={() => saveEditedTopic(id, editText)}
+    >
+      Save
+    </button>
+    <button
+      className="text-gray-600"
+      onClick={() => setEditTopicId(null)}
+    >
+      Cancel
+    </button>
+  </>
+) : (
+  <>
+    
     <p className="mb-4">{topic}</p>
+  </>
+)}
+
+
+    
 
     <div className="flex space-x-6 text-sm text-gray-600 mb-2">
       <button

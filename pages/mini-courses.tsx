@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import AuthGuard from "../components/AuthGuard";
-
+import { apiFetch } from "../apiClient"; 
 type MiniCourse = {
   id: number;
   title: string;
@@ -22,7 +22,7 @@ export default function MiniCoursesPage() {
   useEffect(() => {
     async function fetchCourses() {
       try {
-        const res = await fetch("http://localhost:4000/mini-courses");
+        const res = await apiFetch("/mini-courses");
         if (!res.ok) throw new Error("Failed to fetch courses");
         const data = await res.json();
         setCourses(data);
@@ -39,7 +39,7 @@ export default function MiniCoursesPage() {
     setLoadingDetail(true);
     setDetailError(null);
     try {
-      const res = await fetch(`http://localhost:4000/mini-courses/${id}`);
+      const res = await apiFetch(`/mini-courses/${id}`);
       if (!res.ok) throw new Error("Failed to fetch course details");
       const data = await res.json();
       setSelectedCourse(data);
@@ -75,7 +75,7 @@ export default function MiniCoursesPage() {
                   src={
                     course.cover_photo_url.startsWith("http")
                       ? course.cover_photo_url
-                      : `http://localhost:4000${course.cover_photo_url}`
+                      : `h${course.cover_photo_url}`
                   }
                   alt={course.title}
                   className="w-full h-56 object-cover rounded mb-4"
@@ -131,7 +131,7 @@ export default function MiniCoursesPage() {
                       src={
                         selectedCourse.cover_photo_url.startsWith("http")
                           ? selectedCourse.cover_photo_url
-                          : `http://localhost:4000${selectedCourse.cover_photo_url}`
+                          : `${selectedCourse.cover_photo_url}`
                       }
                       alt={selectedCourse.title}
                       className="w-full h-64 object-cover rounded mb-4"

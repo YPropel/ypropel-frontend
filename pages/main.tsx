@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useRouter } from "next/router";
 import Script from "next/script";
+import { apiFetch } from "../apiClient"; 
 
 enum AuthView {
   Login = "login",
@@ -68,8 +69,8 @@ export default function LandingPage() {
 
     const endpoint =
       mode === "login"
-        ? "http://localhost:4000/auth/google-login"
-        : "http://localhost:4000/auth/google-signup";
+        ? "/auth/google-login"
+        : "/auth/google-signup";
 
     try {
       const res = await fetch(endpoint, {
@@ -146,7 +147,7 @@ export default function LandingPage() {
     e.preventDefault();
 
     try {
-      const res = await fetch("http://localhost:4000/auth/signin", {
+      const res = await apiFetch("/auth/signin", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(loginData),
@@ -186,7 +187,7 @@ export default function LandingPage() {
     }
 
     try {
-      const res = await fetch("http://localhost:4000/auth/signup", {
+      const res = await apiFetch("/auth/signup", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -223,7 +224,7 @@ export default function LandingPage() {
     e.preventDefault();
 
     try {
-      const res = await fetch("http://localhost:4000/auth/forgot-password", {
+      const res = await apiFetch("/auth/forgot-password", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email: forgotEmail }),

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import AuthGuard from "../components/AuthGuard";
+import { apiFetch } from "../apiClient";
 
 type Member = {
   id: number;
@@ -8,7 +9,9 @@ type Member = {
   password_hash?: string;
   title?: string;
   university?: string;
-  major?: string;
+  major?: string; // legacy fallback, not used for new input
+  major_id?: number | null; // new field
+  major_other?: string | null; // new field
   experience_level?: string;
   skills?: string;
   company?: string;
@@ -20,6 +23,11 @@ type Member = {
   volunteering_work?: string;
   projects_completed?: string;
   photo_url?: string;
+};
+
+type StandardMajor = {
+  id: number;
+  name: string;
 };
 
 function EditMemberForm({
@@ -45,13 +53,72 @@ function EditMemberForm({
   const [selectedState, setSelectedState] = useState<string>("");
   const [selectedCity, setSelectedCity] = useState<string>("");
 
+  // Standard majors state
+  const [standardMajors, setStandardMajors] = useState<StandardMajor[]>([]);
+  const [selectedMajorId, setSelectedMajorId] = useState<string | number>("");
+  const [otherMajorText, setOtherMajorText] = useState("");
+  const [displayMajorText, setDisplayMajorText] = useState("");
+
+  const [standardExperienceLevels, setStandardExperienceLevels] = useState<
+    { id: number; level_name: string }[]
+  >([]);
+  const [editableExperienceLevel, setEditableExperienceLevel] = useState<string>("");
+
+  // Fetch standard experience levels for dropdown
+  useEffect(() => {
+    apiFetch("/standard_experience_levels")
+      .then((res) => res.json())
+      .then(setStandardExperienceLevels)
+      .catch(console.error);
+  }, []);
+
+  // Fetch editable experience level value on member change
+  useEffect(() => {
+    if (member?.experience_level) {
+      setEditableExperienceLevel(member.experience_level);
+    }
+  }, [member?.experience_level]);
+
+  // Sync major fields on member or standardMajors load
+  useEffect(() => {
+    if (member && standardMajors.length > 0) {
+      if (member.major_id) {
+        const majorObj = standardMajors.find((m) => m.id === member.major_id);
+        setSelectedMajorId(String(member.major_id));
+        setOtherMajorText("");
+        setDisplayMajorText(majorObj?.name || "");
+      } else if (member.major_other) {
+        setSelectedMajorId("other");
+        setOtherMajorText(member.major_other);
+        setDisplayMajorText(member.major_other);
+      } else if (member.major) {
+        const matched = standardMajors.find(
+          (m) => m.name.toLowerCase() === member.major?.toLowerCase().trim()
+        );
+        if (matched) {
+          setSelectedMajorId(String(matched.id));
+          setOtherMajorText("");
+          setDisplayMajorText(matched.name);
+        } else {
+          setSelectedMajorId("other");
+          setOtherMajorText(member.major);
+          setDisplayMajorText(member.major);
+        }
+      } else {
+        setSelectedMajorId("");
+        setOtherMajorText("");
+        setDisplayMajorText("");
+      }
+    }
+  }, [member, standardMajors]);
+
   useEffect(() => {
     const token = localStorage.getItem("token");
     if (!token) {
       setError("Not authenticated");
       return;
     }
-    fetch(`http://localhost:4000/users/${memberId}`, {
+    apiFetch(`/users/${memberId}`, {
       headers: { Authorization: `Bearer ${token}` },
     })
       .then((res) => {
@@ -68,7 +135,7 @@ function EditMemberForm({
   }, [memberId]);
 
   useEffect(() => {
-    fetch("http://localhost:4000/countries")
+    apiFetch("/countries")
       .then((res) => res.json())
       .then(setCountries)
       .catch(console.error);
@@ -80,7 +147,7 @@ function EditMemberForm({
       setSelectedState("");
       return;
     }
-    fetch(`http://localhost:4000/us-states?country=${encodeURIComponent(selectedCountry)}`)
+    apiFetch(`/us-states?country=${encodeURIComponent(selectedCountry)}`)
       .then((res) => res.json())
       .then(setStates)
       .catch(console.error);
@@ -92,17 +159,28 @@ function EditMemberForm({
       setSelectedCity("");
       return;
     }
-    fetch(`http://localhost:4000/us-cities?state=${encodeURIComponent(selectedState)}`)
+    apiFetch(`/us-cities?state=${encodeURIComponent(selectedState)}`)
       .then((res) => res.json())
       .then(setCities)
       .catch(console.error);
   }, [selectedState]);
 
-  if (error) return <p className="text-red-600">{error}</p>;
-  if (!member) return <p>Loading member info...</p>;
+  useEffect(() => {
+    apiFetch("/standard_majors")
+      .then((res) => res.json())
+      .then(setStandardMajors)
+      .catch(console.error);
+  }, []);
 
-  function handleChange(e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) {
+  function handleChange(
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
+  ) {
     const { name, value } = e.target;
+
+    if (name === "experience_level") {
+      setEditableExperienceLevel(value);
+    }
+
     setMember((prev) => (prev ? { ...prev, [name]: value } : prev));
   }
 
@@ -125,6 +203,57 @@ function EditMemberForm({
     const val = e.target.value;
     setSelectedCity(val);
     setMember((prev) => (prev ? { ...prev, city: val } : prev));
+  }
+
+  function handleMajorChange(e: React.ChangeEvent<HTMLSelectElement>) {
+    const val = e.target.value;
+
+    if (val === "other") {
+      setSelectedMajorId("other");
+      setOtherMajorText("");
+      setDisplayMajorText("");
+      setMember((prev) =>
+        prev ? { ...prev, major_id: null, major_other: "", major: null } : prev
+      );
+    } else {
+      const id = Number(val);
+      const majorObj = standardMajors.find((m) => m.id === id);
+      setSelectedMajorId(id);
+      setOtherMajorText("");
+      setDisplayMajorText(majorObj?.name || "");
+      setMember((prev) =>
+        prev ? { ...prev, major_id: id, major_other: null, major: null } : prev
+      );
+    }
+  }
+
+  function handleOtherMajorChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const val = e.target.value;
+    setOtherMajorText(val);
+    setDisplayMajorText(val);
+    setMember((prev) => (prev ? { ...prev, major_id: null, major_other: val } : prev));
+  }
+
+  function handleDisplayMajorTextChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const val = e.target.value;
+    setDisplayMajorText(val);
+
+    const matched = standardMajors.find(
+      (m) => m.name.toLowerCase() === val.toLowerCase().trim()
+    );
+    if (matched) {
+      setSelectedMajorId(matched.id);
+      setOtherMajorText("");
+      setMember((prev) =>
+        prev ? { ...prev, major_id: matched.id, major_other: null, major: null } : prev
+      );
+    } else {
+      setSelectedMajorId("other");
+      setOtherMajorText(val);
+      setMember((prev) =>
+        prev ? { ...prev, major_id: null, major_other: val, major: null } : prev
+      );
+    }
   }
 
   async function uploadImageToCloudinary(file: File): Promise<string> {
@@ -156,10 +285,12 @@ function EditMemberForm({
 
       const updatedMember = {
         ...member,
+        experience_level: editableExperienceLevel,
+        major: displayMajorText, // <== Add this line to save editable major text
         photo_url,
       };
 
-      const res = await fetch(`http://localhost:4000/users/${memberId}`, {
+      const res = await apiFetch(`/users/${memberId}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
@@ -190,7 +321,7 @@ function EditMemberForm({
       const token = localStorage.getItem("token");
       if (!token) throw new Error("Not authenticated");
 
-      const res = await fetch(`http://localhost:4000/users/${memberId}`, {
+      const res = await apiFetch(`/users/${memberId}`, {
         method: "DELETE",
         headers: { Authorization: `Bearer ${token}` },
       });
@@ -208,6 +339,9 @@ function EditMemberForm({
       setShowDeleteConfirm(false);
     }
   }
+
+  if (error) return <p className="text-red-600">{error}</p>;
+  if (!member) return <p>Loading member info...</p>;
 
   return (
     <>
@@ -265,26 +399,66 @@ function EditMemberForm({
         {/* Major */}
         <label className="block mb-2">
           Major:
-          <input
-            type="text"
-            name="major"
-            value={member.major || ""}
-            onChange={handleChange}
+          <select
+            value={selectedMajorId}
+            onChange={handleMajorChange}
             className="w-full p-2 border rounded"
-          />
+            required
+          >
+            <option value="">-- Select Major --</option>
+            {standardMajors.map((m) => (
+              <option key={m.id} value={m.id}>
+                {m.name}
+              </option>
+            ))}
+            <option value="other">Other</option>
+          </select>
         </label>
+
+        {/* Other major text input (shows only if 'other' selected) */}
+        {selectedMajorId === "other" && (
+          <label className="block mb-2">
+            Please specify your major:
+            <input
+              type="text"
+              value={otherMajorText}
+              onChange={handleOtherMajorChange}
+              className="w-full p-2 border rounded"
+              required
+            />
+          </label>
+        )}
+
+        {/* Display selected major as styled text */}
+        <label className="text-sm text-green-600 mt-1">
+          Saved:
+        </label>
+        <p className="text-sm text-green-600 mt-1">{displayMajorText || "None"}</p>
 
         {/* Experience Level */}
         <label className="block mb-2">
           Experience Level:
-          <input
-            type="text"
+          <select
             name="experience_level"
             value={member.experience_level || ""}
             onChange={handleChange}
             className="w-full p-2 border rounded"
-          />
+            required
+          >
+            <option value="">-- Select Experience Level --</option>
+            {standardExperienceLevels.map((level) => (
+              <option key={level.id} value={level.level_name}>
+                {level.level_name}
+              </option>
+            ))}
+          </select>
         </label>
+
+        {/* Display selected experience level as styled text */}
+        <label className="text-sm text-green-600 mt-1">
+          Saved:
+        </label>
+        <p className="text-sm text-green-600 mt-1">{editableExperienceLevel || "None"}</p>
 
         {/* Skills */}
         <label className="block mb-2">
@@ -357,7 +531,7 @@ function EditMemberForm({
               </option>
             ))}
           </select>
-          <p className="text-sm text-gray-600 mt-1">Saved: {member?.state || "None"}</p>
+          <p className="text-sm text-green-600 mt-1">Saved: {member?.state || "None"}</p>
         </label>
 
         {/* City Dropdown */}
@@ -377,7 +551,7 @@ function EditMemberForm({
               </option>
             ))}
           </select>
-          <p className="text-sm text-gray-600 mt-1">Saved: {member?.city || "None"}</p>
+          <p className="text-sm text-green-600 mt-1">Saved: {member?.city || "None"}</p>
         </label>
 
         {/* Birthdate */}
@@ -493,7 +667,7 @@ export default function ProfilePage() {
         return;
       }
       try {
-        const res = await fetch("http://localhost:4000/users/me", {
+        const res = await apiFetch("/users/me", {
           headers: { Authorization: `Bearer ${token}` },
         });
         if (!res.ok) {

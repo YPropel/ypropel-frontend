@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from "react";
 import Avatar from "../components/Avatar";
+import { apiFetch } from "../apiClient";  // Adjust path as needed
+
 
 type UserType = {
   id: number;
@@ -30,7 +32,7 @@ export default function MembersList({
     async function fetchMembersAndUnread() {
       try {
         // Fetch combined members
-        const resMembers = await fetch("http://localhost:4000/members/combined-list", {
+        const resMembers = await apiFetch("/members/combined-list", {
           headers: { Authorization: `Bearer ${token}` },
         });
         if (!resMembers.ok) throw new Error("Failed to fetch members");
@@ -39,7 +41,7 @@ export default function MembersList({
         setOtherMembers(data.otherMembers);
 
         // Fetch unread counts
-        const resUnread = await fetch("http://localhost:4000/messages/unread-count-by-sender", {
+        const resUnread = await apiFetch("/messages/unread-count-by-sender", {
           headers: { Authorization: `Bearer ${token}` },
         });
         if (!resUnread.ok) throw new Error("Failed to fetch unread counts");

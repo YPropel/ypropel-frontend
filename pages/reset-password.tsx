@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/router";
-
+import { apiFetch } from "../apiClient"; 
 export default function ResetPasswordPage() {
   const router = useRouter();
   const { token } = router.query;
@@ -25,7 +25,7 @@ export default function ResetPasswordPage() {
     }
 
     try {
-      const res = await fetch("http://localhost:4000/auth/reset-password", {
+      const res = await apiFetch("/auth/reset-password", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ token, newPassword }),

@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef } from "react";
-
+import { apiFetch } from "../../apiClient"; 
 type MiniCourse = {
   id: number;
   title: string;
@@ -37,7 +37,7 @@ export default function AdminMiniCourses() {
   async function fetchCourses() {
     setLoading(true);
     try {
-      const res = await fetch("http://localhost:4000/mini-courses");
+      const res = await apiFetch("mini-courses");
       if (!res.ok) throw new Error("Failed to fetch courses");
       const data = await res.json();
       setCourses(data);
@@ -68,7 +68,7 @@ export default function AdminMiniCourses() {
 
     try {
       setUploading(true);
-      const res = await fetch("http://localhost:4000/upload-news-image", {
+      const res = await apiFetch("/upload-news-image", {
         method: "POST",
         body: formDataUpload,
       });
@@ -92,8 +92,8 @@ export default function AdminMiniCourses() {
 
     const method = editingId ? "PUT" : "POST";
     const url = editingId
-      ? `http://localhost:4000/mini-courses/${editingId}`
-      : "http://localhost:4000/mini-courses";
+      ? `/mini-courses/${editingId}`
+      : "/mini-courses";
 
     const bodyData = {
       ...formData,
@@ -167,7 +167,7 @@ export default function AdminMiniCourses() {
     }
 
     try {
-      const res = await fetch(`http://localhost:4000/mini-courses/${id}`, {
+      const res = await apiFetch(`/mini-courses/${id}`, {
         method: "DELETE",
         headers: {
           "Content-Type": "application/json",
@@ -306,7 +306,7 @@ export default function AdminMiniCourses() {
                   src={
                     course.cover_photo_url.startsWith("http")
                       ? course.cover_photo_url
-                      : `http://localhost:4000${course.cover_photo_url}`
+                      : `${course.cover_photo_url}`
                   }
                   alt={course.title}
                   className="w-full h-40 object-cover"

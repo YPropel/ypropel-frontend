@@ -1,6 +1,6 @@
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
-
+import { apiFetch } from "../apiClient"; 
 // ✅ Define message structure
 type Message = {
   id: number;
@@ -30,7 +30,7 @@ const [circleName, setCircleName] = useState<string>("");
     const token = localStorage.getItem("token");
     if (!token) return;
 
-    const res = await fetch(`http://localhost:4000/study-circles/${id}/messages`, {
+    const res = await apiFetch(`/study-circles/${id}/messages`, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
@@ -48,7 +48,7 @@ const [circleName, setCircleName] = useState<string>("");
     const token = localStorage.getItem("token");
     if (!token) return;
 
-    const res = await fetch("http://localhost:4000/users/me", {
+    const res = await apiFetch("/users/me", {
       headers: { Authorization: `Bearer ${token}` },
     });
 
@@ -64,7 +64,7 @@ const [circleName, setCircleName] = useState<string>("");
   const token = localStorage.getItem("token");
   if (!token) return;
 
-  const res = await fetch(`http://localhost:4000/study-circles/${id}`, {
+  const res = await apiFetch(`/study-circles/${id}`, {
     headers: { Authorization: `Bearer ${token}` },
   });
 
@@ -90,7 +90,7 @@ const fetchCircleNameFromAll = async () => {
   const token = localStorage.getItem("token");
   if (!token || !id) return;
 
-  const res = await fetch("http://localhost:4000/study-circles", {
+  const res = await apiFetch("/study-circles", {
     headers: { Authorization: `Bearer ${token}` },
   });
 
@@ -123,7 +123,7 @@ const fetchCircleNameFromAll = async () => {
     const token = localStorage.getItem("token");
     if (!token) return;
 
-    const res = await fetch(`http://localhost:4000/study-circles/${id}/messages`, {
+    const res = await apiFetch(`/study-circles/${id}/messages`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

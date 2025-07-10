@@ -1,6 +1,6 @@
 import React, { useState, useEffect, ChangeEvent } from "react";
 import AuthGuard from "../components/AuthGuard";
-
+import { apiFetch } from "../apiClient"; 
 type Resume = {
   id: number;
   resume_url: string;
@@ -26,7 +26,7 @@ export default function ResumeManager() {
       const token = localStorage.getItem("token");
       if (!token) throw new Error("Not authenticated");
 
-      const res = await fetch("http://localhost:4000/members/resumes", {
+      const res = await apiFetch("/members/resumes", {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -70,7 +70,7 @@ export default function ResumeManager() {
       const token = localStorage.getItem("token");
       if (!token) throw new Error("Not authenticated");
 
-      const response = await fetch("http://localhost:4000/members/resumes", {
+      const response = await apiFetch("/members/resumes", {
         method: "POST",
         headers: {
           Authorization: `Bearer ${token}`,
@@ -101,7 +101,7 @@ export default function ResumeManager() {
       const token = localStorage.getItem("token");
       if (!token) throw new Error("Not authenticated");
 
-      const res = await fetch(`http://localhost:4000/members/resumes/${resumeId}`, {
+      const res = await apiFetch(`/members/resumes/${resumeId}`, {
         method: "DELETE",
         headers: { Authorization: `Bearer ${token}` },
       });

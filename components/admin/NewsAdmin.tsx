@@ -3,13 +3,15 @@
 //Pages/admin/index.tsx
 
 import React, { useState, useEffect } from "react";
-
 type NewsItem = {
   id: number;
   title: string;
   content: string;
   image_url: string;
 };
+
+import { apiFetch } from "../../apiClient";
+
 
 export default function NewsAdmin() {
   const [title, setTitle] = useState("");
@@ -24,7 +26,7 @@ export default function NewsAdmin() {
   // Fetch all news posts
   const fetchNews = async () => {
     try {
-      const res = await fetch("http://localhost:4000/news");
+      const res = await apiFetch("/news");
       const data = await res.json();
       if (res.ok) {
         setNewsList(data);
@@ -51,7 +53,7 @@ export default function NewsAdmin() {
     formData.append("image", imageFile);
 
     try {
-      const res = await fetch("http://localhost:4000/upload-news-image", {
+      const res = await apiFetch("/upload-news-image", {
         method: "POST",
         body: formData,
       });
@@ -94,7 +96,7 @@ export default function NewsAdmin() {
       return;
     }
 
-    const res = await fetch("http://localhost:4000/news", {
+    const res = await apiFetch("/news", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -136,7 +138,7 @@ export default function NewsAdmin() {
   console.log("JWT token:", token);
 
   try {
-    const res = await fetch(`http://localhost:4000/admin/news/${id}`, {
+    const res = await apiFetch(`/admin/news/${id}`, {
       method: "DELETE",
       headers: {
         Authorization: `Bearer ${token}`,

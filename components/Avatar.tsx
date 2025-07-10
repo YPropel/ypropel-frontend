@@ -3,7 +3,7 @@ import React, { useState } from "react";
 type AvatarProps = {
   name: string;
   photoUrl?: string;
-  size?: number; // optional size in pixels, default is 32
+  size?: number; // default 60 recommended for consistent UI
 };
 
 function getInitials(name: string) {
@@ -13,23 +13,39 @@ function getInitials(name: string) {
   return (names[0][0] + names[1][0]).toUpperCase();
 }
 
-export default function Avatar({ name, photoUrl, size = 32 }: AvatarProps) {
+export default function Avatar({ name, photoUrl, size = 60 }: AvatarProps) {
   const [imgError, setImgError] = useState(false);
   const initials = getInitials(name);
 
-  const style = {
+  const commonStyles: React.CSSProperties = {
     width: size,
     height: size,
-    lineHeight: `${size}px`,
+    borderRadius: "50%",
+    flexShrink: 0, // Prevent shrinking inside flex containers
+  };
+
+  const initialsStyles: React.CSSProperties = {
+    ...commonStyles,
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "center",
     fontSize: size / 2,
+    fontWeight: "bold",
+    color: "white",               // letters in white
+    backgroundColor: "#1D4ED8",   // blue background (Tailwind blue-700)
+    userSelect: "none",
+    overflow: "hidden",
+  };
+
+  const imgStyles: React.CSSProperties = {
+    ...commonStyles,
+    objectFit: "cover",
+    display: "block",
   };
 
   if (!photoUrl || photoUrl.trim() === "" || imgError) {
     return (
-      <div
-        style={style}
-        className="rounded-full bg-gray-400 text-white font-semibold text-center select-none"
-      >
+      <div style={initialsStyles} aria-label={`Avatar initials for ${name}`}>
         {initials}
       </div>
     );
@@ -39,9 +55,9 @@ export default function Avatar({ name, photoUrl, size = 32 }: AvatarProps) {
     <img
       src={photoUrl}
       alt={name}
-      style={style}
-      className="rounded-full object-cover"
+      style={imgStyles}
       onError={() => setImgError(true)}
+      aria-label={`Avatar image for ${name}`}
     />
   );
 }

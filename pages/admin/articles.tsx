@@ -1,7 +1,7 @@
 
 //This page to create admin backend to add - delete articles
 import React, { useState, useRef, useEffect } from "react";
-
+import { apiFetch } from "../../apiClient"; 
 type Article = {
   id: number;
   title: string;
@@ -28,7 +28,7 @@ export default function AdminArticlesPage() {
     const token = localStorage.getItem("token");
     if (!token) return;
     try {
-      const res = await fetch("http://localhost:4000/admin/articles", {
+      const res = await apiFetch("/admin/articles", {
         headers: { Authorization: `Bearer ${token}` },
       });
       if (res.ok) {
@@ -73,8 +73,8 @@ export default function AdminArticlesPage() {
     if (!token) return;
 
     const url = editingId
-      ? `http://localhost:4000/admin/articles/${editingId}`
-      : "http://localhost:4000/admin/articles";
+      ? `/admin/articles/${editingId}`
+      : "/admin/articles";
 
     const method = editingId ? "PUT" : "POST";
 
@@ -132,7 +132,7 @@ export default function AdminArticlesPage() {
     if (!token) return;
 
     try {
-      const res = await fetch(`http://localhost:4000/admin/articles/${id}`, {
+      const res = await apiFetch(`/admin/articles/${id}`, {
         method: "DELETE",
         headers: {
           Authorization: `Bearer ${token}`,

@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from "react";
 import AuthGuard from "../components/AuthGuard";
+import { apiFetch } from "../apiClient"; 
+
 type JobFair = {
   id: number;
   title: string;
@@ -20,7 +22,7 @@ export default function JobFairsPage() {
   useEffect(() => {
     const fetchJobFairs = async () => {
       try {
-        const res = await fetch("http://localhost:4000/job-fairs");
+        const res = await apiFetch("/job-fairs");
         const data = await res.json();
         setJobFairs(data);
       } catch (error) {
@@ -33,7 +35,7 @@ export default function JobFairsPage() {
   useEffect(() => {
     const fetchStates = async () => {
       try {
-        const res = await fetch("http://localhost:4000/us-states");
+        const res = await apiFetch("/us-states");
         const data = await res.json();
         setAvailableStates(data);
       } catch (error) {
@@ -51,8 +53,8 @@ export default function JobFairsPage() {
 
     const fetchCities = async () => {
       try {
-        const res = await fetch(
-          `http://localhost:4000/us-cities?state=${encodeURIComponent(stateFilter)}`
+        const res = await apiFetch(
+          `/us-cities?state=${encodeURIComponent(stateFilter)}`
         );
         const data = await res.json();
         setAvailableCities(data);

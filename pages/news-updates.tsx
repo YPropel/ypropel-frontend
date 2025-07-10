@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import AuthGuard from "../components/AuthGuard";
+import { apiFetch } from "../apiClient"; 
 type NewsPost = {
   id: number;
   title: string;
@@ -14,7 +15,7 @@ export default function NewsUpdates() {
   useEffect(() => {
     const fetchNews = async () => {
       try {
-        const res = await fetch("http://localhost:4000/news");
+        const res = await apiFetch("/news");
         const data = await res.json();
         setPosts(data);
       } catch (err) {

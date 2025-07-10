@@ -1,6 +1,6 @@
 import React, { useState, useEffect, ChangeEvent } from "react";
 import AuthGuard from "../components/AuthGuard";
-
+import { apiFetch } from "../apiClient"; 
 type ServiceType = {
   id: number;
   name: string;
@@ -69,7 +69,7 @@ export default function FreelancePage() {
   useEffect(() => {
     async function fetchServiceTypes() {
       try {
-        const res = await fetch("http://localhost:4000/service-types");
+        const res = await apiFetch("/service-types");
         if (!res.ok) throw new Error("Failed to fetch service types");
         const data = await res.json();
         setServiceOptions(data);
@@ -99,7 +99,7 @@ export default function FreelancePage() {
   // Fetch cities for filter city dropdown
   async function fetchFilterCities(state: string) {
     try {
-      const res = await fetch(`http://localhost:4000/us-cities?state=${encodeURIComponent(state)}`);
+      const res = await apiFetch(`/us-cities?state=${encodeURIComponent(state)}`);
       if (!res.ok) throw new Error("Failed to fetch cities");
       const data = await res.json();
       setFilterCities(data);
@@ -124,7 +124,7 @@ export default function FreelancePage() {
 
   async function fetchCities(state: string, currentCity: string) {
     try {
-      const res = await fetch(`http://localhost:4000/us-cities?state=${encodeURIComponent(state)}`);
+      const res = await apiFetch(`/us-cities?state=${encodeURIComponent(state)}`);
       if (!res.ok) throw new Error("Failed to fetch cities");
       const data = await res.json();
       setCities(data);
@@ -141,7 +141,7 @@ export default function FreelancePage() {
     setLoadingServices(true);
     setFetchError("");
     try {
-      const res = await fetch("http://localhost:4000/freelance-services", {
+      const res = await apiFetch("/freelance-services", {
         headers: { Authorization: `Bearer ${localStorage.getItem("token") || ""}` },
       });
       if (!res.ok) throw new Error("Failed to fetch services");
@@ -156,7 +156,7 @@ export default function FreelancePage() {
 
   async function fetchStates() {
     try {
-      const res = await fetch("http://localhost:4000/us-states");
+      const res = await apiFetch("/us-states");
       if (!res.ok) throw new Error("Failed to fetch states");
       const data = await res.json();
       setStates(data);
@@ -217,15 +217,15 @@ export default function FreelancePage() {
       const body = { ...formData };
       delete body.id;
 
-      let url = "http://localhost:4000/freelance-services";
+      let url = "/freelance-services";
       let method = "POST";
 
       if (formData.id && formData.id > 0) {
-        url = `http://localhost:4000/freelance-services/${formData.id}`;
+        url = `/freelance-services/${formData.id}`;
         method = "PUT";
       }
 
-      const res = await fetch(url, {
+      const res = await apiFetch(url, {
         method,
         headers: {
           "Content-Type": "application/json",
@@ -253,7 +253,7 @@ export default function FreelancePage() {
       const token = localStorage.getItem("token");
       if (!token) throw new Error("Not authenticated");
 
-      const res = await fetch(`http://localhost:4000/freelance-services/${id}`, {
+      const res = await apiFetch(`/freelance-services/${id}`, {
         method: "DELETE",
         headers: { Authorization: `Bearer ${token}` },
       });
@@ -495,7 +495,7 @@ export default function FreelancePage() {
                 src={
                   service.profile_photo.startsWith("http")
                     ? service.profile_photo
-                    : `http://localhost:4000/${service.profile_photo}`
+                    : `/${service.profile_photo}`
                 }
                 alt={`${service.name} profile`}
                 className="w-20 h-20 rounded-full object-cover mx-auto mb-4"
@@ -587,7 +587,7 @@ export default function FreelancePage() {
                 src={
                   modalService.profile_photo.startsWith("http")
                     ? modalService.profile_photo
-                    : `http://localhost:4000/${modalService.profile_photo}`
+                    : `/${modalService.profile_photo}`
                 }
                 alt={`${modalService.name} profile`}
                 className="w-32 h-32 rounded-full object-cover mx-auto mb-4"

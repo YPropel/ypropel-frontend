@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import Avatar from "../components/Avatar";
 import ChatWindow from "../components/ChatWindow";
+import { apiFetch } from "../apiClient";
 
 type Member = {
   id: number;
@@ -30,11 +31,36 @@ type Member = {
   skills?: string;
   experience_level?: string;
   major?: string;
+  major_id?: number | null;
   university?: string;
   title?: string;
   company?: string;
   birthdate?: string;
 };
+
+// New helper component for expandable text
+function ExpandableText({ text }: { text: string }) {
+  const [expanded, setExpanded] = useState(false);
+  const maxLength = 100;
+  const isLong = text.length > maxLength;
+
+  return (
+    <p className="text-sm mt-1">
+      <strong>Skills:</strong>{" "}
+      {expanded || !isLong ? text : text.slice(0, maxLength) + "..."}{" "}
+      {isLong && (
+        <button
+          onClick={() => setExpanded(!expanded)}
+          className="text-blue-600 hover:underline focus:outline-none"
+          aria-label={expanded ? "Show less skills" : "Show more skills"}
+          type="button"
+        >
+          {expanded ? "Show less" : "Show more"}
+        </button>
+      )}
+    </p>
+  );
+}
 
 export default function MembersDirectory() {
   const [members, setMembers] = useState<Member[]>([]);
@@ -42,13 +68,11 @@ export default function MembersDirectory() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // Filters state
   const [experienceFilter, setExperienceFilter] = useState("");
   const [majorFilter, setMajorFilter] = useState("");
   const [universityFilter, setUniversityFilter] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
 
-  // Chat modal state
   const [chatWithMember, setChatWithMember] = useState<Member | null>(null);
 
   useEffect(() => {
@@ -59,7 +83,7 @@ export default function MembersDirectory() {
       return;
     }
 
-    fetch("http://localhost:4000/users", {
+    apiFetch("/users", {
       headers: {
         Authorization: `Bearer ${token}`,
       },
@@ -82,6 +106,26 @@ export default function MembersDirectory() {
       });
   }, []);
 
+  const majorMap = new Map<string | number, string>();
+  members.forEach((m) => {
+    if (m.major_id != null && m.major) {
+      majorMap.set(m.major_id, m.major);
+    } else if (m.major) {
+      majorMap.set(m.major, m.major);
+    }
+  });
+  const majorOptionsCombined = Array.from(majorMap.entries()).map(([key, name]) => ({
+    id: key,
+    name,
+  }));
+
+  const experienceOptions = Array.from(
+    new Set(members.map((m) => m.experience_level).filter(Boolean))
+  );
+  const universityOptions = Array.from(
+    new Set(members.map((m) => m.university).filter(Boolean))
+  );
+
   useEffect(() => {
     let filtered = members;
 
@@ -89,7 +133,15 @@ export default function MembersDirectory() {
       filtered = filtered.filter(
         (m) => m.experience_level === experienceFilter
       );
-    if (majorFilter) filtered = filtered.filter((m) => m.major === majorFilter);
+
+    if (majorFilter) {
+      filtered = filtered.filter(
+        (m) =>
+          String(m.major_id) === String(majorFilter) ||
+          m.major === majorFilter
+      );
+    }
+
     if (universityFilter)
       filtered = filtered.filter((m) => m.university === universityFilter);
 
@@ -105,22 +157,8 @@ export default function MembersDirectory() {
     setFilteredMembers(filtered);
   }, [experienceFilter, majorFilter, universityFilter, searchTerm, members]);
 
-  // Unique filter options
-  const experienceOptions = Array.from(
-    new Set(members.map((m) => m.experience_level).filter(Boolean))
-  );
-  const majorOptions = Array.from(
-    new Set(members.map((m) => m.major).filter(Boolean))
-  );
-  const universityOptions = Array.from(
-    new Set(members.map((m) => m.university).filter(Boolean))
-  );
-
   if (loading) return <p className="p-6 text-center">Loading members...</p>;
-  if (error)
-    return (
-      <p className="p-6 text-center text-red-600">{error}</p>
-    );
+  if (error) return <p className="p-6 text-center text-red-600">{error}</p>;
 
   return (
     <div className="max-w-6xl mx-auto p-6">
@@ -153,9 +191,9 @@ export default function MembersDirectory() {
           className="border p-2 rounded"
         >
           <option value="">All Majors</option>
-          {majorOptions.map((major) => (
-            <option key={major} value={major}>
-              {major}
+          {majorOptionsCombined.map(({ id, name }) => (
+            <option key={String(id)} value={String(id)}>
+              {name}
             </option>
           ))}
         </select>
@@ -184,13 +222,13 @@ export default function MembersDirectory() {
               <Avatar
                 name={member.name}
                 photoUrl={member.photo_url}
-                size={80}
+                size={60}  // Smaller avatar size
               />
 
               <div className="flex-grow">
-                <h2 className="text-xl font-semibold">{member.name}</h2>
+                <h2 className="text-2xl font-bold text-[#001f3f]">{member.name}</h2> {/* Bigger name */}
                 {member.title && member.title.trim() !== "" && (
-                  <p className="text-gray-700">{member.title}</p>
+                  <p className="text-sm font-bold text-[#001f3f]">{member.title}</p>
                 )}
                 {(member.experience_level || member.major || member.university) && (
                   <p className="text-sm text-gray-600">
@@ -200,15 +238,13 @@ export default function MembersDirectory() {
                   </p>
                 )}
                 {member.skills && member.skills.trim() !== "" && (
-                  <p className="text-sm mt-1">
-                    <strong>Skills:</strong> {member.skills}
-                  </p>
+                  <ExpandableText text={member.skills} />
                 )}
               </div>
 
               <button
                 onClick={() => setChatWithMember(member)}
-                className="ml-auto bg-blue-600 text-white px-3 py-1 rounded hover:bg-blue-700"
+                className="ml-auto bg-green-600 text-white px-3 py-1 rounded hover:bg-green-700"
               >
                 Message
               </button>

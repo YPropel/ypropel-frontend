@@ -2,6 +2,7 @@
 import React, { useEffect, useState } from "react";
 import { useRouter } from "next/router";
 import AuthGuard from "../components/AuthGuard";
+import { apiFetch } from "../apiClient"; 
 
 type Article = {
   id: number;
@@ -17,7 +18,7 @@ export default function ArticlesPage() {
   useEffect(() => {
     const fetchArticles = async () => {
       try {
-        const res = await fetch("http://localhost:4000/articles");
+        const res = await apiFetch("/articles");
         const data = await res.json();
         setArticles(data);
       } catch (err) {

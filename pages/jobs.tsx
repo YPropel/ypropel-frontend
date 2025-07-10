@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useRouter } from "next/router";
 import Link from "next/link";
 import AuthGuard from "../components/AuthGuard"; // adjust path if needed
+import { apiFetch } from "../apiClient"; 
 
 type Job = {
   id: number;
@@ -55,7 +56,7 @@ function JobsPageContent() {
   useEffect(() => {
     async function fetchCategories() {
       try {
-        const res = await fetch("http://localhost:4000/job-categories");
+        const res = await apiFetch("/job-categories");
         if (!res.ok) throw new Error("Failed to fetch categories");
         const data = await res.json();
         setCategories(data.map((cat: { name: string }) => cat.name));
@@ -71,7 +72,7 @@ function JobsPageContent() {
   useEffect(() => {
     async function fetchCountries() {
       try {
-        const res = await fetch("http://localhost:4000/countries");
+        const res = await apiFetch("/countries");
         if (!res.ok) throw new Error("Failed to fetch countries");
         const data = await res.json();
         setCountries(data);
@@ -92,8 +93,8 @@ function JobsPageContent() {
 
     async function fetchStates() {
       try {
-        const res = await fetch(
-          `http://localhost:4000/us-states?country=${encodeURIComponent(
+        const res = await apiFetch(
+          `/us-states?country=${encodeURIComponent(
             country
           )}`
         );
@@ -118,8 +119,8 @@ function JobsPageContent() {
 
     async function fetchCities() {
       try {
-        const res = await fetch(
-          `http://localhost:4000/us-cities?state=${encodeURIComponent(state)}`
+        const res = await apiFetch(
+          `/us-cities?state=${encodeURIComponent(state)}`
         );
         if (!res.ok) throw new Error("Failed to fetch cities");
         const data = await res.json();
@@ -147,7 +148,7 @@ function JobsPageContent() {
     if (category) params.append("category", category);
     if (location) params.append("location", location);
 
-    fetch(`http://localhost:4000/jobs?${params.toString()}`)
+    apiFetch(`/jobs?${params.toString()}`)
       .then((res) => {
         if (!res.ok) throw new Error("Failed to fetch jobs");
         return res.json();

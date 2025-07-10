@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import AuthGuard from "../components/AuthGuard";
-
+import { apiFetch } from "../apiClient"; 
 type Video = {
   id: number;
   title: string;
@@ -25,7 +25,7 @@ export default function VideosList() {
 
   async function fetchVideos(token: string) {
     try {
-      const res = await fetch("http://localhost:4000/api/videos", {
+      const res = await apiFetch("/api/videos", {
         headers: { Authorization: `Bearer ${token}` },
       });
       const data = await res.json();
@@ -48,7 +48,7 @@ export default function VideosList() {
 
   async function toggleLike(videoId: number, liked: boolean) {
     try {
-      const res = await fetch(`http://localhost:4000/api/videos/${videoId}/like`, {
+      const res = await apiFetch(`/api/videos/${videoId}/like`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -71,7 +71,7 @@ export default function VideosList() {
 
   async function toggleFollow(videoId: number, followed: boolean) {
     try {
-      const res = await fetch(`http://localhost:4000/api/videos/${videoId}/follow`, {
+      const res = await apiFetch(`/api/videos/${videoId}/follow`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -94,7 +94,7 @@ export default function VideosList() {
 
   async function handleShare(videoId: number) {
     try {
-      const res = await fetch(`http://localhost:4000/api/videos/${videoId}/share`, {
+      const res = await apiFetch(`/api/videos/${videoId}/share`, {
         method: "POST",
         headers: {
           Authorization: `Bearer ${token}`,

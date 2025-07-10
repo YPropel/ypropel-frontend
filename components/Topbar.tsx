@@ -1,6 +1,7 @@
 "use client";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
+import { apiFetch } from "../apiClient";  // Adjust path as needed
 
 export default function Topbar() {
   const router = useRouter();
@@ -21,7 +22,7 @@ export default function Topbar() {
       setIsLoggedIn(true);
 
       try {
-        const res = await fetch("http://localhost:4000/messages/unread-count", {
+        const res = await apiFetch("/messages/unread-count", {
           headers: { Authorization: `Bearer ${token}` },
         });
         if (!res.ok) throw new Error("Failed to fetch unread count");

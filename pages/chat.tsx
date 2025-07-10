@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import MembersList from "../components/MembersList";
 import ChatWindow from "../components/ChatWindow";
-
+import { apiFetch } from "../apiClient"; 
 type Member = {
   id: number;
   name: string;
@@ -22,7 +22,7 @@ export default function ChatPage() {
         if (!token) return;
 
         // Fetch combined recent + other members from backend
-        const res = await fetch("http://localhost:4000/members/combined-list", {
+        const res = await apiFetch("/members/combined-list", {
           headers: { Authorization: `Bearer ${token}` },
         });
         if (!res.ok) throw new Error("Failed to fetch members");
@@ -32,7 +32,7 @@ export default function ChatPage() {
         setOtherMembers(data.otherMembers);
 
         // Fetch unread counts by sender
-        const resUnread = await fetch("http://localhost:4000/messages/unread-count-by-sender", {
+        const resUnread = await apiFetch("/messages/unread-count-by-sender", {
           headers: { Authorization: `Bearer ${token}` },
         });
         if (!resUnread.ok) throw new Error("Failed to fetch unread counts");
@@ -92,7 +92,7 @@ export default function ChatPage() {
       const token = localStorage.getItem("token");
       if (!token) return;
 
-      const resUnread = await fetch("http://localhost:4000/messages/unread-count-by-sender", {
+      const resUnread = await apiFetch("/messages/unread-count-by-sender", {
         headers: { Authorization: `Bearer ${token}` },
       });
       if (!resUnread.ok) throw new Error("Failed to fetch unread counts");

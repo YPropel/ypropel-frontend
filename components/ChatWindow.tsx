@@ -1,4 +1,6 @@
 import React, { useState, useEffect, useRef, FormEvent } from "react";
+import { apiFetch } from "../apiClient";  // Adjust path as needed
+
 
 type Message = {
   id: number;
@@ -46,8 +48,8 @@ export default function ChatWindow({ otherUserId }: { otherUserId: number }) {
       const token = localStorage.getItem("token");
       try {
         // Fetch messages in conversation
-        const resMsgs = await fetch(
-          `http://localhost:4000/messages/conversation?user1=${userId}&user2=${otherUserId}`,
+        const resMsgs = await apiFetch(
+          `/messages/conversation?user1=${userId}&user2=${otherUserId}`,
           { headers: { Authorization: `Bearer ${token}` } }
         );
         if (!resMsgs.ok) {
@@ -59,10 +61,10 @@ export default function ChatWindow({ otherUserId }: { otherUserId: number }) {
         setMessages(msgs);
 
         // Fetch user info for both users
-        const resUser1 = await fetch(`http://localhost:4000/users/${userId}`, {
+        const resUser1 = await apiFetch(`/users/${userId}`, {
           headers: { Authorization: `Bearer ${token}` },
         });
-        const resUser2 = await fetch(`http://localhost:4000/users/${otherUserId}`, {
+        const resUser2 = await apiFetch(`/users/${otherUserId}`, {
           headers: { Authorization: `Bearer ${token}` },
         });
 
@@ -88,7 +90,7 @@ export default function ChatWindow({ otherUserId }: { otherUserId: number }) {
         scrollToBottom();
 
         // Mark messages read after loading
-        const resMarkRead = await fetch("http://localhost:4000/messages/mark-read", {
+        const resMarkRead = await apiFetch("/messages/mark-read", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -121,7 +123,7 @@ export default function ChatWindow({ otherUserId }: { otherUserId: number }) {
 
     try {
       const token = localStorage.getItem("token");
-      const res = await fetch("http://localhost:4000/messages", {
+      const res = await apiFetch("/messages", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

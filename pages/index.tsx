@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import Layout from "../components/Layout"; // Make sure this path is correct
 import AuthGuard from "../components/AuthGuard";
+import { apiFetch } from "../apiClient"; 
 
 type Comment = {
   id: number;
@@ -49,6 +50,8 @@ export default function Home() {
   const [editingCommentId, setEditingCommentId] = useState<number | null>(null);
   const [editedCommentText, setEditedCommentText] = useState<string>("");
 
+  const BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:4000";
+
   const getToken = () => {
     if (typeof window === "undefined") return "";
     const token = localStorage.getItem("token");
@@ -64,7 +67,7 @@ export default function Home() {
 
       async function fetchUserProfile(userId: number) {
         const token = getToken();
-        const res = await fetch(`http://localhost:4000/users/${userId}`, {
+        const res = await apiFetch(`/users/${userId}`, {
           headers: { Authorization: `Bearer ${token}` },
         });
         if (res.ok) {
@@ -92,7 +95,7 @@ export default function Home() {
         return;
       }
 
-      const res = await fetch("http://localhost:4000/posts", {
+      const res = await apiFetch("/posts", {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -103,7 +106,7 @@ export default function Home() {
 
       const postsWithComments = await Promise.all(
         data.map(async (post: Post) => {
-          const commentsRes = await fetch(`http://localhost:4000/posts/${post.id}/comments`, {
+          const commentsRes = await apiFetch(`/posts/${post.id}/comments`, {
             headers: {
               "Content-Type": "application/json",
               Authorization: `Bearer ${token}`,
@@ -141,13 +144,14 @@ export default function Home() {
       if (newImageFile) formData.append("image", newImageFile);
       if (newVideoFile) formData.append("video", newVideoFile);
 
-      const res = await fetch("http://localhost:4000/posts", {
+      const res = await apiFetch("/posts", {
         method: "POST",
         headers: {
           Authorization: `Bearer ${token}`,
         },
         body: formData,
       });
+console.log("Uploading videoooooooo file:", newVideoFile);
 
       if (!res.ok) throw new Error("Failed to create post");
       await fetchPosts();
@@ -171,7 +175,7 @@ export default function Home() {
     if (!window.confirm("Delete this post?")) return;
 
     try {
-      const res = await fetch(`http://localhost:4000/posts/${postId}`, {
+      const res = await apiFetch(`/posts/${postId}`, {
         method: "DELETE",
         headers: { Authorization: `Bearer ${token}` },
       });
@@ -187,7 +191,7 @@ export default function Home() {
     if (!token) return;
 
     try {
-      const res = await fetch(`http://localhost:4000/posts/${postId}/follow`, {
+      const res = await apiFetch(`/posts/${postId}/follow`, {
         method: "POST",
         headers: { Authorization: `Bearer ${token}` },
       });
@@ -207,7 +211,7 @@ export default function Home() {
     if (!token) return;
 
     try {
-      const res = await fetch(`http://localhost:4000/posts/${postId}/like`, {
+      const res = await apiFetch(`/posts/${postId}/like`, {
         method: "POST",
         headers: { Authorization: `Bearer ${token}` },
       });
@@ -225,7 +229,7 @@ export default function Home() {
     if (!token) return;
 
     try {
-      const res = await fetch(`http://localhost:4000/posts/${postId}/share`, {
+      const res = await apiFetch(`/posts/${postId}/share`, {
         method: "POST",
         headers: { Authorization: `Bearer ${token}` },
       });
@@ -250,7 +254,7 @@ export default function Home() {
     if (!content) return;
 
     try {
-      const res = await fetch(`http://localhost:4000/posts/${postId}/comments`, {
+      const res = await apiFetch(`/posts/${postId}/comments`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -283,7 +287,7 @@ export default function Home() {
     if (!token) return;
 
     try {
-      const res = await fetch(`http://localhost:4000/posts/${postId}/comments/${commentId}`, {
+      const res = await apiFetch(`/posts/${postId}/comments/${commentId}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
@@ -324,7 +328,7 @@ export default function Home() {
     const fields = editFields[postId];
 
     try {
-      const res = await fetch(`http://localhost:4000/posts/${postId}`, {
+      const res = await apiFetch(`/posts/${postId}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
@@ -463,6 +467,21 @@ export default function Home() {
           const commentsToShow = isExpanded ? post.comments : post.comments.slice(0, 2);
           const isEditing = editingPostId === post.id;
 
+          // Debugging: log the image URL from backend
+          console.log("Image URL from post:", post.imageUrl);
+
+          // Prepend BASE_URL if imageUrl exists and does not start with http(s)
+          const imageUrlToShow =
+            post.imageUrl && !post.imageUrl.startsWith("http")
+              ? `${BASE_URL}${post.imageUrl}`
+              : post.imageUrl;
+
+          // Same for videoUrl
+          const videoUrlToShow =
+            post.videoUrl && !post.videoUrl.startsWith("http")
+              ? `${BASE_URL}${post.videoUrl}`
+              : post.videoUrl;
+
           return (
             <div key={post.id} className="bg-white rounded shadow p-4 space-y-3 relative">
               <div className="flex justify-between">
@@ -535,17 +554,17 @@ export default function Home() {
                 <>
                   <p>{post.content}</p>
 
-                  {post.imageUrl && (
+                  {imageUrlToShow && (
                     <img
-                      src={`http://localhost:4000${post.imageUrl}`}
+                      src={imageUrlToShow}
                       alt="Post image"
                       className="max-w-full h-auto mt-2"
                     />
                   )}
 
-                  {post.videoUrl && (
+                  {videoUrlToShow && (
                     <video controls className="w-full mt-2">
-                      <source src={`http://localhost:4000${post.videoUrl}`} type="video/mp4" />
+                      <source src={videoUrlToShow} type="video/mp4" />
                       Your browser does not support the video tag.
                     </video>
                   )}

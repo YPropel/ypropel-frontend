@@ -1,5 +1,23 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import {
+  FaHome,
+  FaNewspaper,
+  FaBriefcase,
+  FaComments,
+  FaFileUpload,
+  FaVideo,
+  FaGraduationCap,
+  FaSchool,
+  FaUserGraduate,
+  FaUniversity,
+  FaCalendarAlt,
+  FaNewspaper as FaArticles,
+  FaTools,
+  FaUsers,
+  FaUser,
+  FaInfoCircle,
+} from "react-icons/fa";
 
 type UserProfile = {
   name: string;
@@ -9,25 +27,23 @@ type UserProfile = {
 
 const sidebarMenu = [
   {
-    title: " Students' & Early-Career Resources",
+    title: "Students' & Early-Career Resources",
     items: [
-      { label: "Home", href: "/" },
-      { label: "Latest News & Updates", href: "/news-updates" },
-      { label: "Latest Job Opportunites", href: "/apply-to-jobs" },
-      { label: "Discussion Board & Study Circle", href: "/discussion-board" },
-      { label: "Upload Your Resume", href: "/upload-resume" },
-      { label: "PitchPoint Video Hub", href: "/pitchpoint" },
-      { label: "Mini-Courses", href: "/mini-courses" },
-      { label: "High School Students Resources", href: "/high-school-resources" },
-      { label: "Pre-college Summer Programs", href: "/pre-college-summer" },
-      { label: "University Students Resources", href: "/university-students-resources" },
-      { label: "US Universities", href: "/universities" },
-      { label: "Jobs Fair", href: "/job-fairs" },
-      { label: "📰 Articles", href: "/articles" },
-      { label: "Freelance", href: "/freelance" },
-      { label: "Members Directory", href: "/members" },
-      { label: "View-Edit Profile", href: "/profile" },
-      { label: "About Us", href: "/about" },
+      { label: "Home", href: "/", icon: <FaHome /> },
+      { label: "Latest News & Updates", href: "/news-updates", icon: <FaNewspaper /> },
+      { label: "Latest Job Opportunities", href: "/apply-to-jobs", icon: <FaBriefcase /> },
+      { label: "Discussion Board & Study Circle", href: "/discussion-board", icon: <FaComments /> },
+      { label: "Upload Your Resume", href: "/upload-resume", icon: <FaFileUpload /> },
+      { label: "PitchPoint Video Hub", href: "/pitchpoint", icon: <FaVideo /> },
+      { label: "Mini-Courses", href: "/mini-courses", icon: <FaGraduationCap /> },
+      { label: "High School Students Resources", href: "/high-school-resources", icon: <FaSchool /> },
+      { label: "University Students Resources", href: "/university-students-resources", icon: <FaUserGraduate /> },
+      { label: "Jobs Fair", href: "/job-fairs", icon: <FaCalendarAlt /> },
+      { label: "Articles", href: "/articles", icon: <FaArticles /> },
+      { label: "Freelance", href: "/freelance", icon: <FaTools /> },
+      { label: "Members Directory", href: "/members", icon: <FaUsers /> },
+      { label: "View-Edit Profile", href: "/profile", icon: <FaUser /> },
+      { label: "About Us", href: "/about", icon: <FaInfoCircle /> },
     ],
   },
 ];
@@ -82,7 +98,6 @@ export default function Sidebar() {
     fetchProfile(userId);
   }, [userId]);
 
-  // Listen for token/userId changes, login/logout events, AND profileUpdated event
   useEffect(() => {
     function onStorageChange(e: StorageEvent) {
       if (e.key === "token" || e.key === "userId") {
@@ -131,18 +146,18 @@ export default function Sidebar() {
       {/* Profile badge */}
       {profile && (
         <div className="border border-gray-300 rounded-lg p-4 mb-6 bg-gray-50 text-center shadow-sm">
-         <img
-  src={
-    profile.photo_url && profile.photo_url.trim() !== ""
-      ? `${profile.photo_url}?t=${new Date().getTime()}`
-      : "/images/default-profile.png"
-  }
-  alt="Profile"
-  className="w-16 h-16 rounded-full mx-auto object-cover"
-  onError={(e) => {
-    (e.target as HTMLImageElement).src = "/images/default-profile.png";
-  }}
-/>
+          <img
+            src={
+              profile.photo_url && profile.photo_url.trim() !== ""
+                ? `${profile.photo_url}?t=${new Date().getTime()}`
+                : "/images/default-profile.png"
+            }
+            alt="Profile"
+            className="w-16 h-16 rounded-full mx-auto object-cover"
+            onError={(e) => {
+              (e.target as HTMLImageElement).src = "/images/default-profile.png";
+            }}
+          />
 
           <h3 className="mt-2 font-semibold text-sm" style={{ color: navyColor }}>
             {profile.name}
@@ -165,8 +180,13 @@ export default function Sidebar() {
           <ul className="space-y-2">
             {section.items.map((item, subIdx) => (
               <li key={subIdx}>
-                <Link href={item.href} className="hover:underline" style={{ color: navyColor }}>
-                  {item.label}
+                <Link
+                  href={item.href}
+                  className="flex items-center gap-2 hover:underline"
+                  style={{ color: navyColor }}
+                >
+                  <span className="text-lg">{item.icon}</span>
+                  <span>{item.label}</span>
                 </Link>
               </li>
             ))}
