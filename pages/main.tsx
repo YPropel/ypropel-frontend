@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useRouter } from "next/router";
 import Script from "next/script";
-import { apiFetch } from "../apiClient"; 
+import { apiFetch } from "../apiClient";
 
 enum AuthView {
   Login = "login",
@@ -73,7 +73,7 @@ export default function LandingPage() {
         : "/auth/google-signup";
 
     try {
-      const res = await fetch(endpoint, {
+      const res = await apiFetch(endpoint, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ tokenId: idToken }),
@@ -257,9 +257,9 @@ export default function LandingPage() {
             className="w-32 h-32 mb-2"
           />
           <h2 className="text-xl font-semibold text-blue-900">
-            Propel Your Future. Connect. Learn. Succeed.</h2>
-            <h2>YPropel Students x graduates professional paltform</h2>
-          
+            Propel Your Future. Connect. Learn. Succeed.
+          </h2>
+          <h2>YPropel Students x graduates professional platform</h2>
         </div>
 
         {/* Main auth + info container */}
