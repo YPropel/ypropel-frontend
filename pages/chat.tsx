@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import MembersList from "../components/MembersList";
 import ChatWindow from "../components/ChatWindow";
 import { apiFetch } from "../apiClient"; 
+
 type Member = {
   id: number;
   name: string;
@@ -21,7 +22,6 @@ export default function ChatPage() {
         const token = localStorage.getItem("token");
         if (!token) return;
 
-        // Fetch combined recent + other members from backend
         const res = await apiFetch("/members/combined-list", {
           headers: { Authorization: `Bearer ${token}` },
         });
@@ -31,7 +31,6 @@ export default function ChatPage() {
         setRecentChatMembers(data.recentMembers);
         setOtherMembers(data.otherMembers);
 
-        // Fetch unread counts by sender
         const resUnread = await apiFetch("/messages/unread-count-by-sender", {
           headers: { Authorization: `Bearer ${token}` },
         });
@@ -39,7 +38,6 @@ export default function ChatPage() {
         const unreadData: Record<number, number> = await resUnread.json();
         setUnreadCounts(unreadData);
 
-        // Auto-select first recent chat member if exists, else first other member
         if (data.recentMembers.length > 0) {
           setOtherUserId(data.recentMembers[0].id);
         } else if (data.otherMembers.length > 0) {
@@ -53,6 +51,31 @@ export default function ChatPage() {
     }
 
     fetchMembers();
+  }, []);
+
+  // Listen for "messagesRead" event to refresh unread counts
+  useEffect(() => {
+    const handleMessagesRead = async () => {
+      try {
+        const token = localStorage.getItem("token");
+        if (!token) return;
+
+        const resUnread = await apiFetch("/messages/unread-count-by-sender", {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        if (!resUnread.ok) throw new Error("Failed to fetch unread counts");
+        const unreadData: Record<number, number> = await resUnread.json();
+        setUnreadCounts(unreadData);
+      } catch (error) {
+        console.error("Failed to refresh unread counts:", error);
+      }
+    };
+
+    window.addEventListener("messagesRead", handleMessagesRead);
+
+    return () => {
+      window.removeEventListener("messagesRead", handleMessagesRead);
+    };
   }, []);
 
   const handleMemberClick = (user: Member) => {
@@ -84,30 +107,4 @@ export default function ChatPage() {
       </div>
     </div>
   );
-
-
-  useEffect(() => {
-  const handleMessagesRead = async () => {
-    try {
-      const token = localStorage.getItem("token");
-      if (!token) return;
-
-      const resUnread = await apiFetch("/messages/unread-count-by-sender", {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      if (!resUnread.ok) throw new Error("Failed to fetch unread counts");
-      const unreadData: Record<number, number> = await resUnread.json();
-      setUnreadCounts(unreadData);
-    } catch (error) {
-      console.error("Failed to refresh unread counts:", error);
-    }
-  };
-
-  window.addEventListener("messagesRead", handleMessagesRead);
-
-  return () => {
-    window.removeEventListener("messagesRead", handleMessagesRead);
-  };
-}, []);
-
 }
