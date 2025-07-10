@@ -52,10 +52,17 @@ export default function Topbar() {
     };
     window.addEventListener("messagesRead", onMessagesRead);
 
+    // NEW: Listen for login event to update topbar immediately after sign in/up
+    const onLoginEvent = () => {
+      checkLoginAndFetchUnread();
+    };
+    window.addEventListener("login", onLoginEvent);
+
     return () => {
       clearInterval(intervalId);
       window.removeEventListener("storage", onStorageChange);
       window.removeEventListener("messagesRead", onMessagesRead);
+      window.removeEventListener("login", onLoginEvent); // cleanup new listener
     };
   }, []);
 
