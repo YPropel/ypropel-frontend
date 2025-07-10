@@ -74,10 +74,7 @@ export default function LandingPage() {
       return;
     }
 
-    const endpoint =
-      mode === "login"
-        ? "/auth/google-login"
-        : "/auth/google-signup";
+    const endpoint = "/auth/google-login";
 
     try {
       const res = await apiFetch(endpoint, {
