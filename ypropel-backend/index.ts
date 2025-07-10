@@ -7,7 +7,7 @@ import jwt from "jsonwebtoken";
 import { query } from "./db";
 import multer from "multer";
 import path from "path";
-import "./cronoldjobfairs";
+//import "./cronoldjobfairs";
 
 import { OAuth2Client } from "google-auth-library";
 
@@ -198,12 +198,12 @@ app.post(
 
     const resetLink = `http://localhost:3000/reset-password?token=${token}`;
 
-    await sendEmail({
-      to: email,
-      subject: "Reset your YPropel password",
-      text: `You requested a password reset. Click here to reset: ${resetLink}`,
-      html: `<p>You requested a password reset.</p><p><a href="${resetLink}">Click here to reset your password</a></p>`,
-    });
+    await sendEmail(
+  email,
+  "Reset your YPropel password",
+  `<p>You requested a password reset.</p><p><a href="${resetLink}">Click here to reset your password</a></p>`
+);
+
 
     res.json({ message: "Password reset email sent" });
   })
