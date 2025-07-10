@@ -1,5 +1,5 @@
 // components/AuthGuard.tsx
-import React, { ReactNode, useEffect } from "react";
+import React, { ReactNode, useEffect, useState } from "react";
 import { useRouter } from "next/router";
 
 type Props = {
@@ -8,18 +8,24 @@ type Props = {
 
 export default function AuthGuard({ children }: Props) {
   const router = useRouter();
+  const [isClient, setIsClient] = useState(false);
 
   useEffect(() => {
-    const token = localStorage.getItem("token");
-    if (!token) {
-      router.replace("/main"); // Redirect to your login/signup page
-    }
-  }, [router]);
+    setIsClient(true); // We are on client side now
+  }, []);
 
-  // While checking token or if no token, don’t render children
-  if (typeof window !== "undefined" && !localStorage.getItem("token")) {
-    return null; // or a spinner/loading indicator if you prefer
-  }
+  useEffect(() => {
+    if (isClient) {
+      const token = localStorage.getItem("token");
+      if (!token) {
+        router.replace("/main"); // Redirect to your login/signup page
+      }
+    }
+  }, [isClient, router]);
+
+  // Don't render children until we know we're on client and token exists
+  if (!isClient) return null;
+  if (!localStorage.getItem("token")) return null;
 
   return <>{children}</>;
 }
