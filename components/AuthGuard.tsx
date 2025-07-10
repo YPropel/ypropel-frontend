@@ -7,26 +7,21 @@ type Props = {
 
 export default function AuthGuard({ children }: Props) {
   const router = useRouter();
-  const [isClient, setIsClient] = useState(false);
-  const [hasToken, setHasToken] = useState(false);
+  const [isVerified, setIsVerified] = useState(false);
 
   useEffect(() => {
-    setIsClient(true);
-  }, []);
-
-  useEffect(() => {
-    if (isClient) {
+    if (typeof window !== "undefined") {
       const token = localStorage.getItem("token");
       if (!token) {
-        router.replace("/main"); // Redirect to login/signup page
+        router.replace("/main");
       } else {
-        setHasToken(true);
+        setIsVerified(true);
       }
     }
-  }, [isClient, router]);
+  }, [router]);
 
-  if (!isClient || !hasToken) {
-    return null; // or loading spinner
+  if (!isVerified) {
+    return null;
   }
 
   return <>{children}</>;
