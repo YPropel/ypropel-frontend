@@ -516,13 +516,17 @@ export default function PitchPoint() {
                   >
                     🔄 Share ({shares})
                   </button>
+                  console.log("Videos:", videos);
+console.log("Current User ID:", currentUserId);
                   {user_id === currentUserId && (
+                    
                     <button
                       onClick={() => handleDeleteVideo(id)}
                       className="px-3 py-1 rounded bg-red-600 text-white hover:bg-red-700"
                       aria-label={`Delete video titled ${title}`}
                     >
                       Delete
+
                     </button>
                   )}
                 </div>
