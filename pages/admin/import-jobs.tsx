@@ -19,14 +19,16 @@ export default function ImportJobsPage() {
         return;
       }
 
-      const res = await apiFetch("/admin/import-entry-jobs", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({ keyword: "", location: "", page: 1 }),
-      });
+     const BACKEND_URL = "https://ypropel-backend.onrender.com"; // your backend URL on Render
+
+const res = await fetch(`${BACKEND_URL}/admin/import-entry-jobs`, {
+  method: "POST",
+  headers: {
+    "Content-Type": "application/json",
+    Authorization: `Bearer ${token}`,
+  },
+  body: JSON.stringify({ keyword: "", location: "", page: 1 }),
+});
 
       if (!res.ok) {
         const errorText = await res.text();
