@@ -1,5 +1,7 @@
+// pages/admin/import-jobs.tsx
+
 import React, { useState } from "react";
-import { apiFetch } from "../apiClient"; // adjust import path as needed
+import { apiFetch } from "../../apiClient";
 
 export default function ImportJobsPage() {
   const [loading, setLoading] = useState(false);
@@ -10,10 +12,30 @@ export default function ImportJobsPage() {
     setResult(null);
 
     try {
-      const data = await apiFetch("/admin/import-entry-jobs", {
+      const token = localStorage.getItem("token");
+      if (!token) {
+        setResult("You must be logged in as admin.");
+        setLoading(false);
+        return;
+      }
+
+      const res = await apiFetch("/admin/import-entry-jobs", {
         method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
         body: JSON.stringify({ keyword: "", location: "", page: 1 }),
       });
+
+      if (!res.ok) {
+        const errorText = await res.text();
+        setResult(`Import failed: ${errorText}`);
+        setLoading(false);
+        return;
+      }
+
+      const data = await res.json();
 
       if (data.success) {
         setResult(`Successfully imported ${data.inserted} new jobs.`);
