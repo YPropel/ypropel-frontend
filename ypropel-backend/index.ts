@@ -2001,7 +2001,13 @@ app.get(
   "/api/videos",
   asyncHandler(async (req, res) => {
     const videosRes = await query(`
-      SELECT v.*,
+      SELECT 
+        v.id,
+        v.user_id,
+        v.title,
+        v.description,
+        v.video_url,
+        v.category,
         COALESCE(l.likes_count, 0) AS likes,
         COALESCE(f.follows_count, 0) AS follows,
         COALESCE(v.share_count, 0) AS shares
@@ -2022,16 +2028,22 @@ app.get(
   })
 );
 
+
 // POST /api/videos - add new video
 app.post(
   "/api/videos",
   authenticateToken,
   asyncHandler(async (req, res) => {
     const { title, description, video_url, category } = req.body;
-    const userId = (req as any).user.id;
+    const userId = req.user?.userId;
 
     if (!title || !video_url) {
       res.status(400).json({ error: "Title and video_url are required" });
+      return;
+    }
+
+    if (!userId) {
+      res.status(401).json({ error: "Unauthorized" });
       return;
     }
 
@@ -2044,6 +2056,7 @@ app.post(
     res.status(201).json(insertRes.rows[0]);
   })
 );
+
 
 
 // POST /api/videos/:id/like - toggle like
@@ -2199,6 +2212,29 @@ app.post(
       console.error("Cloudinary upload error:", error);
       res.status(500).json({ error: "Failed to upload video" });
     }
+  })
+);
+// DELETE /api/videos/:id - delete a video if owned by the authenticated user
+app.delete(
+  "/api/videos/:id",
+  authenticateToken,
+  asyncHandler(async (req, res) => {
+    const videoId = parseInt(req.params.id);
+    //const userId = (req as any).user.id;
+const userId = req.user?.userId;
+    // Verify video exists and is owned by user
+    const videoRes = await query("SELECT user_id FROM pitchpoint_videos WHERE id = $1", [videoId]);
+    if (videoRes.rowCount === 0) {
+      return res.status(404).json({ error: "Video not found" });
+    }
+    if (videoRes.rows[0].user_id !== userId) {
+      return res.status(403).json({ error: "Not authorized to delete this video" });
+    }
+
+    // Delete video
+    await query("DELETE FROM pitchpoint_videos WHERE id = $1", [videoId]);
+
+    res.json({ success: true });
   })
 );
 
@@ -2746,6 +2782,11 @@ app.delete("/admin/news/:id", authenticateToken, asyncHandler(async (req, res) =
 //------------Pre college summer programs Admin routes------------
 //----Add pre-college-summer program by Admin---
 // Admin-only: Add a new summer program
+app.get("/admin/test", (req, res) => {
+  res.json({ msg: "Admin routes are working!" });
+});
+
+
 app.post("/admin/summer-programs", async (req: Request, res: Response) => {
   const {
     title,
