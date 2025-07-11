@@ -4,6 +4,7 @@ import { apiFetch } from "../apiClient";
 
 type Video = {
   id: number;
+  user_id: number; // Added user_id
   title: string;
   description: string | null;
   video_url: string;
@@ -27,7 +28,9 @@ const categories = [
 export default function PitchPoint() {
   const [videos, setVideos] = useState<Video[]>([]);
   const [token, setToken] = useState<string>("");
+  const [currentUserId, setCurrentUserId] = useState<number | null>(null);
   const [showForm, setShowForm] = useState(false);
+  const [filterCategory, setFilterCategory] = useState<string>("All");
 
   const [newVideo, setNewVideo] = useState<{
     title: string;
@@ -45,10 +48,20 @@ export default function PitchPoint() {
     isUploading: false,
   });
 
+  // Decode user ID from JWT token and fetch videos on load
   useEffect(() => {
     const storedToken = localStorage.getItem("token") || "";
     setToken(storedToken);
     fetchVideos(storedToken);
+
+    if (storedToken) {
+      try {
+        const payload = JSON.parse(atob(storedToken.split(".")[1]));
+        setCurrentUserId(payload.userId || null);
+      } catch {
+        setCurrentUserId(null);
+      }
+    }
   }, []);
 
   async function fetchVideos(token: string) {
@@ -58,7 +71,6 @@ export default function PitchPoint() {
       });
       if (!res.ok) throw new Error("Failed to fetch videos");
       const data = await res.json();
-      // Initialize likedByUser and followedByUser to false (you can enhance with real user data)
       const videosWithFlags = data.map((v: any) => ({
         ...v,
         likedByUser: false,
@@ -70,7 +82,6 @@ export default function PitchPoint() {
     }
   }
 
-  // Handle input change for text fields & category dropdown
   function handleInputChange(
     e: ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>
   ) {
@@ -78,7 +89,6 @@ export default function PitchPoint() {
     setNewVideo((prev) => ({ ...prev, [name]: value }));
   }
 
-  // Handle file selection and upload to Cloudinary
   async function handleFileChange(e: ChangeEvent<HTMLInputElement>) {
     const file = e.target.files && e.target.files[0];
     if (!file) return;
@@ -89,7 +99,8 @@ export default function PitchPoint() {
       const formData = new FormData();
       formData.append("file", file);
 
-     const backendBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:4000";
+      const backendBaseUrl =
+        process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:4000";
 
       const res = await fetch(`${backendBaseUrl}/api/upload-video`, {
         method: "POST",
@@ -106,7 +117,7 @@ export default function PitchPoint() {
       setNewVideo((prev) => ({
         ...prev,
         file: file,
-        url: data.videoUrl, // set the returned Cloudinary URL as video_url
+        url: data.videoUrl,
         isUploading: false,
       }));
     } catch (error) {
@@ -116,7 +127,6 @@ export default function PitchPoint() {
     }
   }
 
-  // Submit new video pitch to backend
   async function handleAddVideo(e: FormEvent) {
     e.preventDefault();
 
@@ -152,10 +162,8 @@ export default function PitchPoint() {
         throw new Error(errorData.error || "Failed to add video");
       }
 
-      // Refresh video list after successful add
       fetchVideos(token);
 
-      // Reset form and close modal
       setNewVideo({
         title: "",
         description: "",
@@ -172,12 +180,10 @@ export default function PitchPoint() {
     }
   }
 
-  // Helper to detect if video_url is an embed URL (YouTube) or direct video file URL
   function isEmbedUrl(url: string) {
     return url.includes("youtube.com/embed") || url.includes("youtu.be");
   }
 
-  // Likes, follows, shares toggles copied from your current code, unchanged
   async function toggleLike(videoId: number, liked: boolean) {
     try {
       const res = await apiFetch(`/api/videos/${videoId}/like`, {
@@ -244,6 +250,32 @@ export default function PitchPoint() {
     }
   }
 
+  async function handleDeleteVideo(videoId: number) {
+    if (!confirm("Are you sure you want to delete this video?")) return;
+
+    try {
+      const res = await apiFetch(`/api/videos/${videoId}`, {
+        method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      if (!res.ok) {
+        const errorData = await res.json();
+        throw new Error(errorData.error || "Failed to delete video");
+      }
+      setVideos((prev) => prev.filter((v) => v.id !== videoId));
+    } catch (error: any) {
+      alert(error.message || "Failed to delete video");
+    }
+  }
+
+  // Filter videos by category client-side
+  const filteredVideos =
+    filterCategory === "All"
+      ? videos
+      : videos.filter((v) => v.category === filterCategory);
+
   return (
     <AuthGuard>
       <div className="max-w-4xl mx-auto p-6 space-y-6">
@@ -257,6 +289,29 @@ export default function PitchPoint() {
           </button>
         </div>
 
+        {/* Category Filter */}
+        <div className="mb-4 flex items-center gap-2">
+          <label
+            htmlFor="categoryFilter"
+            className="font-semibold text-gray-700"
+          >
+            Filter by Category:
+          </label>
+          <select
+            id="categoryFilter"
+            value={filterCategory}
+            onChange={(e) => setFilterCategory(e.target.value)}
+            className="border rounded px-3 py-1"
+          >
+            <option value="All">All</option>
+            {categories.map((cat) => (
+              <option key={cat} value={cat}>
+                {cat}
+              </option>
+            ))}
+          </select>
+        </div>
+
         {/* Add Video Modal */}
         {showForm && (
           <div className="fixed inset-0 bg-black bg-opacity-40 flex justify-center items-center z-50 p-4">
@@ -264,10 +319,14 @@ export default function PitchPoint() {
               onSubmit={handleAddVideo}
               className="bg-white rounded-lg shadow-lg max-w-lg w-full p-6 space-y-4 overflow-auto max-h-[90vh]"
             >
-              <h2 className="text-xl font-semibold text-blue-900 mb-4">Add New Video</h2>
+              <h2 className="text-xl font-semibold text-blue-900 mb-4">
+                Add New Video
+              </h2>
 
               <label className="block">
-                <span className="text-gray-700 font-semibold">Video Title *</span>
+                <span className="text-gray-700 font-semibold">
+                  Video Title *
+                </span>
                 <input
                   type="text"
                   name="title"
@@ -280,7 +339,9 @@ export default function PitchPoint() {
               </label>
 
               <label className="block">
-                <span className="text-gray-700 font-semibold">Description (optional)</span>
+                <span className="text-gray-700 font-semibold">
+                  Description (optional)
+                </span>
                 <textarea
                   name="description"
                   value={newVideo.description}
@@ -309,7 +370,9 @@ export default function PitchPoint() {
               </label>
 
               <label className="block">
-                <span className="text-gray-700 font-semibold">YouTube Embed URL (if any)</span>
+                <span className="text-gray-700 font-semibold">
+                  YouTube Embed URL (if any)
+                </span>
                 <input
                   type="url"
                   name="url"
@@ -318,24 +381,32 @@ export default function PitchPoint() {
                   placeholder="https://www.youtube.com/embed/..."
                   disabled={newVideo.file !== null || newVideo.isUploading}
                   className={`mt-1 block w-full border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-600 ${
-                    newVideo.file !== null || newVideo.isUploading ? "bg-gray-100 cursor-not-allowed" : ""
+                    newVideo.file !== null || newVideo.isUploading
+                      ? "bg-gray-100 cursor-not-allowed"
+                      : ""
                   }`}
                 />
               </label>
 
               <label className="block">
-                <span className="text-gray-700 font-semibold">Or Upload Video File</span>
+                <span className="text-gray-700 font-semibold">
+                  Or Upload Video File
+                </span>
                 <input
                   type="file"
                   accept="video/*"
                   onChange={handleFileChange}
                   disabled={newVideo.url.trim() !== "" || newVideo.isUploading}
                   className={`mt-1 block w-full border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-600 ${
-                    newVideo.url.trim() !== "" || newVideo.isUploading ? "bg-gray-100 cursor-not-allowed" : ""
+                    newVideo.url.trim() !== "" || newVideo.isUploading
+                      ? "bg-gray-100 cursor-not-allowed"
+                      : ""
                   }`}
                 />
                 {newVideo.isUploading && (
-                  <p className="text-green-600 font-semibold mt-2">Uploading video, please wait...</p>
+                  <p className="text-green-600 font-semibold mt-2">
+                    Uploading video, please wait...
+                  </p>
                 )}
               </label>
 
@@ -364,12 +435,15 @@ export default function PitchPoint() {
 
         {/* Videos List */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-          {videos.length === 0 && (
-            <p className="text-center text-gray-500 col-span-2">No videos available.</p>
+          {filteredVideos.length === 0 && (
+            <p className="text-center text-gray-500 col-span-2">
+              No videos available.
+            </p>
           )}
-          {videos.map(
+          {filteredVideos.map(
             ({
               id,
+              user_id,
               title,
               description,
               category,
@@ -384,8 +458,12 @@ export default function PitchPoint() {
                 key={id}
                 className="bg-white rounded shadow p-4 flex flex-col items-center"
               >
-                <div className="mb-1 text-sm text-blue-700 font-semibold">{category || "Uncategorized"}</div>
-                <h2 className="text-xl font-semibold text-blue-900 mb-2 text-center">{title}</h2>
+                <div className="mb-1 text-sm text-blue-700 font-semibold">
+                  {category || "Uncategorized"}
+                </div>
+                <h2 className="text-xl font-semibold text-blue-900 mb-2 text-center">
+                  {title}
+                </h2>
                 {description && (
                   <p className="mb-3 text-center text-gray-700">{description}</p>
                 )}
@@ -438,6 +516,15 @@ export default function PitchPoint() {
                   >
                     🔄 Share ({shares})
                   </button>
+                  {user_id === currentUserId && (
+                    <button
+                      onClick={() => handleDeleteVideo(id)}
+                      className="px-3 py-1 rounded bg-red-600 text-white hover:bg-red-700"
+                      aria-label={`Delete video titled ${title}`}
+                    >
+                      Delete
+                    </button>
+                  )}
                 </div>
               </div>
             )
