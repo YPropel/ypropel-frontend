@@ -276,8 +276,7 @@ export default function PitchPoint() {
       ? videos
       : videos.filter((v) => v.category === filterCategory);
 
-      console.log("Videos:", videos);
-  console.log("Current User ID:", currentUserId);
+      
   return (
     <AuthGuard>
       <div className="max-w-4xl mx-auto p-6 space-y-6">
@@ -518,8 +517,7 @@ export default function PitchPoint() {
                   >
                     🔄 Share ({shares})
                   </button>
-                  console.log("Videos:", videos);
-console.log("Current User ID:", currentUserId);
+                
                   {user_id === currentUserId && (
                     
                     <button
