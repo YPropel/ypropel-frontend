@@ -77,6 +77,7 @@ export default function AdminJobsPage() {
       setError(null);
 
       try {
+        // <-- Added leading slash here
         const res = await apiFetch("/admin/jobs", {
           headers: { Authorization: `Bearer ${token}` },
         });
@@ -101,6 +102,7 @@ export default function AdminJobsPage() {
   // Fetch categories list
   useEffect(() => {
     if (!token) return;
+    // <-- Added leading slash here
     apiFetch("/admin/job-categories", {
       headers: { Authorization: `Bearer ${token}` },
     })
@@ -114,6 +116,7 @@ export default function AdminJobsPage() {
 
   // Fetch countries once
   useEffect(() => {
+    // <-- Added leading slash here
     apiFetch("/countries")
       .then((res) => res.json())
       .then(setCountries)
@@ -128,6 +131,7 @@ export default function AdminJobsPage() {
       return;
     }
 
+    // <-- Added leading slash here
     apiFetch("/us-states")
       .then((res) => res.json())
       .then(setStates)
@@ -142,6 +146,7 @@ export default function AdminJobsPage() {
       return;
     }
 
+    // <-- Added leading slash here
     apiFetch(`/us-cities?state=${encodeURIComponent(formData.state)}`)
       .then((res) => res.json())
       .then(setCities)
@@ -174,20 +179,18 @@ export default function AdminJobsPage() {
     }
   }, [selectedJob]);
 
- function handleChange(
-  e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
-) {
-  const { name, value, type } = e.target;
-  // checked only exists on input elements of type checkbox or radio, so we need to check that safely
-  const val = type === "checkbox" && "checked" in e.target ? (e.target as HTMLInputElement).checked : value;
+  function handleChange(
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
+  ) {
+    const { name, value, type } = e.target;
+    const val =
+      type === "checkbox" && "checked" in e.target ? (e.target as HTMLInputElement).checked : value;
 
-  setFormData((prev) => ({
-    ...prev,
-    [name]: val,
-  }));
-}
-
-
+    setFormData((prev) => ({
+      ...prev,
+      [name]: val,
+    }));
+  }
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -219,9 +222,7 @@ export default function AdminJobsPage() {
 
     try {
       const method = selectedJob ? "PUT" : "POST";
-      const url = selectedJob
-        ? `/admin/jobs/${selectedJob.id}`
-        : "/admin/jobs";
+      const url = selectedJob ? `/admin/jobs/${selectedJob.id}` : "/admin/jobs";
 
       const res = await fetch(url, {
         method,
@@ -253,6 +254,7 @@ export default function AdminJobsPage() {
     }
 
     try {
+      // <-- Added leading slash here
       const res = await apiFetch(`/admin/jobs/${id}`, {
         method: "DELETE",
         headers: { Authorization: `Bearer ${token}` },
@@ -339,6 +341,7 @@ export default function AdminJobsPage() {
               onClick={async () => {
                 if (!newCategoryName.trim()) return alert("Category name required");
                 try {
+                  // <-- Added leading slash here
                   const res = await apiFetch("/admin/job-categories", {
                     method: "POST",
                     headers: {
@@ -383,6 +386,7 @@ export default function AdminJobsPage() {
                     onClick={async () => {
                       if (!confirm(`Delete category "${cat.name}"?`)) return;
                       try {
+                        // <-- Added leading slash here
                         const res = await apiFetch(`/admin/job-categories/${cat.id}`, {
                           method: "DELETE",
                           headers: {
