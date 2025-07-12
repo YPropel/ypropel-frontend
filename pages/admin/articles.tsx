@@ -1,7 +1,7 @@
-
-//This page to create admin backend to add - delete articles
+// This page to create admin backend to add - delete articles
 import React, { useState, useRef, useEffect } from "react";
-import { apiFetch } from "../../apiClient"; 
+import { apiFetch } from "../../apiClient";
+
 type Article = {
   id: number;
   title: string;
@@ -51,10 +51,13 @@ export default function AdminArticlesPage() {
     formData.append("upload_preset", "ypropel_preset");
 
     try {
-      const res = await fetch("https://api.cloudinary.com/v1_1/denggbgma/image/upload", {
-        method: "POST",
-        body: formData,
-      });
+      const res = await fetch(
+        "https://api.cloudinary.com/v1_1/denggbgma/image/upload",
+        {
+          method: "POST",
+          body: formData,
+        }
+      );
       const data = await res.json();
       if (res.ok && data.secure_url) {
         setCoverImageUrl(data.secure_url);
@@ -72,14 +75,11 @@ export default function AdminArticlesPage() {
     const token = localStorage.getItem("token");
     if (!token) return;
 
-    const url = editingId
-      ? `/admin/articles/${editingId}`
-      : "/admin/articles";
-
+    const url = editingId ? `/admin/articles/${editingId}` : "/admin/articles";
     const method = editingId ? "PUT" : "POST";
 
     try {
-      const res = await fetch(url, {
+      const res = await apiFetch(url, {
         method,
         headers: {
           "Content-Type": "application/json",
@@ -95,7 +95,11 @@ export default function AdminArticlesPage() {
       const data = await res.json();
 
       if (res.ok) {
-        setMessage(editingId ? "✅ Article updated successfully" : "✅ Article published successfully");
+        setMessage(
+          editingId
+            ? "✅ Article updated successfully"
+            : "✅ Article published successfully"
+        );
         setTitle("");
         setContent("");
         setCoverImageFile(null);
@@ -173,7 +177,9 @@ export default function AdminArticlesPage() {
 
   return (
     <div className="max-w-4xl mx-auto px-4 py-8">
-      <h1 className="text-2xl font-bold mb-6">{editingId ? "Edit Article" : "Publish New Article"}</h1>
+      <h1 className="text-2xl font-bold mb-6">
+        {editingId ? "Edit Article" : "Publish New Article"}
+      </h1>
 
       <input
         type="text"
@@ -210,7 +216,11 @@ export default function AdminArticlesPage() {
       </button>
 
       {coverImageUrl && (
-        <img src={coverImageUrl} alt="Preview" className="max-w-xs rounded mb-4" />
+        <img
+          src={coverImageUrl}
+          alt="Preview"
+          className="max-w-xs rounded mb-4"
+        />
       )}
 
       <div className="flex gap-4 mb-6">
