@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useRef } from "react";
-import { apiFetch } from "../../apiClient"; 
+import { apiFetch } from "../../apiClient";
+
 type MiniCourse = {
   id: number;
   title: string;
@@ -37,7 +38,7 @@ export default function AdminMiniCourses() {
   async function fetchCourses() {
     setLoading(true);
     try {
-      const res = await apiFetch("mini-courses");
+      const res = await apiFetch("/mini-courses");
       if (!res.ok) throw new Error("Failed to fetch courses");
       const data = await res.json();
       setCourses(data);
@@ -108,7 +109,7 @@ export default function AdminMiniCourses() {
     }
 
     try {
-      const res = await fetch(url, {
+      const res = await apiFetch(url, {
         method,
         headers: {
           "Content-Type": "application/json",
@@ -203,7 +204,6 @@ export default function AdminMiniCourses() {
           name="description"
           placeholder="Description"
           value={formData.description || ""}
-
           onChange={handleChange}
           className="w-full border rounded px-3 py-2"
         />
@@ -212,7 +212,6 @@ export default function AdminMiniCourses() {
           name="brief"
           placeholder="Brief (Course Goals / What you'll learn)"
           value={formData.brief || ""}
-
           onChange={handleChange}
           className="w-full border rounded px-3 py-2"
           rows={3}
