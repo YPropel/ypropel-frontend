@@ -1,5 +1,3 @@
-// pages/admin/import-jobs.tsx
-
 import React, { useState } from "react";
 import { apiFetch } from "../../apiClient";
 
@@ -19,7 +17,7 @@ export default function ImportJobsPage() {
         return;
       }
 
-      const res = await apiFetch("/backendadmin/import-entry-jobs", {
+      const res = await apiFetch("/adminbackend/import-entry-jobs", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
