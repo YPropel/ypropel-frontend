@@ -25,6 +25,8 @@ export default function AdminArticlesPage() {
   }, []);
 
   const fetchArticles = async () => {
+    console.log("API base URL:", process.env.NEXT_PUBLIC_API_BASE_URL);
+
     const token = localStorage.getItem("token");
     if (!token) return;
     try {
