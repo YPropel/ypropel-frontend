@@ -19,7 +19,7 @@ export default function ImportJobsPage() {
         return;
       }
 
-      const res = await apiFetch("/admin/import-entry-jobs", {
+      const res = await apiFetch("/backendadmin/import-entry-jobs", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
