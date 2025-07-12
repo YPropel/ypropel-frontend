@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { apiFetch } from "../../apiClient"; 
+
 type Job = {
   id: number;
   title: string;
@@ -77,7 +78,6 @@ export default function AdminJobsPage() {
       setError(null);
 
       try {
-        // <-- Added leading slash here
         const res = await apiFetch("/admin/jobs", {
           headers: { Authorization: `Bearer ${token}` },
         });
@@ -102,7 +102,6 @@ export default function AdminJobsPage() {
   // Fetch categories list
   useEffect(() => {
     if (!token) return;
-    // <-- Added leading slash here
     apiFetch("/admin/job-categories", {
       headers: { Authorization: `Bearer ${token}` },
     })
@@ -116,7 +115,6 @@ export default function AdminJobsPage() {
 
   // Fetch countries once
   useEffect(() => {
-    // <-- Added leading slash here
     apiFetch("/countries")
       .then((res) => res.json())
       .then(setCountries)
@@ -131,7 +129,6 @@ export default function AdminJobsPage() {
       return;
     }
 
-    // <-- Added leading slash here
     apiFetch("/us-states")
       .then((res) => res.json())
       .then(setStates)
@@ -146,7 +143,6 @@ export default function AdminJobsPage() {
       return;
     }
 
-    // <-- Added leading slash here
     apiFetch(`/us-cities?state=${encodeURIComponent(formData.state)}`)
       .then((res) => res.json())
       .then(setCities)
@@ -222,9 +218,9 @@ export default function AdminJobsPage() {
 
     try {
       const method = selectedJob ? "PUT" : "POST";
-      const url = selectedJob ? `/admin/jobs/${selectedJob.id}` : "/admin/jobs";
+      const apiPath = selectedJob ? `/admin/jobs/${selectedJob.id}` : "/admin/jobs";
 
-      const res = await fetch(url, {
+      const res = await apiFetch(apiPath, {
         method,
         headers: {
           "Content-Type": "application/json",
@@ -254,7 +250,6 @@ export default function AdminJobsPage() {
     }
 
     try {
-      // <-- Added leading slash here
       const res = await apiFetch(`/admin/jobs/${id}`, {
         method: "DELETE",
         headers: { Authorization: `Bearer ${token}` },
@@ -282,6 +277,22 @@ export default function AdminJobsPage() {
       <h2 className="text-2xl font-semibold mb-4">{selectedJob ? "Edit Job Posting" : "Create New Job Posting"}</h2>
 
       <form onSubmit={handleSubmit} className="space-y-4 max-w-xl mb-8">
+        {/* Title */}
+        <div>
+          <label htmlFor="title" className="block font-semibold mb-1">
+            Title <span className="text-red-600">*</span>
+          </label>
+          <input
+            id="title"
+            name="title"
+            type="text"
+            value={formData.title || ""}
+            onChange={handleChange}
+            required
+            className="w-full border rounded px-3 py-2"
+          />
+        </div>
+
         {/* Job Type */}
         <div>
           <label htmlFor="job_type" className="block font-semibold mb-1">
@@ -325,15 +336,13 @@ export default function AdminJobsPage() {
             ))}
           </select>
 
-         
-
           {/* Add new category */}
           <div className="mt-4 flex gap-2 items-center">
             <input
               type="text"
               value={newCategoryName}
               onChange={(e) => setNewCategoryName(e.target.value)}
-              placeholder="New category name - add new cateogy to jobs category list if needed"
+              placeholder="New category name - add new category to jobs category list if needed"
               className="border rounded px-3 py-1 flex-grow"
             />
             <button
@@ -341,7 +350,6 @@ export default function AdminJobsPage() {
               onClick={async () => {
                 if (!newCategoryName.trim()) return alert("Category name required");
                 try {
-                  // <-- Added leading slash here
                   const res = await apiFetch("/admin/job-categories", {
                     method: "POST",
                     headers: {
@@ -366,55 +374,55 @@ export default function AdminJobsPage() {
             </button>
           </div>
         </div>
-         {/* Toggle Delete List Button */}
-          <button
-            type="button"
-            className="mt-2 text-sm text-red-600 underline hover:text-red-800"
-            onClick={() => setShowDeleteList((show) => !show)}
-          >
-            {showDeleteList ? "Hide Delete Category List" : "Delete Category"}
-          </button>
 
-          {/* Conditionally rendered Delete List */}
-          {showDeleteList && (
-            <ul className="mt-2 max-h-40 overflow-auto border rounded p-2">
-              {categories.map((cat) => (
-                <li key={cat.id} className="flex items-center justify-between py-1">
-                  <span>{cat.name}</span>
-                  <button
-                    type="button"
-                    onClick={async () => {
-                      if (!confirm(`Delete category "${cat.name}"?`)) return;
-                      try {
-                        // <-- Added leading slash here
-                        const res = await apiFetch(`/admin/job-categories/${cat.id}`, {
-                          method: "DELETE",
-                          headers: {
-                            Authorization: `Bearer ${token}`,
-                          },
-                        });
-                        if (!res.ok) {
-                          const data = await res.json();
-                          throw new Error(data.error || "Failed to delete category");
-                        }
-                        setRefreshFlag((f) => !f); // refresh categories list
-                        if (formData.category === cat.name) {
-                          setFormData((prev) => ({ ...prev, category: "" }));
-                        }
-                        setShowDeleteList(false); // close after deletion
-                      } catch (err: any) {
-                        alert(err.message);
+        {/* Toggle Delete List Button */}
+        <button
+          type="button"
+          className="mt-2 text-sm text-red-600 underline hover:text-red-800"
+          onClick={() => setShowDeleteList((show) => !show)}
+        >
+          {showDeleteList ? "Hide Delete Category List" : "Delete Category"}
+        </button>
+
+        {/* Conditionally rendered Delete List */}
+        {showDeleteList && (
+          <ul className="mt-2 max-h-40 overflow-auto border rounded p-2">
+            {categories.map((cat) => (
+              <li key={cat.id} className="flex items-center justify-between py-1">
+                <span>{cat.name}</span>
+                <button
+                  type="button"
+                  onClick={async () => {
+                    if (!confirm(`Delete category "${cat.name}"?`)) return;
+                    try {
+                      const res = await apiFetch(`/admin/job-categories/${cat.id}`, {
+                        method: "DELETE",
+                        headers: {
+                          Authorization: `Bearer ${token}`,
+                        },
+                      });
+                      if (!res.ok) {
+                        const data = await res.json();
+                        throw new Error(data.error || "Failed to delete category");
                       }
-                    }}
-                    className="ml-2 text-red-600 hover:text-red-800"
-                    title="Delete Category"
-                  >
-                    Delete
-                  </button>
-                </li>
-              ))}
-            </ul>
-          )}
+                      setRefreshFlag((f) => !f); // refresh categories list
+                      if (formData.category === cat.name) {
+                        setFormData((prev) => ({ ...prev, category: "" }));
+                      }
+                      setShowDeleteList(false); // close after deletion
+                    } catch (err: any) {
+                      alert(err.message);
+                    }
+                  }}
+                  className="ml-2 text-red-600 hover:text-red-800"
+                  title="Delete Category"
+                >
+                  Delete
+                </button>
+              </li>
+            ))}
+          </ul>
+        )}
 
         {/* Country */}
         <div>
@@ -547,21 +555,6 @@ export default function AdminJobsPage() {
             className="w-full border rounded px-3 py-2"
           />
         </div>
-{/* Title */}
-<div>
-  <label htmlFor="title" className="block font-semibold mb-1">
-    Title <span className="text-red-600">*</span>
-  </label>
-  <input
-    id="title"
-    name="title"
-    type="text"
-    value={formData.title || ""}
-    onChange={handleChange}
-    required
-    className="w-full border rounded px-3 py-2"
-  />
-</div>
 
         {/* Description */}
         <div>
