@@ -35,7 +35,8 @@ export default function SummerProgramsAdmin() {
 
   const fetchPrograms = async () => {
     try {
-      const res = await apiFetch("summer-programs");
+      // Added leading slash here:
+      const res = await apiFetch("/summer-programs");
       const data = await res.json();
       setPrograms(data);
     } catch (err) {
@@ -48,6 +49,7 @@ export default function SummerProgramsAdmin() {
 
   const fetchProgramTypes = async () => {
     try {
+      // Already has leading slash, keep as is:
       const res = await apiFetch("/program-types");
       const data = await res.json();
       setProgramTypes(data.map((t: any) => t.name));
@@ -64,6 +66,7 @@ export default function SummerProgramsAdmin() {
   const handleDelete = async (id: number) => {
     const token = localStorage.getItem("token");
     try {
+      // Already correct:
       const res = await apiFetch(`/admin/summer-programs/${id}`, {
         method: "DELETE",
         headers: { Authorization: `Bearer ${token}` },
@@ -87,6 +90,7 @@ export default function SummerProgramsAdmin() {
     if (!validateFields()) return;
 
     try {
+      // Already correct:
       const res = await apiFetch("/admin/summer-programs", {
         method: "POST",
         headers: {
