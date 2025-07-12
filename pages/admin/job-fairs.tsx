@@ -66,80 +66,75 @@ export default function AdminJobFairs() {
   };
 
   const handleAdd = async () => {
-  const token = localStorage.getItem("token");
-  if (!token) return;
+    const token = localStorage.getItem("token");
+    if (!token) return;
 
-  const {
-    title,
-    description,
-    website,
-    cover_photo_url,
-    location_state,
-    location_city,
-    start_datetime,
-  } = newJobFair;
+    const {
+      title,
+      description,
+      website,
+      cover_photo_url,
+      location_state,
+      location_city,
+      start_datetime,
+    } = newJobFair;
 
-  const location = `${location_state} - ${location_city}`;
+    const location = `${location_state} - ${location_city}`;
 
-  // Validate required fields
-  if (
-    !title.trim() ||
-    !description.trim() ||
-    !website.trim() ||
-    !cover_photo_url.trim() ||
-    !location_state ||
-    !location_city ||
-    !start_datetime
-  ) {
-    alert("Please fill in all required fields before submitting.");
-    return;
-  }
+    // Validate required fields
+    if (
+      !title.trim() ||
+      !description.trim() ||
+      !website.trim() ||
+      !cover_photo_url.trim() ||
+      !location_state ||
+      !location_city ||
+      !start_datetime
+    ) {
+      alert("Please fill in all required fields before submitting.");
+      return;
+    }
 
-  // ✅ Validate website format
-  try {
-    new URL(website);
-  } catch (err) {
-    alert("Please enter a valid website URL (e.g. https://example.com)");
-    return;
-  }
+    // Validate website format
+    try {
+      new URL(website);
+    } catch (err) {
+      alert("Please enter a valid website URL (e.g. https://example.com)");
+      return;
+    }
 
-  const payload = {
-    ...newJobFair,
-    location,
+    const payload = {
+      ...newJobFair,
+      location,
+    };
+
+    const res = await apiFetch("/admin/job-fairs", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify(payload),
+    });
+
+    if (!res.ok) {
+      alert("Failed to add job fair.");
+      return;
+    }
+
+    setNewJobFair({
+      title: "",
+      description: "",
+      website: "",
+      cover_photo_url: "",
+      location_state: "",
+      location_city: "",
+      start_datetime: "",
+    });
+    setSelectedState("");
+    if (fileInputRef.current) fileInputRef.current.value = "";
+    fetchJobFairs();
   };
-
-  console.log("📤 Submitting job fair:", JSON.stringify(payload, null, 2));
-
-  const res = await apiFetch("/admin/job-fairs", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${token}`,
-    },
-    body: JSON.stringify(payload),
-  });
-
-  if (!res.ok) {
-    const errorText = await res.text();
-    console.error("❌ Server error:", errorText);
-    alert("Failed to add job fair.");
-    return;
-  }
-
-  // ✅ Clear form after success
-  setNewJobFair({
-    title: "",
-    description: "",
-    website: "",
-    cover_photo_url: "",
-    location_state: "",
-    location_city: "",
-    start_datetime: "",
-  });
-  setSelectedState("");
-  if (fileInputRef.current) fileInputRef.current.value = "";
-  fetchJobFairs();
-};
 
   const handleDelete = async (id: number) => {
     const token = localStorage.getItem("token");
@@ -244,14 +239,19 @@ export default function AdminJobFairs() {
         ) : (
           <ul className="space-y-4">
             {jobFairs.map((job) => (
-              <li key={job.id} className="border p-4 rounded space-y-1">
+              <li key={job.id} className="border p-4 rounded space-y-1 bg-white shadow">
                 <p><strong>Title:</strong> {job.title}</p>
                 <p><strong>Description:</strong> {job.description}</p>
                 <p><strong>Location:</strong> {job.location}</p>
                 <p><strong>Start:</strong> {job.start_datetime}</p>
-                <p><strong>Website:</strong> <a href={job.website} className="text-blue-600 underline" target="_blank" rel="noreferrer">Visit</a></p>
-                {job.cover_image_url && (
-                  <img src={job.cover_image_url} alt="Job Fair" className="w-40 rounded" />
+                <p>
+                  <strong>Website:</strong>{" "}
+                  <a href={job.website} className="text-blue-600 underline" target="_blank" rel="noreferrer">
+                    Visit
+                  </a>
+                </p>
+                {job.cover_photo_url && (
+                  <img src={job.cover_photo_url} alt="Job Fair" className="w-40 rounded" />
                 )}
                 <button
                   onClick={() => handleDelete(job.id)}
