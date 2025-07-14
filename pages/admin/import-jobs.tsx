@@ -38,7 +38,7 @@ export default function ImportJobsPage() {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify({ keyword: "", location: "", page: 1 }),
+        body: JSON.stringify({ keyword: "", location: "", pages: 3 }),
       });
 
       if (!res.ok) {
