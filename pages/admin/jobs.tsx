@@ -141,7 +141,7 @@ const [states, setStates] = useState<{ name: string; abbreviation: string }[]>([
   // Fetch cities when state changes
   // Fetch cities when state changes (convert abbreviation to full name)
 useEffect(() => {
-  if (!formData.state) {
+  if (!formData.state || !(formData.country === "USA" || formData.country === "United States")) {
     setCities([]);
     setFormData((prev) => ({ ...prev, city: "" }));
     return;
@@ -155,7 +155,8 @@ useEffect(() => {
     .then((res) => res.json())
     .then(setCities)
     .catch(() => setCities([]));
-}, [formData.state, states]);
+}, [formData.state, formData.country, states]);
+
 
 
   // Load selected job data into form
