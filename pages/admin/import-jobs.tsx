@@ -1,6 +1,5 @@
 import React, { useState } from "react";
-import { apiFetch } from "../../apiClient";
-// Adjust import path if needed
+import { apiFetch } from "../../apiClient"; // Adjust path if needed
 
 export default function ImportJobsPage() {
   const [loading, setLoading] = useState(false);
@@ -57,7 +56,6 @@ export default function ImportJobsPage() {
       if (!res.ok) {
         const errorText = await res.text();
         setResult(`Import failed: ${errorText}`);
-        setLoading(false);
         return;
       }
 
@@ -70,9 +68,9 @@ export default function ImportJobsPage() {
       }
     } catch (error) {
       setResult("Error occurred during import.");
+    } finally {
+      setLoading(false);
     }
-
-    setLoading(false);
   };
 
   return (
