@@ -19,20 +19,20 @@ export default function ImportJobsPage() {
         return;
       }
 
-      // Map source to API route
+      // Map source and jobType to API route
       let apiRoute = "";
-      switch (source) {
-        case "adzuna":
-          apiRoute = "/admin/import-entry-jobs";
-          break;
-        case "careerjet":
+      if (source === "adzuna") {
+        apiRoute = "/admin/import-entry-jobs";
+      } else if (source === "careerjet") {
+        if (jobType === "hourly") {
+          apiRoute = "/admin/import-careerjet-hourly-jobs";
+        } else {
           apiRoute = "/admin/import-careerjet-jobs";
-          break;
-        case "sunnova":
-          apiRoute = "/admin/import-sunnova-jobs";
-          break;
-        default:
-          apiRoute = "/admin/import-entry-jobs";
+        }
+      } else if (source === "sunnova") {
+        apiRoute = "/admin/import-sunnova-jobs";
+      } else {
+        apiRoute = "/admin/import-entry-jobs";
       }
 
       // Send the jobType too
@@ -108,7 +108,11 @@ export default function ImportJobsPage() {
         onClick={handleImport}
         disabled={loading}
       >
-        {loading ? "Importing..." : `Import ${jobType.charAt(0).toUpperCase() + jobType.slice(1)} Jobs from ${source.charAt(0).toUpperCase() + source.slice(1)}`}
+        {loading
+          ? "Importing..."
+          : `Import ${jobType.charAt(0).toUpperCase() + jobType.slice(1)} Jobs from ${
+              source.charAt(0).toUpperCase() + source.slice(1)
+            }`}
       </button>
 
       {result && <p className="mt-4 text-gray-800">{result}</p>}
