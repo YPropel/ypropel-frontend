@@ -39,8 +39,9 @@ function JobsPageContent() {
   const [category, setCategory] = useState<string>("");
   const [location, setLocation] = useState<string>("");
 
+  // Update this type to reflect the new state object structure
+  const [states, setStates] = useState<{ name: string; abbreviation: string }[]>([]);
   const [countries, setCountries] = useState<string[]>([]);
-  const [states, setStates] = useState<{ abbreviation: string; name: string }[]>([]);
   const [cities, setCities] = useState<string[]>([]);
   const [categories, setCategories] = useState<string[]>([]);
 
@@ -92,18 +93,18 @@ function JobsPageContent() {
     }
 
     async function fetchStates() {
-    try {
-      const res = await apiFetch(`/us-states?country=${encodeURIComponent(country)}`);
-      if (!res.ok) throw new Error("Failed to fetch states");
-      const data = await res.json(); // data is now an array of objects { name, abbreviation }
-      setStates(data);
-    } catch (error) {
-      console.error(error);
-      setStates([]);
+      try {
+        const res = await apiFetch(`/us-states?country=${encodeURIComponent(country)}`);
+        if (!res.ok) throw new Error("Failed to fetch states");
+        const data = await res.json(); // Now expects array of {name, abbreviation}
+        setStates(data);
+      } catch (error) {
+        console.error(error);
+        setStates([]);
+      }
     }
-  }
-  fetchStates();
-}, [country]);
+    fetchStates();
+  }, [country]);
 
   // Fetch cities when state changes
   useEffect(() => {
@@ -115,9 +116,7 @@ function JobsPageContent() {
 
     async function fetchCities() {
       try {
-        const res = await apiFetch(
-          `/us-cities?state=${encodeURIComponent(state)}`
-        );
+        const res = await apiFetch(`/us-cities?state=${encodeURIComponent(state)}`);
         if (!res.ok) throw new Error("Failed to fetch cities");
         const data = await res.json();
         setCities(data);
@@ -210,19 +209,19 @@ function JobsPageContent() {
           ))}
         </select>
 
-       <select
-  value={state}
-  onChange={(e) => setState(e.target.value)}
-  disabled={!country}
-  className="border rounded px-3 py-2"
->
-  <option value="">All States</option>
-  {states.map((s: { name: string; abbreviation: string }) => (
-    <option key={s.abbreviation} value={s.abbreviation}>
-      {s.name}
-    </option>
-  ))}
-</select>
+        <select
+          value={state}
+          onChange={(e) => setState(e.target.value)}
+          disabled={!country}
+          className="border rounded px-3 py-2"
+        >
+          <option value="">All States</option>
+          {states.map((s) => (
+            <option key={s.abbreviation} value={s.abbreviation}>
+              {s.name}
+            </option>
+          ))}
+        </select>
 
         <select
           value={city}
