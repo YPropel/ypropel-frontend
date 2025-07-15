@@ -139,19 +139,24 @@ const [states, setStates] = useState<{ name: string; abbreviation: string }[]>([
   }, [formData.country]);
 
   // Fetch cities when state changes
-  useEffect(() => {
-    if (!formData.state) {
-      setCities([]);
-      setFormData((prev) => ({ ...prev, city: "" }));
-      return;
-    }
+  // Fetch cities when state changes (convert abbreviation to full name)
+useEffect(() => {
+  if (!formData.state) {
+    setCities([]);
+    setFormData((prev) => ({ ...prev, city: "" }));
+    return;
+  }
 
-    // <-- Added leading slash here
-    apiFetch(`/us-cities?state=${encodeURIComponent(formData.state)}`)
-      .then((res) => res.json())
-      .then(setCities)
-      .catch(() => setCities([]));
-  }, [formData.state]);
+  // Find full state name from abbreviation
+  const stateObj = states.find((s) => s.abbreviation === formData.state);
+  const fullStateName = stateObj ? stateObj.name : formData.state; // fallback
+
+  apiFetch(`/us-cities?state=${encodeURIComponent(fullStateName)}`)
+    .then((res) => res.json())
+    .then(setCities)
+    .catch(() => setCities([]));
+}, [formData.state, states]);
+
 
   // Load selected job data into form
   useEffect(() => {
