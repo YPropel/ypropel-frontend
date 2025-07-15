@@ -92,20 +92,18 @@ function JobsPageContent() {
     }
 
     async function fetchStates() {
-      try {
-        const res = await apiFetch(
-          `/us-states?country=${encodeURIComponent(country)}`
-        );
-        if (!res.ok) throw new Error("Failed to fetch states");
-        const data = await res.json();
-        setStates(data); // expecting array of { abbreviation, name }
-      } catch (error) {
-        console.error(error);
-        setStates([]);
-      }
+    try {
+      const res = await apiFetch(`/us-states?country=${encodeURIComponent(country)}`);
+      if (!res.ok) throw new Error("Failed to fetch states");
+      const data = await res.json(); // data is now an array of objects { name, abbreviation }
+      setStates(data);
+    } catch (error) {
+      console.error(error);
+      setStates([]);
     }
-    fetchStates();
-  }, [country]);
+  }
+  fetchStates();
+}, [country]);
 
   // Fetch cities when state changes
   useEffect(() => {
@@ -212,19 +210,19 @@ function JobsPageContent() {
           ))}
         </select>
 
-        <select
-          value={state}
-          onChange={(e) => setState(e.target.value)}
-          disabled={!country}
-          className="border rounded px-3 py-2"
-        >
-          <option value="">All States</option>
-          {states.map((s) => (
-            <option key={s.abbreviation} value={s.abbreviation}>
-              {s.name}
-            </option>
-          ))}
-        </select>
+       <select
+  value={state}
+  onChange={(e) => setState(e.target.value)}
+  disabled={!country}
+  className="border rounded px-3 py-2"
+>
+  <option value="">All States</option>
+  {states.map((s: { name: string; abbreviation: string }) => (
+    <option key={s.abbreviation} value={s.abbreviation}>
+      {s.name}
+    </option>
+  ))}
+</select>
 
         <select
           value={city}
