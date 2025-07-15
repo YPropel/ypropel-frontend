@@ -35,6 +35,9 @@ export default function ImportJobsPage() {
         case "tesla":
           apiRoute = "/admin/import-tesla-jobs";
           break;
+        case "microsoft":
+          apiRoute = "/admin/import-microsoft-jobs";
+          break;
         default:
           apiRoute = "/admin/import-entry-jobs";
       }
@@ -91,6 +94,7 @@ export default function ImportJobsPage() {
         <option value="careerjet">Careerjet</option>
         <option value="google">Google Careers</option>
         <option value="tesla">Tesla Careers</option>
+        <option value="microsoft">Microsoft Careers</option>
       </select>
 
       <label htmlFor="keyword" className="block mb-2 font-medium">
@@ -142,7 +146,6 @@ export default function ImportJobsPage() {
         <option value="entry_level">Entry Level</option>
         <option value="internship">Internship</option>
         <option value="hourly">Hourly</option>
-        {/* Add more if needed */}
       </select>
 
       <button
@@ -150,7 +153,9 @@ export default function ImportJobsPage() {
         disabled={loading}
         className="bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700 disabled:opacity-50"
       >
-        {loading ? "Importing..." : `Import Jobs from ${source.charAt(0).toUpperCase() + source.slice(1)}`}
+        {loading
+          ? "Importing..."
+          : `Import Jobs from ${source.charAt(0).toUpperCase() + source.slice(1)}`}
       </button>
 
       {result && <p className="mt-4 text-gray-800">{result}</p>}
