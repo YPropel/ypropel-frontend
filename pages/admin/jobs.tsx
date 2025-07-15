@@ -150,7 +150,7 @@ useEffect(() => {
   try {
     if (!Array.isArray(states)) throw new Error("States data is not an array");
     const stateObj = states.find((s) => s.abbreviation === formData.state);
-    const fullStateName = stateObj ? stateObj.name : formData.state;
+    const fullStateName = stateObj ? stateObj.name : formData.state || "";
 
     apiFetch(`/us-cities?state=${encodeURIComponent(fullStateName)}`)
       .then((res) => {
@@ -167,7 +167,6 @@ useEffect(() => {
     setCities([]);
   }
 }, [formData.state, formData.country, states]);
-
 
   // Find full state name from abbreviation
   const stateObj = states.find((s) => s.abbreviation === formData.state);
