@@ -41,7 +41,7 @@ export default function AdminJobsPage() {
   const [showDeleteList, setShowDeleteList] = useState(false);
 
   const [countries, setCountries] = useState<string[]>([]);
-  const [states, setStates] = useState<string[]>([]);
+const [states, setStates] = useState<{ name: string; abbreviation: string }[]>([]);
   const [cities, setCities] = useState<string[]>([]);
 
   const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
@@ -443,21 +443,21 @@ export default function AdminJobsPage() {
             State
           </label>
           <select
-            id="state"
-            name="state"
-            value={formData.state || ""}
-            onChange={handleChange}
-           disabled={!(formData.country === "USA" || formData.country === "United States")}
+  id="state"
+  name="state"
+  value={formData.state || ""}
+  onChange={handleChange}
+  disabled={!(formData.country === "USA" || formData.country === "United States")}
+  className="w-full border rounded px-3 py-2"
+>
+  <option value="">Select State</option>
+  {states.map((s: { name: string; abbreviation: string }) => (
+    <option key={s.abbreviation} value={s.abbreviation}>
+      {s.name}
+    </option>
+  ))}
+</select>
 
-            className="w-full border rounded px-3 py-2"
-          >
-            <option value="">Select State</option>
-            {states.map((s) => (
-              <option key={s} value={s}>
-                {s}
-              </option>
-            ))}
-          </select>
         </div>
 
         {/* City */}
