@@ -19,7 +19,6 @@ export default function ImportJobsPage() {
         return;
       }
 
-      // Map source to API route
       let apiRoute = "";
       switch (source) {
         case "adzuna":
@@ -28,26 +27,20 @@ export default function ImportJobsPage() {
         case "careerjet":
           apiRoute = "/admin/import-careerjet-jobs";
           break;
-        case "sunnova":
-          apiRoute = "/admin/import-sunnova-jobs";
+        case "google":
+          apiRoute = "/admin/import-google-jobs";
           break;
         default:
           apiRoute = "/admin/import-entry-jobs";
       }
 
-      // Send the jobType too
       const res = await apiFetch(apiRoute, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify({
-          keyword: jobType === "internship" ? "internship" : "",
-          location: "United States",
-          pages: 3,
-          job_type: jobType,
-        }),
+        body: JSON.stringify({ keyword: jobType === "internship" ? "internship" : "", location: "United States", pages: 3, job_type: jobType }),
       });
 
       if (!res.ok) {
@@ -86,7 +79,7 @@ export default function ImportJobsPage() {
       >
         <option value="adzuna">Adzuna</option>
         <option value="careerjet">Careerjet</option>
-        <option value="sunnova">Sunnova</option>
+        <option value="google">Google Careers</option>
       </select>
 
       <label htmlFor="jobType" className="block mb-2 font-medium">
@@ -96,11 +89,11 @@ export default function ImportJobsPage() {
         id="jobType"
         value={jobType}
         onChange={(e) => setJobType(e.target.value)}
-        className="mb-6 w-full border border-gray-300 rounded px-3 py-2"
+        className="mb-4 w-full border border-gray-300 rounded px-3 py-2"
       >
         <option value="entry_level">Entry Level</option>
-        <option value="hourly">Hourly</option>
         <option value="internship">Internship</option>
+        <option value="hourly">Hourly</option>
       </select>
 
       <button
@@ -108,7 +101,7 @@ export default function ImportJobsPage() {
         onClick={handleImport}
         disabled={loading}
       >
-        {loading ? "Importing..." : `Import ${jobType.charAt(0).toUpperCase() + jobType.slice(1)} Jobs from ${source.charAt(0).toUpperCase() + source.slice(1)}`}
+        {loading ? "Importing..." : `Import Jobs from ${source.charAt(0).toUpperCase() + source.slice(1)}`}
       </button>
 
       {result && <p className="mt-4 text-gray-800">{result}</p>}
