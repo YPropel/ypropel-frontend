@@ -20,20 +20,23 @@ export default function ImportJobsPage() {
       }
 
       // Map source and jobType to API route
-      let apiRoute = "";
-      if (source === "adzuna") {
-        apiRoute = "/admin/import-entry-jobs";
-      } else if (source === "careerjet") {
-        if (jobType === "hourly") {
-          apiRoute = "/admin/import-careerjet-hourly-jobs";
-        } else {
-          apiRoute = "/admin/import-careerjet-jobs";
-        }
-      } else if (source === "sunnova") {
-        apiRoute = "/admin/import-sunnova-jobs";
-      } else {
-        apiRoute = "/admin/import-entry-jobs";
-      }
+     let apiRoute = "";
+if (source === "adzuna") {
+  apiRoute = "/admin/import-entry-jobs";
+} else if (source === "careerjet") {
+  if (jobType === "hourly") {
+    apiRoute = "/admin/import-careerjet-hourly-jobs";
+  } else if (jobType === "internship") {
+    apiRoute = "/admin/import-careerjet-intern-jobs";
+  } else {
+    apiRoute = "/admin/import-careerjet-jobs";
+  }
+} else if (source === "sunnova") {
+  apiRoute = "/admin/import-sunnova-jobs";
+} else {
+  apiRoute = "/admin/import-entry-jobs";
+}
+
 
       // Send the jobType too
       const res = await apiFetch(apiRoute, {
