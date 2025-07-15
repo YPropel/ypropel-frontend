@@ -8,6 +8,7 @@ export default function ImportJobsPage() {
   const [location, setLocation] = useState("United States");
   const [pages, setPages] = useState(3);
   const [jobType, setJobType] = useState("entry_level");
+  const [company, setCompany] = useState("github"); // for Lever company name
 
   const handleImport = async () => {
     setLoading(true);
@@ -22,6 +23,13 @@ export default function ImportJobsPage() {
       }
 
       let apiRoute = "";
+      let bodyPayload: any = {
+        keyword,
+        location,
+        pages,
+        job_type: jobType,
+      };
+
       switch (source) {
         case "adzuna":
           apiRoute = "/admin/import-entry-jobs";
@@ -38,6 +46,10 @@ export default function ImportJobsPage() {
         case "microsoft":
           apiRoute = "/admin/import-microsoft-jobs";
           break;
+        case "lever":
+          apiRoute = "/admin/import-lever-jobs";
+          bodyPayload.company = company;
+          break;
         default:
           apiRoute = "/admin/import-entry-jobs";
       }
@@ -48,12 +60,7 @@ export default function ImportJobsPage() {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify({
-          keyword,
-          location,
-          pages,
-          job_type: jobType,
-        }),
+        body: JSON.stringify(bodyPayload),
       });
 
       if (!res.ok) {
@@ -95,7 +102,24 @@ export default function ImportJobsPage() {
         <option value="google">Google Careers</option>
         <option value="tesla">Tesla Careers</option>
         <option value="microsoft">Microsoft Careers</option>
+        <option value="lever">Lever Jobs</option>
       </select>
+
+      {source === "lever" && (
+        <>
+          <label htmlFor="company" className="block mb-2 font-medium">
+            Lever Company Name:
+          </label>
+          <input
+            id="company"
+            type="text"
+            value={company}
+            onChange={(e) => setCompany(e.target.value)}
+            placeholder="e.g., github, coinbase"
+            className="mb-4 w-full border border-gray-300 rounded px-3 py-2"
+          />
+        </>
+      )}
 
       <label htmlFor="keyword" className="block mb-2 font-medium">
         Keyword (optional):
