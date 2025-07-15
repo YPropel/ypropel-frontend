@@ -7,14 +7,16 @@ import jwt from "jsonwebtoken";
 import { query } from "./db";
 import multer from "multer";
 import path from "path";
-import adminBackendRouter from "./adminbackend"; // This imports from adminbackend/in
+
+//import adminBackendRouter from "./adminbackend"; // This imports from adminbackend/in
 //import "./cronoldjobfairs";
+import adminRoutes from "./adminbackend/BackendRoutes"; //--adminbackendroute
 
 import { OAuth2Client } from "google-auth-library";
 
-import adminRoutes from "./adminbackend/BackendRoutes";
+//import adminRoutes from "./adminbackend/BackendRoutes";
 // Import the job import routes from adminbackend/index.ts
-import importJobsRoutes from "./adminbackend/index";
+//import importJobsRoutes from "./adminbackend/index";
 
 
 import { Pool } from "pg";
@@ -44,8 +46,9 @@ declare global {
 
 const app = express();
 app.use(cors());
+app.use(express.json()); 
 
-
+app.use("/admin", adminRoutes); //--adminbackendroute
 
 import { v2 as cloudinary } from "cloudinary";
 import { CloudinaryStorage } from "multer-storage-cloudinary";
@@ -3589,10 +3592,10 @@ app.post(
 
 
 //----- importentry level jobs route-(main route code is in AdminRoutes.tsx-
-app.use("/admin", adminBackendRouter);
+//app.use("/admin", adminBackendRouter);
 
-// Use those routes under a path, for example "/admin/import-jobs"
-app.use("/admin/import-jobs", importJobsRoutes);
+
+
 
 //--------Add added articles lists to admin page so they can edit and delete
 /* before edit  new profile 
