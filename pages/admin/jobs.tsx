@@ -42,7 +42,8 @@ export default function AdminJobsPage() {
   const [showDeleteList, setShowDeleteList] = useState(false);
 
   const [countries, setCountries] = useState<string[]>([]);
-  const [states, setStates] = useState<string[]>([]);
+  // Updated: states is array of objects {name, abbreviation}
+  const [states, setStates] = useState<{ name: string; abbreviation: string }[]>([]);
   const [cities, setCities] = useState<string[]>([]);
 
   const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
@@ -131,7 +132,7 @@ export default function AdminJobsPage() {
 
     apiFetch("/us-states")
       .then((res) => res.json())
-      .then(setStates)
+      .then((data: { name: string; abbreviation: string }[]) => setStates(data))
       .catch(() => setStates([]));
   }, [formData.country]);
 
@@ -460,8 +461,8 @@ export default function AdminJobsPage() {
           >
             <option value="">Select State</option>
             {states.map((s) => (
-              <option key={s} value={s}>
-                {s}
+              <option key={s.abbreviation} value={s.abbreviation}>
+                {s.name}
               </option>
             ))}
           </select>

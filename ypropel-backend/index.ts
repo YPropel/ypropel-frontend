@@ -2969,7 +2969,7 @@ app.get("/job-fairs", async (req: Request, res: Response) => {
 //--------get US states and cities for Job fair drop down list in for Admin
 
 // ✅ GET /us-states
-app.get("/us-states", async (req: Request, res: Response) => {
+/*app.get("/us-states", async (req: Request, res: Response) => {
   try {
     const result = await query("SELECT name FROM us_states ORDER BY name ASC");
     res.json(result.rows.map((r) => r.name));
@@ -2977,11 +2977,22 @@ app.get("/us-states", async (req: Request, res: Response) => {
     console.error("Failed to fetch states:", err);
     res.status(500).json({ error: "Server error" });
   }
+});*/
+app.get("/us-states", async (req: Request, res: Response) => {
+  try {
+    const result = await query("SELECT name, abbreviation FROM us_states ORDER BY name ASC");
+    // Return an array of objects: { name, abbreviation }
+    res.json(result.rows);
+  } catch (err) {
+    console.error("Failed to fetch states:", err);
+    res.status(500).json({ error: "Server error" });
+  }
 });
+
 
 //----------Get job-fair cities for the selected states to display on the dropdown-----
 // ✅ GET /us-cities?state=Texas
-app.get(
+/*app.get(
   "/us-cities",
   asyncHandler(async (req: Request, res: Response) => {
     const stateName = req.query.state as string;
@@ -3011,7 +3022,40 @@ app.get(
     const cities = cityResult.rows.map((row) => row.name);
     res.json(cities);
   })
+);*/
+
+app.get(
+  "/us-cities",
+  asyncHandler(async (req: Request, res: Response) => {
+    const stateAbbreviation = (req.query.state as string)?.trim().toUpperCase();
+
+    if (!stateAbbreviation) {
+      return res.status(400).json({ error: "Missing or invalid state abbreviation" });
+    }
+
+    // Get the ID of the state by abbreviation
+    const stateResult = await query(
+      "SELECT id FROM us_states WHERE abbreviation = $1",
+      [stateAbbreviation]
+    );
+
+    if (stateResult.rows.length === 0) {
+      return res.status(404).json({ error: "State not found" });
+    }
+
+    const stateId = stateResult.rows[0].id;
+
+    // Get cities with that state_id
+    const cityResult = await query(
+      "SELECT name FROM us_cities WHERE state_id = $1 ORDER BY name ASC",
+      [stateId]
+    );
+
+    const cities = cityResult.rows.map((row) => row.name);
+    res.json(cities);
+  })
 );
+
 
 //---------Get countries for drop downlist 
 app.get("/countries", async (req: Request, res: Response) => {
@@ -3430,7 +3474,7 @@ app.delete(
 
 // Public: Get all active jobs for users
 // Public: Get all active jobs, optionally filtered by job_type
-app.get(
+/*app.get(
   "/jobs",
   asyncHandler(async (req: Request, res: Response) => {
     const { job_type, country, state, city, category } = req.query;
@@ -3464,7 +3508,55 @@ app.get(
     const result = await query(queryStr, params);
     res.json(result.rows);
   })
+); */
+app.get(
+  "/jobs",
+  asyncHandler(async (req: Request, res: Response) => {
+    const { job_type, country, state, city, category } = req.query;
+
+    let queryStr = `
+      SELECT jobs.* 
+      FROM jobs
+      LEFT JOIN us_states ON jobs.state = us_states.abbreviation
+      WHERE jobs.is_active = TRUE
+    `;
+    const params: any[] = [];
+
+    if (job_type) {
+      params.push(job_type);
+      queryStr += ` AND jobs.job_type = $${params.length}`;
+    }
+    if (country) {
+      params.push(country);
+      queryStr += ` AND jobs.country = $${params.length}`;
+    }
+    if (state) {
+  params.push(state); // for jobs.state
+  params.push(state); // for us_states.name
+  const stateParam1 = params.length - 1; // index of first param (jobs.state)
+  const stateParam2 = params.length;     // index of second param (us_states.name)
+  queryStr += ` AND (jobs.state = $${stateParam1} OR LOWER(us_states.name) = LOWER($${stateParam2}))`;
+}
+    if (city) {
+  let cityStr = "";
+  if (typeof city === "string") {
+    cityStr = city.toLowerCase();
+  }
+  params.push(cityStr);
+  queryStr += ` AND LOWER(jobs.city) = $${params.length}`;
+}
+    if (category) {
+      params.push(category);
+      queryStr += ` AND jobs.category = $${params.length}`;
+    }
+
+    queryStr += " ORDER BY jobs.posted_at DESC";
+
+    const result = await query(queryStr, params);
+    res.json(result.rows);
+  })
 );
+
 //--------get job categories for the fitler drop down for public 
 app.get(
   "/job-categories",
