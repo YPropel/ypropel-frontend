@@ -124,19 +124,19 @@ const [states, setStates] = useState<{ name: string; abbreviation: string }[]>([
   }, []);
 
   // Fetch states when country changes (only if USA)
-  useEffect(() => {
-   // if (formData.country !== "USA") {
-      setStates([]);
-      setFormData((prev) => ({ ...prev, state: "", city: "" }));
-      return;
-   // }
-
-    // <-- Added leading slash here
+ useEffect(() => {
+  if (formData.country === "USA" || formData.country === "United States") {
     apiFetch("/us-states")
       .then((res) => res.json())
-      .then(setStates)
+      .then((data) => {
+        setStates(data);
+      })
       .catch(() => setStates([]));
-  }, [formData.country]);
+  } else {
+    setStates([]);
+    setFormData((prev) => ({ ...prev, state: "", city: "" }));
+  }
+}, [formData.country]);
 
   // Fetch cities when state changes
   // Fetch cities when state changes (convert abbreviation to full name)
