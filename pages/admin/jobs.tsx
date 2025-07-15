@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { apiFetch } from "../../apiClient"; 
+import { apiFetch } from "../../apiClient";
 
 type Job = {
   id: number;
@@ -42,8 +42,7 @@ export default function AdminJobsPage() {
   const [showDeleteList, setShowDeleteList] = useState(false);
 
   const [countries, setCountries] = useState<string[]>([]);
-  // Updated: states is array of objects {name, abbreviation}
-  const [states, setStates] = useState<{ name: string; abbreviation: string }[]>([]);
+  const [states, setStates] = useState<string[]>([]);
   const [cities, setCities] = useState<string[]>([]);
 
   const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
@@ -122,9 +121,15 @@ export default function AdminJobsPage() {
       .catch(console.error);
   }, []);
 
-  // Fetch states when country changes (only if USA)
+  // Fetch states when country changes (only if USA or United States)
   useEffect(() => {
-    if (formData.country !== "USA") {
+    if (
+      !(
+        formData.country === "USA" ||
+        (typeof formData.country === "string" &&
+          formData.country.toLowerCase() === "united states")
+      )
+    ) {
       setStates([]);
       setFormData((prev) => ({ ...prev, state: "", city: "" }));
       return;
@@ -132,7 +137,7 @@ export default function AdminJobsPage() {
 
     apiFetch("/us-states")
       .then((res) => res.json())
-      .then((data: { name: string; abbreviation: string }[]) => setStates(data))
+      .then(setStates)
       .catch(() => setStates([]));
   }, [formData.country]);
 
@@ -456,13 +461,19 @@ export default function AdminJobsPage() {
             name="state"
             value={formData.state || ""}
             onChange={handleChange}
-            disabled={formData.country !== "USA"}
+            disabled={
+              !(
+                formData.country === "USA" ||
+                (typeof formData.country === "string" &&
+                  formData.country.toLowerCase() === "united states")
+              )
+            }
             className="w-full border rounded px-3 py-2"
           >
             <option value="">Select State</option>
             {states.map((s) => (
-              <option key={s.abbreviation} value={s.abbreviation}>
-                {s.name}
+              <option key={s} value={s}>
+                {s}
               </option>
             ))}
           </select>
