@@ -5,6 +5,7 @@ export default function ImportJobsPage() {
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<string | null>(null);
   const [source, setSource] = useState("adzuna"); // default source
+  const [jobType, setJobType] = useState("entry_level"); // default job type
 
   const handleImport = async () => {
     setLoading(true);
@@ -18,7 +19,6 @@ export default function ImportJobsPage() {
         return;
       }
 
-      // Determine API route based on selected source
       let apiRoute = "";
       switch (source) {
         case "adzuna":
@@ -27,7 +27,6 @@ export default function ImportJobsPage() {
         case "careerjet":
           apiRoute = "/admin/import-careerjet-jobs";
           break;
-        // add more sources here as needed
         default:
           apiRoute = "/admin/import-entry-jobs";
       }
@@ -38,7 +37,7 @@ export default function ImportJobsPage() {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify({ keyword: "", location: "", pages: 3 }),
+        body: JSON.stringify({ keyword: "", location: "", page: 1, jobType }),
       });
 
       if (!res.ok) {
@@ -51,7 +50,7 @@ export default function ImportJobsPage() {
       const data = await res.json();
 
       if (data.success) {
-        setResult(`Successfully imported ${data.inserted} new jobs from ${source}.`);
+        setResult(`Successfully imported ${data.inserted} new jobs from ${source} as ${jobType}.`);
       } else {
         setResult("Import failed.");
       }
@@ -64,7 +63,7 @@ export default function ImportJobsPage() {
 
   return (
     <div className="max-w-lg mx-auto p-6">
-      <h1 className="text-2xl font-bold mb-4">Import Entry-Level Jobs</h1>
+      <h1 className="text-2xl font-bold mb-4">Import Jobs</h1>
 
       <label htmlFor="source" className="block mb-2 font-medium">
         Select Job Source:
@@ -77,7 +76,21 @@ export default function ImportJobsPage() {
       >
         <option value="adzuna">Adzuna</option>
         <option value="careerjet">Careerjet</option>
-        {/* add more options as you add more sources */}
+        {/* Add more sources here as you implement them */}
+      </select>
+
+      <label htmlFor="jobType" className="block mb-2 font-medium">
+        Select Job Type:
+      </label>
+      <select
+        id="jobType"
+        value={jobType}
+        onChange={(e) => setJobType(e.target.value)}
+        className="mb-4 w-full border border-gray-300 rounded px-3 py-2"
+      >
+        <option value="entry_level">Entry-Level</option>
+        <option value="internship">Internship</option>
+        <option value="hourly">Hourly</option>
       </select>
 
       <button
