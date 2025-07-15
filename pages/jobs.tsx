@@ -40,7 +40,7 @@ function JobsPageContent() {
   const [location, setLocation] = useState<string>("");
 
   const [countries, setCountries] = useState<string[]>([]);
-  const [states, setStates] = useState<string[]>([]);
+  const [states, setStates] = useState<{ abbreviation: string; name: string }[]>([]);
   const [cities, setCities] = useState<string[]>([]);
   const [categories, setCategories] = useState<string[]>([]);
 
@@ -94,13 +94,11 @@ function JobsPageContent() {
     async function fetchStates() {
       try {
         const res = await apiFetch(
-          `/us-states?country=${encodeURIComponent(
-            country
-          )}`
+          `/us-states?country=${encodeURIComponent(country)}`
         );
         if (!res.ok) throw new Error("Failed to fetch states");
         const data = await res.json();
-        setStates(data);
+        setStates(data); // expecting array of { abbreviation, name }
       } catch (error) {
         console.error(error);
         setStates([]);
@@ -222,8 +220,8 @@ function JobsPageContent() {
         >
           <option value="">All States</option>
           {states.map((s) => (
-            <option key={s} value={s}>
-              {s}
+            <option key={s.abbreviation} value={s.abbreviation}>
+              {s.name}
             </option>
           ))}
         </select>
