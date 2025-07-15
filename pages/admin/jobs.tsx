@@ -147,36 +147,27 @@ useEffect(() => {
     return;
   }
 
-  try {
-    if (!Array.isArray(states)) throw new Error("States data is not an array");
-    const stateObj = states.find((s) => s.abbreviation === formData.state);
-    const fullStateName = stateObj ? stateObj.name : formData.state || "";
-
-    apiFetch(`/us-cities?state=${encodeURIComponent(fullStateName)}`)
-      .then((res) => {
-        if (!res.ok) throw new Error("Failed to fetch cities");
-        return res.json();
-      })
-      .then(setCities)
-      .catch((e) => {
-        console.error("City fetch error:", e);
-        setCities([]);
-      });
-  } catch (error) {
-    console.error("Error processing state:", error);
-    setCities([]);
-  }
-}, [formData.state, formData.country, states]);
-
   // Find full state name from abbreviation
   const stateObj = states.find((s) => s.abbreviation === formData.state);
-  const fullStateName = stateObj ? stateObj.name : formData.state; // fallback
+
+  // Ensure fullStateName is string; fallback to empty string if undefined
+  const fullStateName: string = stateObj?.name ?? "";
+
+  if (!fullStateName) {
+    // If fullStateName is empty string, clear cities and exit
+    setCities([]);
+    setFormData((prev) => ({ ...prev, city: "" }));
+    return;
+  }
 
   apiFetch(`/us-cities?state=${encodeURIComponent(fullStateName)}`)
     .then((res) => res.json())
     .then(setCities)
     .catch(() => setCities([]));
 }, [formData.state, formData.country, states]);
+
+
+ 
 
 
 
