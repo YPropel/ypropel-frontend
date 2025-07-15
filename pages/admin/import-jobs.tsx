@@ -1,29 +1,26 @@
 import React, { useState } from "react";
-import { apiFetch } from "../../apiClient"; // Adjust path if needed
+import { apiFetch } from "../../apiClient";
 
 export default function ImportJobsPage() {
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<string | null>(null);
   const [source, setSource] = useState("adzuna"); // default source
-  const [keyword, setKeyword] = useState("");
-  const [location, setLocation] = useState("United States");
-  const [pages, setPages] = useState(3);
-  const [jobType, setJobType] = useState("entry_level");
-  const [company, setCompany] = useState("github"); // for Lever company name
+  const [jobType, setJobType] = useState("entry_level"); // default job type
 
   const handleImport = async () => {
     setLoading(true);
     setResult(null);
 
     try {
-      let apiRoute = "";
-      let bodyPayload: any = {
-        keyword,
-        location,
-        pages,
-        job_type: jobType,
-      };
+      const token = localStorage.getItem("token");
+      if (!token) {
+        setResult("You must be logged in as admin.");
+        setLoading(false);
+        return;
+      }
 
+      // Map source to API route
+      let apiRoute = "";
       switch (source) {
         case "adzuna":
           apiRoute = "/admin/import-entry-jobs";
@@ -31,31 +28,32 @@ export default function ImportJobsPage() {
         case "careerjet":
           apiRoute = "/admin/import-careerjet-jobs";
           break;
-        case "google":
-          apiRoute = "/admin/import-google-jobs";
-          break;
-        case "tesla":
-          apiRoute = "/admin/import-tesla-jobs";
-          break;
-        case "microsoft":
-          apiRoute = "/admin/import-microsoft-jobs";
-          break;
-        case "lever":
-          apiRoute = "/admin/import-lever-jobs";
-          bodyPayload.company = company;
+        case "sunnova":
+          apiRoute = "/admin/import-sunnova-jobs";
           break;
         default:
           apiRoute = "/admin/import-entry-jobs";
       }
 
+      // Send the jobType too
       const res = await apiFetch(apiRoute, {
         method: "POST",
-        body: JSON.stringify(bodyPayload),
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          keyword: jobType === "internship" ? "internship" : "",
+          location: "United States",
+          pages: 3,
+          job_type: jobType,
+        }),
       });
 
       if (!res.ok) {
         const errorText = await res.text();
         setResult(`Import failed: ${errorText}`);
+        setLoading(false);
         return;
       }
 
@@ -68,9 +66,9 @@ export default function ImportJobsPage() {
       }
     } catch (error) {
       setResult("Error occurred during import.");
-    } finally {
-      setLoading(false);
     }
+
+    setLoading(false);
   };
 
   return (
@@ -88,67 +86,11 @@ export default function ImportJobsPage() {
       >
         <option value="adzuna">Adzuna</option>
         <option value="careerjet">Careerjet</option>
-        <option value="google">Google Careers</option>
-        <option value="tesla">Tesla Careers</option>
-        <option value="microsoft">Microsoft Careers</option>
-        <option value="lever">Lever Jobs</option>
+        <option value="sunnova">Sunnova</option>
       </select>
 
-      {source === "lever" && (
-        <>
-          <label htmlFor="company" className="block mb-2 font-medium">
-            Lever Company Name:
-          </label>
-          <input
-            id="company"
-            type="text"
-            value={company}
-            onChange={(e) => setCompany(e.target.value)}
-            placeholder="e.g., github, coinbase"
-            className="mb-4 w-full border border-gray-300 rounded px-3 py-2"
-          />
-        </>
-      )}
-
-      <label htmlFor="keyword" className="block mb-2 font-medium">
-        Keyword (optional):
-      </label>
-      <input
-        id="keyword"
-        type="text"
-        value={keyword}
-        onChange={(e) => setKeyword(e.target.value)}
-        placeholder="e.g., software engineer"
-        className="mb-4 w-full border border-gray-300 rounded px-3 py-2"
-      />
-
-      <label htmlFor="location" className="block mb-2 font-medium">
-        Location:
-      </label>
-      <input
-        id="location"
-        type="text"
-        value={location}
-        onChange={(e) => setLocation(e.target.value)}
-        placeholder="United States"
-        className="mb-4 w-full border border-gray-300 rounded px-3 py-2"
-      />
-
-      <label htmlFor="pages" className="block mb-2 font-medium">
-        Pages to Fetch:
-      </label>
-      <input
-        id="pages"
-        type="number"
-        value={pages}
-        min={1}
-        max={10}
-        onChange={(e) => setPages(Number(e.target.value))}
-        className="mb-4 w-full border border-gray-300 rounded px-3 py-2"
-      />
-
       <label htmlFor="jobType" className="block mb-2 font-medium">
-        Job Type:
+        Select Job Type:
       </label>
       <select
         id="jobType"
@@ -157,18 +99,16 @@ export default function ImportJobsPage() {
         className="mb-6 w-full border border-gray-300 rounded px-3 py-2"
       >
         <option value="entry_level">Entry Level</option>
-        <option value="internship">Internship</option>
         <option value="hourly">Hourly</option>
+        <option value="internship">Internship</option>
       </select>
 
       <button
+        className="bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700 disabled:opacity-50"
         onClick={handleImport}
         disabled={loading}
-        className="bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700 disabled:opacity-50"
       >
-        {loading
-          ? "Importing..."
-          : `Import Jobs from ${source.charAt(0).toUpperCase() + source.slice(1)}`}
+        {loading ? "Importing..." : `Import ${jobType.charAt(0).toUpperCase() + jobType.slice(1)} Jobs from ${source.charAt(0).toUpperCase() + source.slice(1)}`}
       </button>
 
       {result && <p className="mt-4 text-gray-800">{result}</p>}
