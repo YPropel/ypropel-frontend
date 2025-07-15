@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { apiFetch } from "../apiClient"; // Adjust import path if needed
 
 export default function ImportJobsPage() {
   const [loading, setLoading] = useState(false);
@@ -15,13 +16,6 @@ export default function ImportJobsPage() {
     setResult(null);
 
     try {
-      const token = localStorage.getItem("token");
-      if (!token) {
-        setResult("You must be logged in as admin.");
-        setLoading(false);
-        return;
-      }
-
       let apiRoute = "";
       let bodyPayload: any = {
         keyword,
@@ -54,12 +48,8 @@ export default function ImportJobsPage() {
           apiRoute = "/admin/import-entry-jobs";
       }
 
-      const res = await fetch(apiRoute, {
+      const res = await apiFetch(apiRoute, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
         body: JSON.stringify(bodyPayload),
       });
 
