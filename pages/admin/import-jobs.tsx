@@ -37,7 +37,7 @@ export default function ImportJobsPage() {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify({ keyword: "", location: "", page: 1, jobType }),
+        body: JSON.stringify({ keyword: jobType === "internship" ? "internship" : "", location: "", pages: 3, job_type: jobType }),
       });
 
       if (!res.ok) {
@@ -50,7 +50,7 @@ export default function ImportJobsPage() {
       const data = await res.json();
 
       if (data.success) {
-        setResult(`Successfully imported ${data.inserted} new jobs from ${source} as ${jobType}.`);
+        setResult(`Successfully imported ${data.inserted} new jobs from ${source} (${jobType}).`);
       } else {
         setResult("Import failed.");
       }
@@ -63,7 +63,7 @@ export default function ImportJobsPage() {
 
   return (
     <div className="max-w-lg mx-auto p-6">
-      <h1 className="text-2xl font-bold mb-4">Import Jobs</h1>
+      <h1 className="text-2xl font-bold mb-4">Import Jobs from Job Sources</h1>
 
       <label htmlFor="source" className="block mb-2 font-medium">
         Select Job Source:
@@ -76,7 +76,6 @@ export default function ImportJobsPage() {
       >
         <option value="adzuna">Adzuna</option>
         <option value="careerjet">Careerjet</option>
-        {/* Add more sources here as you implement them */}
       </select>
 
       <label htmlFor="jobType" className="block mb-2 font-medium">
@@ -88,7 +87,7 @@ export default function ImportJobsPage() {
         onChange={(e) => setJobType(e.target.value)}
         className="mb-4 w-full border border-gray-300 rounded px-3 py-2"
       >
-        <option value="entry_level">Entry-Level</option>
+        <option value="entry_level">Entry Level</option>
         <option value="internship">Internship</option>
         <option value="hourly">Hourly</option>
       </select>
@@ -98,7 +97,7 @@ export default function ImportJobsPage() {
         onClick={handleImport}
         disabled={loading}
       >
-        {loading ? "Importing..." : `Import Jobs from ${source.charAt(0).toUpperCase() + source.slice(1)}`}
+        {loading ? "Importing..." : `Import ${jobType} Jobs from ${source.charAt(0).toUpperCase() + source.slice(1)}`}
       </button>
 
       {result && <p className="mt-4 text-gray-800">{result}</p>}
