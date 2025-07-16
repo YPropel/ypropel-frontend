@@ -1,9 +1,7 @@
+// pages/admin/MainAdminPage.tsx
 import React, { useEffect, useState } from "react";
-import Link from "next/link";
 import { useRouter } from "next/router";
-import * as jwtDecode from "jwt-decode";
-import { apiFetch } from "../../apiClient";
-import AuthGuard from "../../components/AuthGuard";
+import Link from "next/link";
 
 const adminPages = [
   { label: "Articles", href: "/admin/articles" },
@@ -14,68 +12,41 @@ const adminPages = [
   { label: "Summer Programs", href: "/admin/summer-programs" },
 ];
 
-type DecodedToken = {
-  is_admin?: boolean | string | number;
-  [key: string]: any;
-};
-
-export default function AdminDashboard() {
+export default function MainAdminPage() {
   const router = useRouter();
   const [isAdmin, setIsAdmin] = useState<boolean | null>(null);
 
   useEffect(() => {
-    const token = localStorage.getItem("token");
-    if (!token) {
+    // Simple admin check based on localStorage flag "isAdmin"
+    const adminFlag = localStorage.getItem("isAdmin");
+    if (adminFlag === "true") {
+      setIsAdmin(true);
+    } else {
       setIsAdmin(false);
-      router.push("/unauthorized");
-      return;
-    }
-
-    try {
-      const decoded: DecodedToken = jwtDecode.default(token);
-      const role = localStorage.getItem("role");
-      const adminCheck =
-        decoded.is_admin === true ||
-        decoded.is_admin === "true" ||
-        decoded.is_admin === 1 ||
-        String(decoded.is_admin).toLowerCase() === "true" ||
-        role === "admin";
-
-      if (adminCheck) {
-        setIsAdmin(true);
-      } else {
-        setIsAdmin(false);
-        router.push("/unauthorized");
-      }
-    } catch (error) {
-      setIsAdmin(false);
-      router.push("/unauthorized");
+      router.push("/unauthorized"); // redirect if not admin
     }
   }, [router]);
 
   if (isAdmin === null) {
-    return null; // or a loading spinner while checking
+    return <p>Loading...</p>; // or spinner
   }
 
   if (!isAdmin) {
-    return null; // Redirect in progress or unauthorized
+    return null; // user is redirected, so no content here
   }
 
   return (
-    <AuthGuard>
-      <main className="max-w-3xl mx-auto p-6 bg-white rounded shadow my-10">
-        <h1 className="text-3xl font-bold text-blue-900 mb-6">Admin Dashboard</h1>
-
-        <ul className="space-y-4 text-lg">
-          {adminPages.map(({ label, href }) => (
-            <li key={href}>
-              <Link href={href}>
-                <a className="text-blue-700 hover:underline">{label}</a>
-              </Link>
-            </li>
-          ))}
-        </ul>
-      </main>
-    </AuthGuard>
+    <main className="max-w-3xl mx-auto p-6 bg-white rounded shadow my-10">
+      <h1 className="text-3xl font-bold text-blue-900 mb-6">Admin Dashboard</h1>
+      <ul className="space-y-4 text-lg">
+        {adminPages.map(({ label, href }) => (
+          <li key={href}>
+            <Link href={href}>
+              <a className="text-blue-700 hover:underline">{label}</a>
+            </Link>
+          </li>
+        ))}
+      </ul>
+    </main>
   );
 }
