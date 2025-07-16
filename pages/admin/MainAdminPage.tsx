@@ -17,6 +17,7 @@ export default function MainAdminPage() {
 
   useEffect(() => {
     const adminFlag = localStorage.getItem("isAdmin");
+    console.log("Adminnnnnnnnn flag from localStorage:", adminFlag);
     if (adminFlag === "true") {
       setIsAdmin(true);
     } else {
