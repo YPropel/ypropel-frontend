@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import AuthGuard from "../components/AuthGuard";
+import { apiFetch } from "../apiClient";
 type MusicMajor = {
   id: number;
   title: string;
@@ -8,7 +9,7 @@ type MusicMajor = {
   cover_photo_url?: string;
 };
 
-const BACKEND_BASE_URL = "http://localhost:4000";
+//const BACKEND_BASE_URL = "http://localhost:4000";
 
 export default function MusicMajors() {
   const [majors, setMajors] = useState<MusicMajor[]>([]);
@@ -18,7 +19,7 @@ export default function MusicMajors() {
   useEffect(() => {
     async function fetchMajors() {
       try {
-        const res = await fetch(`${BACKEND_BASE_URL}/music-majors`);
+        const res = await apiFetch("/music-majors");
         if (!res.ok) throw new Error(`Failed to fetch music majors: ${res.statusText}`);
         const data = await res.json();
         setMajors(data);
