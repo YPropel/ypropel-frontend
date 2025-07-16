@@ -9,6 +9,7 @@ type Article = {
   title: string;
   cover_image?: string;
   content: string;
+  total_likes?: number;  // to display likes
 };
 
 export default function ArticlesPage() {
@@ -63,12 +64,16 @@ export default function ArticlesPage() {
                 <h2 className="text-lg font-semibold text-blue-800 mb-2">
                   {article.title}
                 </h2>
+                <p className="text-sm text-green-600 font-semibold mb-2">
+                 ♥ Likes: {article.total_likes ?? 0}
+                </p>
                 <p className="text-gray-600 text-sm flex-grow">
                   {getExcerpt(article.content)}
                 </p>
                 <span className="mt-3 text-green-600 font-semibold text-sm">
                   Read More →
                 </span>
+                
               </div>
             </div>
           ))}
