@@ -16,7 +16,7 @@ const resources = [
   },
   {
     title: "Music Education",
-    href: "/music-education",
+    href: "/music-majors",
     coverPhoto: "https://res.cloudinary.com/denggbgma/image/upload/v1752121874/photo-1710283246021-5e5631f6ae93_baqdt7.jpg",
     description: "Learn about music education programs and career paths.",
   },
