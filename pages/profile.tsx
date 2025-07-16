@@ -9,15 +9,15 @@ type Member = {
   password_hash?: string;
   title?: string;
   university?: string;
-  major?: string;
-  major_id?: number | null;
-  major_other?: string | null;
+  major?: string; // legacy fallback, not used for new input
+  major_id?: number | null; // new field
+  major_other?: string | null; // new field
   experience_level?: string;
   skills?: string;
   company?: string;
   courses_completed?: string;
   country?: string;
-  state?: string; // abbreviation string e.g. "TX"
+  state?: string;
   city?: string;
   birthdate?: string;
   volunteering_work?: string;
@@ -29,8 +29,7 @@ type StandardMajor = {
   id: number;
   name: string;
 };
-
-type State = {
+type StateType = {
   abbreviation: string;
   name: string;
 };
@@ -51,13 +50,14 @@ function EditMemberForm({
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
   const [countries, setCountries] = useState<string[]>([]);
-  const [states, setStates] = useState<State[]>([]);
+  //const [states, setStates] = useState<string[]>([]);
   const [cities, setCities] = useState<string[]>([]);
 
   const [selectedCountry, setSelectedCountry] = useState<string>("");
   const [selectedState, setSelectedState] = useState<string>("");
   const [selectedCity, setSelectedCity] = useState<string>("");
 
+  // Standard majors state
   const [standardMajors, setStandardMajors] = useState<StandardMajor[]>([]);
   const [selectedMajorId, setSelectedMajorId] = useState<string | number>("");
   const [otherMajorText, setOtherMajorText] = useState("");
@@ -67,7 +67,10 @@ function EditMemberForm({
     { id: number; level_name: string }[]
   >([]);
   const [editableExperienceLevel, setEditableExperienceLevel] = useState<string>("");
+const [states, setStates] = useState<StateType[]>([]);
 
+
+  // Fetch standard experience levels for dropdown
   useEffect(() => {
     apiFetch("/standard_experience_levels")
       .then((res) => res.json())
@@ -75,12 +78,14 @@ function EditMemberForm({
       .catch(console.error);
   }, []);
 
+  // Fetch editable experience level value on member change
   useEffect(() => {
     if (member?.experience_level) {
       setEditableExperienceLevel(member.experience_level);
     }
   }, [member?.experience_level]);
 
+  // Sync major fields on member or standardMajors load
   useEffect(() => {
     if (member && standardMajors.length > 0) {
       if (member.major_id) {
@@ -113,24 +118,6 @@ function EditMemberForm({
     }
   }, [member, standardMajors]);
 
-  // === NEW EFFECT: Normalize member.state to abbreviation after member and states loaded
-  useEffect(() => {
-    if (member && states.length > 0) {
-      const matchedState = states.find(
-        (s) => s.abbreviation === member.state || s.name.toLowerCase() === member.state?.toLowerCase()
-      );
-
-      if (matchedState && matchedState.abbreviation !== member.state) {
-        setSelectedState(matchedState.abbreviation);
-        setMember((prev) =>
-          prev ? { ...prev, state: matchedState.abbreviation } : prev
-        );
-      } else {
-        setSelectedState(member.state || "");
-      }
-    }
-  }, [member, states]);
-
   useEffect(() => {
     const token = localStorage.getItem("token");
     if (!token) {
@@ -147,7 +134,7 @@ function EditMemberForm({
       .then((data: Member) => {
         setMember(data);
         setSelectedCountry(data.country || "");
-        // state and city normalized by above effect
+        setSelectedState(data.state || "");
         setSelectedCity(data.city || "");
       })
       .catch((err) => setError(err.message));
@@ -160,17 +147,35 @@ function EditMemberForm({
       .catch(console.error);
   }, []);
 
-  useEffect(() => {
-    if (!selectedCountry) {
-      setStates([]);
-      setSelectedState("");
-      return;
-    }
-    apiFetch(`/us-states?country=${encodeURIComponent(selectedCountry)}`)
-      .then((res) => res.json())
-      .then(setStates)
-      .catch(console.error);
-  }, [selectedCountry]);
+ useEffect(() => {
+  if (!selectedCountry) {
+    setStates([]);
+    setSelectedState("");
+    return;
+  }
+  apiFetch(`/us-states?country=${encodeURIComponent(selectedCountry)}`)
+    .then((res) => res.json())
+    .then((data: StateType[]) => {
+      setStates(data);
+
+      // If member.state exists but might be full name, convert to abbreviation
+      if (member?.state) {
+        const matched = data.find(
+          (s) =>
+            s.abbreviation === member.state ||
+           s.name.toLowerCase() === member.state?.toLowerCase()
+
+        );
+        if (matched) {
+          setSelectedState(matched.abbreviation);
+          setMember((prev) =>
+            prev ? { ...prev, state: matched.abbreviation } : prev
+          );
+        }
+      }
+    })
+    .catch(console.error);
+}, [selectedCountry, member]);
 
   useEffect(() => {
     if (!selectedState) {
@@ -232,7 +237,8 @@ function EditMemberForm({
       setOtherMajorText("");
       setDisplayMajorText("");
       setMember((prev) =>
-        prev ? { ...prev, major_id: null, major_other: "", major: undefined } : prev
+        prev ? { ...prev, major_id: null, major_other: "", major: undefined
+ } : prev
       );
     } else {
       const id = Number(val);
@@ -241,7 +247,8 @@ function EditMemberForm({
       setOtherMajorText("");
       setDisplayMajorText(majorObj?.name || "");
       setMember((prev) =>
-        prev ? { ...prev, major_id: id, major_other: null, major: undefined } : prev
+        prev ? { ...prev, major_id: id, major_other: null, major: undefined
+ } : prev
       );
     }
   }
@@ -264,13 +271,15 @@ function EditMemberForm({
       setSelectedMajorId(matched.id);
       setOtherMajorText("");
       setMember((prev) =>
-        prev ? { ...prev, major_id: matched.id, major_other: null, major: undefined } : prev
+        prev ? { ...prev, major_id: matched.id, major_other: null, major: undefined
+ } : prev
       );
     } else {
       setSelectedMajorId("other");
       setOtherMajorText(val);
       setMember((prev) =>
-        prev ? { ...prev, major_id: null, major_other: val, major: undefined } : prev
+        prev ? { ...prev, major_id: null, major_other: val, major: undefined
+ } : prev
       );
     }
   }
@@ -305,7 +314,7 @@ function EditMemberForm({
       const updatedMember = {
         ...member,
         experience_level: editableExperienceLevel,
-        major: displayMajorText,
+        major: displayMajorText, // <== Add this line to save editable major text
         photo_url,
       };
 
@@ -359,20 +368,290 @@ function EditMemberForm({
     }
   }
 
-  const getStateName = (abbr: string) => {
-    return states.find((s) => s.abbreviation === abbr)?.name || abbr;
-  };
-
   if (error) return <p className="text-red-600">{error}</p>;
   if (!member) return <p>Loading member info...</p>;
 
   return (
     <>
       <form onSubmit={handleSubmit} className="max-w-md mx-auto p-4 border rounded mt-10">
-        {/* form fields as before... */}
-        {/* ... see prior message for full JSX */}
+        {/* Name */}
+        <label className="block mb-2">
+          Name:
+          <input
+            type="text"
+            name="name"
+            value={member.name || ""}
+            onChange={handleChange}
+            className="w-full p-2 border rounded"
+            required
+          />
+        </label>
+
+        {/* Email */}
+        <label className="block mb-2">
+          Email:
+          <input
+            type="email"
+            name="email"
+            value={member.email || ""}
+            onChange={handleChange}
+            className="w-full p-2 border rounded"
+            required
+          />
+        </label>
+
+        {/* Title */}
+        <label className="block mb-2">
+          Title:
+          <input
+            type="text"
+            name="title"
+            value={member.title || ""}
+            onChange={handleChange}
+            className="w-full p-2 border rounded"
+          />
+        </label>
+
+        {/* University */}
+        <label className="block mb-2">
+          University:
+          <input
+            type="text"
+            name="university"
+            value={member.university || ""}
+            onChange={handleChange}
+            className="w-full p-2 border rounded"
+          />
+        </label>
+
+        {/* Major */}
+        <label className="block mb-2">
+          Major:
+          <select
+            value={selectedMajorId}
+            onChange={handleMajorChange}
+            className="w-full p-2 border rounded"
+            required
+          >
+            <option value="">-- Select Major --</option>
+            {standardMajors.map((m) => (
+              <option key={m.id} value={m.id}>
+                {m.name}
+              </option>
+            ))}
+            <option value="other">Other</option>
+          </select>
+        </label>
+
+        {/* Other major text input (shows only if 'other' selected) */}
+        {selectedMajorId === "other" && (
+          <label className="block mb-2">
+            Please specify your major:
+            <input
+              type="text"
+              value={otherMajorText}
+              onChange={handleOtherMajorChange}
+              className="w-full p-2 border rounded"
+              required
+            />
+          </label>
+        )}
+
+        {/* Display selected major as styled text */}
+        <label className="text-sm text-green-600 mt-1">
+          Saved:
+        </label>
+        <p className="text-sm text-green-600 mt-1">{displayMajorText || "None"}</p>
+
+        {/* Experience Level */}
+        <label className="block mb-2">
+          Experience Level:
+          <select
+            name="experience_level"
+            value={member.experience_level || ""}
+            onChange={handleChange}
+            className="w-full p-2 border rounded"
+            required
+          >
+            <option value="">-- Select Experience Level --</option>
+            {standardExperienceLevels.map((level) => (
+              <option key={level.id} value={level.level_name}>
+                {level.level_name}
+              </option>
+            ))}
+          </select>
+        </label>
+
+        {/* Display selected experience level as styled text */}
+        <label className="text-sm text-green-600 mt-1">
+          Saved:
+        </label>
+        <p className="text-sm text-green-600 mt-1">{editableExperienceLevel || "None"}</p>
+
+        {/* Skills */}
+        <label className="block mb-2">
+          Skills:
+          <textarea
+            name="skills"
+            value={member.skills || ""}
+            onChange={handleChange}
+            className="w-full p-2 border rounded"
+          />
+        </label>
+
+        {/* Company */}
+        <label className="block mb-2">
+          Company:
+          <input
+            type="text"
+            name="company"
+            value={member.company || ""}
+            onChange={handleChange}
+            className="w-full p-2 border rounded"
+          />
+        </label>
+
+        {/* Courses Completed */}
+        <label className="block mb-2">
+          Courses Completed:
+          <input
+            type="text"
+            name="courses_completed"
+            value={member.courses_completed || ""}
+            onChange={handleChange}
+            className="w-full p-2 border rounded"
+          />
+        </label>
+
+        {/* Country Dropdown */}
+        <label className="block mb-2">
+          Country:
+          <select
+            name="country"
+            value={selectedCountry}
+            onChange={handleCountryChange}
+            className="w-full p-2 border rounded"
+          >
+            <option value="">Select country</option>
+            {countries.map((c) => (
+              <option key={c} value={c}>
+                {c}
+              </option>
+            ))}
+          </select>
+          <p className="text-sm text-gray-600 mt-1">Saved: {member?.country || "None"}</p>
+        </label>
+
+        {/* State Dropdown */}
+        <label className="block mb-2">
+          State:
+          <select
+            name="state"
+            value={selectedState}
+            onChange={handleStateChange}
+            disabled={!selectedCountry}
+            className="w-full p-2 border rounded"
+          >
+              <option value="">Select state</option>
+  {states.map((s) => (
+    <option key={s.abbreviation} value={s.abbreviation}>
+      {s.name}
+    </option>
+            ))}
+          </select>
+          <p className="text-sm text-green-600 mt-1">Saved: {states.find((s) => s.abbreviation === member?.state)?.name || member?.state || "None"}</p>
+        </label>
+
+        {/* City Dropdown */}
+        <label className="block mb-2">
+          City:
+          <select
+            name="city"
+            value={selectedCity}
+            onChange={handleCityChange}
+            disabled={!selectedState}
+            className="w-full p-2 border rounded"
+          >
+            <option value="">Select city</option>
+            {cities.map((city) => (
+              <option key={city} value={city}>
+                {city}
+              </option>
+            ))}
+          </select>
+          <p className="text-sm text-green-600 mt-1">Saved: {member?.city || "None"}</p>
+        </label>
+
+        {/* Birthdate */}
+        <label className="block mb-2">
+          Birthdate:
+          <input
+            type="date"
+            name="birthdate"
+            value={member.birthdate?.split("T")[0] || ""}
+            onChange={handleChange}
+            className="w-full p-2 border rounded"
+          />
+        </label>
+
+        {/* Volunteering Work */}
+        <label className="block mb-2">
+          Volunteering Work:
+          <textarea
+            name="volunteering_work"
+            value={member.volunteering_work || ""}
+            onChange={handleChange}
+            className="w-full p-2 border rounded"
+          />
+        </label>
+
+        {/* Projects Completed */}
+        <label className="block mb-4">
+          Projects Completed:
+          <textarea
+            name="projects_completed"
+            value={member.projects_completed || ""}
+            onChange={handleChange}
+            className="w-full p-2 border rounded"
+          />
+        </label>
+
+        {/* Upload Profile Photo */}
+        <label className="block mb-4">
+          Upload Profile Photo:
+          <input
+            type="file"
+            accept="image/*"
+            onChange={(e) => {
+              if (e.target.files && e.target.files.length > 0) {
+                setPhotoFile(e.target.files[0]);
+              }
+            }}
+            className="w-full p-2 border rounded"
+          />
+        </label>
+
+        {/* Buttons */}
+        <button
+          type="submit"
+          disabled={loading}
+          className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 disabled:opacity-50"
+        >
+          {loading ? "Saving..." : "Save Changes"}
+        </button>
+
+        <button
+          type="button"
+          onClick={() => setShowDeleteConfirm(true)}
+          className="ml-4 bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700"
+        >
+          Delete Account
+        </button>
+
+        {error && <p className="mt-2 text-red-600">{error}</p>}
       </form>
 
+      {/* Delete confirmation modal */}
       {showDeleteConfirm && (
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
           <div className="bg-white rounded p-6 max-w-sm w-full">
