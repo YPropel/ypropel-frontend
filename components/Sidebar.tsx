@@ -1,3 +1,4 @@
+import { apiFetch } from "../apiClient";  // Adjust path as needed
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import {
@@ -64,11 +65,11 @@ export default function Sidebar() {
       setProfile(null);
       return;
     }
-    const res = await fetch(`http://localhost:4000/users/${id}`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
+   const res = await apiFetch(`/users/${id}`, {
+  headers: {
+    Authorization: `Bearer ${token}`,
+  },
+});
 
     if (res.ok) {
       const data = await res.json();
