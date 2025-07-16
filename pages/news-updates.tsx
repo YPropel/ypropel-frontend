@@ -6,6 +6,7 @@ type NewsPost = {
   title: string;
   content: string;
   image_url?: string;
+  url?: string;
   created_at: string;
 };
 
@@ -35,22 +36,35 @@ export default function NewsUpdates() {
         {posts.length === 0 ? (
           <p className="text-gray-600">No news updates available at the moment.</p>
         ) : (
-          posts.map(({ id, title, content, image_url, created_at }) => (
-            <div key={id} className="border rounded p-4 shadow bg-white">
-              <h2 className="text-xl font-semibold text-blue-900 mb-2">{title}</h2>
-              {image_url && (
-                <img
-                  src={image_url}
-                  alt={title}
-                  className="w-full max-h-64 object-cover rounded mb-3"
-                />
-              )}
-              <p className="mb-2">{content}</p>
-              <p className="text-sm text-gray-600">
-                Posted on {new Date(created_at).toLocaleDateString()}
-              </p>
-            </div>
-          ))
+         posts.map(({ id, title, content, image_url, url, created_at }) => (
+  <div key={id} className="border rounded p-4 shadow bg-white">
+    <h2 className="text-xl font-semibold text-blue-900 mb-2">{title}</h2>
+    {image_url && (
+      <img
+        src={image_url}
+        alt={title}
+        className="w-full max-h-64 object-cover rounded mb-3"
+      />
+    )}
+    <p className="mb-2">{content}</p>
+    {url && (
+      <p className="mb-2">
+        <a
+          href={url}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="text-blue-600 underline break-all"
+        >
+          {url}
+        </a>
+      </p>
+    )}
+    <p className="text-sm text-gray-600">
+      Posted on {new Date(created_at).toLocaleDateString()}
+    </p>
+  </div>
+))
+
         )}
       </div>
     </div>
