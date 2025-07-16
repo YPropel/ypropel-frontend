@@ -1,5 +1,7 @@
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
+import { apiFetch } from "../../apiClient"; // adjust path if needed
+
 
 type Article = {
   id: number;
@@ -20,7 +22,7 @@ export default function ArticleDetailPage() {
 
     const fetchArticle = async () => {
       try {
-        const res = await fetch(`http://localhost:4000/articles/${id}`);
+         const res = await apiFetch(`/articles/${id}`);
         if (res.ok) {
           const data = await res.json();
           setArticle(data);
