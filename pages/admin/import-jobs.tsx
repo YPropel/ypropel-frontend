@@ -20,7 +20,7 @@ export default function ImportJobsPage() {
       }
 
       // Map source and jobType to API route
-     let apiRoute = "";
+    let apiRoute = "";
 if (source === "adzuna") {
   apiRoute = "/admin/import-entry-jobs";
 } else if (source === "careerjet") {
@@ -34,18 +34,12 @@ if (source === "adzuna") {
 } else if (source === "sunnova") {
   apiRoute = "/admin/import-sunnova-jobs";
 } else if (source === "simplyhired") {
-  if (jobType === "hourly") {
-    apiRoute = "/admin/import-simplyhired-hourly-jobs";
-  } else if (jobType === "internship") {
-    apiRoute = "/admin/import-simplyhired-internship-jobs";
-  } else {
-    apiRoute = "/admin/import-simplyhired-entry-jobs";
-  }
-}
-
-else {
+  // always call single backend route here
+  apiRoute = "/admin/import-simplyhired-jobs";
+} else {
   apiRoute = "/admin/import-entry-jobs";
 }
+
 
 
       // Send the jobType too
