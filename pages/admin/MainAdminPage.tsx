@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import jwtDecode from "jwt-decode";
-import AuthGuard from "../../components/AuthGuard";
+import { apiFetch } from "../../apiClient";
 
 const adminPages = [
   { label: "Articles", href: "/admin/articles" },
