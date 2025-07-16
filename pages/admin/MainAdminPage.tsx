@@ -1,8 +1,6 @@
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/router";
-import jwtDecode from "jwt-decode";
-import { apiFetch } from "../../apiClient";
 
 const adminPages = [
   { label: "Articles", href: "/admin/articles" },
@@ -13,71 +11,27 @@ const adminPages = [
   { label: "Summer Programs", href: "/admin/summer-programs" },
 ];
 
-type DecodedToken = {
-  userId?: number;
-  is_admin?: boolean | string | number;
-  [key: string]: any;
-};
-
-export default function AdminMainPage() {
+export default function MainAdminPage() {
   const router = useRouter();
-  const [loading, setLoading] = useState(true);
-  const [isAdmin, setIsAdmin] = useState(false);
+  const [isAdmin, setIsAdmin] = useState<boolean | null>(null);
 
   useEffect(() => {
-    async function checkAdmin() {
-      const token = localStorage.getItem("token");
-      if (!token) {
-        router.push("/unauthorized");
-        return;
-      }
-
-      try {
-        const decoded: DecodedToken = jwtDecode(token);
-        const adminFlag =
-          decoded.is_admin === true ||
-          decoded.is_admin === "true" ||
-          decoded.is_admin === 1 ||
-          String(decoded.is_admin).toLowerCase() === "true";
-
-        if (!adminFlag) {
-          router.push("/unauthorized");
-          return;
-        }
-
-        // Optional: verify with backend to ensure token is valid and user is admin
-        const res = await apiFetch("/users/me", {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        if (!res.ok) {
-          router.push("/unauthorized");
-          return;
-        }
-        const user = await res.json();
-        if (!user.is_admin) {
-          router.push("/unauthorized");
-          return;
-        }
-
-        setIsAdmin(true);
-      } catch (error) {
-        console.error("Admin check failed:", error);
-        router.push("/unauthorized");
-      } finally {
-        setLoading(false);
-      }
+    const adminFlag = localStorage.getItem("isAdmin");
+    console.log("Adminnnnnnnnn flag from localStorage:", adminFlag);
+    if (adminFlag === "true") {
+      setIsAdmin(true);
+    } else {
+      setIsAdmin(false);
+      router.push("/unauthorized");
     }
-
-    checkAdmin();
   }, [router]);
 
-  if (loading) {
-    return <p className="p-6 text-center">Checking admin permissions...</p>;
+  if (isAdmin === null) {
+    return <p>Loading...</p>;
   }
 
   if (!isAdmin) {
-    // Redirecting or showing nothing while redirect happens
-    return null;
+    return null; // redirecting
   }
 
   return (
