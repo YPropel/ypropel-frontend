@@ -115,6 +115,8 @@ export default function NewsAdmin() {
       setTitle("");
       setContent("");
       setUrl("");
+      setPreviewUrl("");
+     
       // Release and clear the image preview URL
   if (previewUrl) {
     URL.revokeObjectURL(previewUrl);
