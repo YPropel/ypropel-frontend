@@ -510,13 +510,7 @@ export default function PitchPoint() {
                   >
                     ⭐ Follow ({follows})
                   </button>
-                  <button
-                    onClick={() => handleShare(id)}
-                    className="cursor-pointer px-4 py-1 rounded text-sm bg-green-400 text-green-900 hover:bg-green-500 transition-colors"
-                    aria-label={`Share video titled ${title}`}
-                  >
-                    🔄 Share ({shares})
-                  </button>
+                 
                 
                   {user_id === currentUserId && (
                     
