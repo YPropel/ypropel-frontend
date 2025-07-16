@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import AuthGuard from "../components/AuthGuard";
 import { apiFetch } from "../apiClient";
+
 type MusicMajor = {
   id: number;
   title: string;
