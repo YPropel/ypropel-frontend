@@ -588,12 +588,7 @@ console.log("Uploading videoooooooo file:", newVideoFile);
                     >
                       💬 {isExpanded ? "Hide Comments" : "Comments"}
                     </button>
-                    <button
-                      onClick={() => sharePost(post.id)}
-                      className="text-sm text-gray-600"
-                    >
-                      🔄 Share
-                    </button>
+                   
                   </div>
                   <div className="mt-2 space-y-2">
                     {commentsToShow.map((comment) => {
