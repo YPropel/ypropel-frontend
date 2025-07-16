@@ -26,7 +26,7 @@ type UserProfile = {
   experience_level?: string;
 };
 
-const mainMenu = [
+const sidebarMenu = [
   {
     title: "Students' & Early-Career Resources",
     items: [
@@ -44,13 +44,9 @@ const mainMenu = [
       { label: "Freelance", href: "/freelance", icon: <FaTools /> },
       { label: "Members Directory", href: "/members", icon: <FaUsers /> },
       { label: "View-Edit Profile", href: "/profile", icon: <FaUser /> },
+      // Removed About Us and Terms from menu items, will add below separately
     ],
   },
-];
-
-const infoLinks = [
-  { label: "About Us", href: "/about", icon: <FaInfoCircle /> },
-  { label: "Terms of Use", href: "/terms", icon: <FaInfoCircle /> },
 ];
 
 const navyColor = "#001F54"; // Navy hex color
@@ -147,78 +143,74 @@ export default function Sidebar() {
   }, [userId]);
 
   return (
-    <aside className="w-64 p-4 bg-white border-r border-gray-200 min-h-screen flex flex-col justify-between">
-      <div>
-        {/* Profile badge */}
-        {profile && (
-          <div className="border border-gray-300 rounded-lg p-4 mb-6 bg-gray-50 text-center shadow-sm">
-            <img
-              src={
-                profile.photo_url && profile.photo_url.trim() !== ""
-                  ? `${profile.photo_url}?t=${new Date().getTime()}`
-                  : "/images/default-profile.png"
-              }
-              alt="Profile"
-              className="w-16 h-16 rounded-full mx-auto object-cover"
-              onError={(e) => {
-                (e.target as HTMLImageElement).src = "/images/default-profile.png";
-              }}
-            />
+    <aside className="w-64 p-4 bg-white border-r border-gray-200 min-h-screen">
+      {/* Profile badge */}
+      {profile && (
+        <div className="border border-gray-300 rounded-lg p-4 mb-6 bg-gray-50 text-center shadow-sm">
+          <img
+            src={
+              profile.photo_url && profile.photo_url.trim() !== ""
+                ? `${profile.photo_url}?t=${new Date().getTime()}`
+                : "/images/default-profile.png"
+            }
+            alt="Profile"
+            className="w-16 h-16 rounded-full mx-auto object-cover"
+            onError={(e) => {
+              (e.target as HTMLImageElement).src = "/images/default-profile.png";
+            }}
+          />
 
-            <h3 className="mt-2 font-semibold text-sm" style={{ color: navyColor }}>
-              {profile.name}
-            </h3>
-            <p className="text-xs" style={{ color: navyColor }}>
-              {profile.experience_level || "Student"}
-            </p>
-            <Link href="/profile" className="text-xs underline hover:text-blue-800" style={{ color: navyColor }}>
-              Edit Profile
-            </Link>
-          </div>
-        )}
+          <h3 className="mt-2 font-semibold text-sm" style={{ color: navyColor }}>
+            {profile.name}
+          </h3>
+          <p className="text-xs" style={{ color: navyColor }}>
+            {profile.experience_level || "Student"}
+          </p>
+          <Link href="/profile" className="text-xs underline hover:text-blue-800" style={{ color: navyColor }}>
+            Edit Profile
+          </Link>
+        </div>
+      )}
 
-        {/* Main Sidebar Menu */}
-        {mainMenu.map((section, idx) => (
-          <div key={idx} className="mb-8">
-            <h2 className="font-bold mb-3" style={{ color: navyColor }}>
-              {section.title}
-            </h2>
-            <ul className="space-y-2">
-              {section.items.map((item, subIdx) => (
-                <li key={subIdx}>
-                  <Link
-                    href={item.href}
-                    className="flex items-center gap-2 hover:underline"
-                    style={{ color: navyColor }}
-                  >
-                    <span className="text-lg">{item.icon}</span>
-                    <span>{item.label}</span>
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </div>
-        ))}
-
-        {/* Separate small gray box for About Us and Terms of Use */}
-        <div className="border border-gray-300 rounded p-3 text-gray-600 text-xs max-w-[90%] mx-auto">
+      {/* Sidebar Menu */}
+      {sidebarMenu.map((section, idx) => (
+        <div key={idx} className="mb-8">
+          <h2 className="font-bold mb-3" style={{ color: navyColor }}>
+            {section.title}
+          </h2>
           <ul className="space-y-2">
-            {infoLinks.map(({ label, href, icon }) => (
-              <li key={href}>
-                <Link href={href}>
-                  <a className="flex items-center gap-1 hover:underline">
-                    <span className="text-sm">{icon}</span>
-                    <span>{label}</span>
-                  </a>
+            {section.items.map((item, subIdx) => (
+              <li key={subIdx}>
+                <Link
+                  href={item.href}
+                  className="flex items-center gap-2 hover:underline"
+                  style={{ color: navyColor }}
+                >
+                  <span className="text-lg">{item.icon}</span>
+                  <span>{item.label}</span>
                 </Link>
               </li>
             ))}
           </ul>
         </div>
+      ))}
+
+      {/* Separate small gray box for About Us */}
+      <div className="border border-gray-300 rounded p-3 text-gray-600 text-xs max-w-[90%] mx-auto mb-2">
+        <Link href="/about" className="hover:underline">
+          About Us
+        </Link>
       </div>
 
-      {/* Contact box under Terms of Use */}
-      <div className="border border-gray-300 rounded p-3 text-gray-600 text-xs max-w-[90%] mx-auto mt-4">
+      {/* Separate small gray box for Terms of Use */}
+      <div className="border border-gray-300 rounded p-3 text-gray-600 text-xs max-w-[90%] mx-auto mb-6">
+        <Link href="/terms" className="hover:underline">
+          Terms of Use
+        </Link>
+      </div>
+
+      {/* Contact box (kept as before) */}
+      <div className="border border-gray-300 rounded p-3 text-gray-600 text-xs max-w-[90%] mx-auto">
         Contact Us at{" "}
         <a href="mailto:ypropel@ypropel.com" className="underline hover:text-blue-700">
           ypropel@ypropel.com
