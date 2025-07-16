@@ -29,6 +29,7 @@ type StandardMajor = {
   id: number;
   name: string;
 };
+
 type StateType = {
   abbreviation: string;
   name: string;
@@ -50,12 +51,15 @@ function EditMemberForm({
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
   const [countries, setCountries] = useState<string[]>([]);
-  //const [states, setStates] = useState<string[]>([]);
+  const [states, setStates] = useState<StateType[]>([]);
   const [cities, setCities] = useState<string[]>([]);
 
   const [selectedCountry, setSelectedCountry] = useState<string>("");
   const [selectedState, setSelectedState] = useState<string>("");
   const [selectedCity, setSelectedCity] = useState<string>("");
+
+  // Store raw state string from user data (could be full name or abbreviation)
+  const [rawMemberState, setRawMemberState] = useState<string>("");
 
   // Standard majors state
   const [standardMajors, setStandardMajors] = useState<StandardMajor[]>([]);
@@ -67,8 +71,6 @@ function EditMemberForm({
     { id: number; level_name: string }[]
   >([]);
   const [editableExperienceLevel, setEditableExperienceLevel] = useState<string>("");
-const [states, setStates] = useState<StateType[]>([]);
-
 
   // Fetch standard experience levels for dropdown
   useEffect(() => {
@@ -118,6 +120,7 @@ const [states, setStates] = useState<StateType[]>([]);
     }
   }, [member, standardMajors]);
 
+  // Fetch user member data on mount / memberId change
   useEffect(() => {
     const token = localStorage.getItem("token");
     if (!token) {
@@ -134,12 +137,13 @@ const [states, setStates] = useState<StateType[]>([]);
       .then((data: Member) => {
         setMember(data);
         setSelectedCountry(data.country || "");
-        setSelectedState(data.state || "");
+        setRawMemberState(data.state || ""); // store raw state string separately
         setSelectedCity(data.city || "");
       })
       .catch((err) => setError(err.message));
   }, [memberId]);
 
+  // Fetch countries list
   useEffect(() => {
     apiFetch("/countries")
       .then((res) => res.json())
@@ -147,36 +151,38 @@ const [states, setStates] = useState<StateType[]>([]);
       .catch(console.error);
   }, []);
 
- useEffect(() => {
-  if (!selectedCountry) {
-    setStates([]);
-    setSelectedState("");
-    return;
-  }
-  apiFetch(`/us-states?country=${encodeURIComponent(selectedCountry)}`)
-    .then((res) => res.json())
-    .then((data: StateType[]) => {
-      setStates(data);
+  // Fetch states list and convert rawMemberState to abbreviation
+  useEffect(() => {
+    if (!selectedCountry) {
+      setStates([]);
+      setSelectedState("");
+      return;
+    }
+    apiFetch(`/us-states?country=${encodeURIComponent(selectedCountry)}`)
+      .then((res) => res.json())
+      .then((data: StateType[]) => {
+        setStates(data);
 
-      // If member.state exists but might be full name, convert to abbreviation
-      if (member?.state) {
-        const matched = data.find(
-          (s) =>
-            s.abbreviation === member.state ||
-           s.name.toLowerCase() === member.state?.toLowerCase()
-
-        );
-        if (matched) {
-          setSelectedState(matched.abbreviation);
-          setMember((prev) =>
-            prev ? { ...prev, state: matched.abbreviation } : prev
+        if (rawMemberState) {
+          const matched = data.find(
+            (s) =>
+              s.abbreviation === rawMemberState ||
+              s.name.toLowerCase() === rawMemberState.toLowerCase()
           );
+          if (matched) {
+            setSelectedState(matched.abbreviation);
+            setMember((prev) =>
+              prev ? { ...prev, state: matched.abbreviation } : prev
+            );
+          } else {
+            setSelectedState("");
+          }
         }
-      }
-    })
-    .catch(console.error);
-}, [selectedCountry, member]);
+      })
+      .catch(console.error);
+  }, [selectedCountry, rawMemberState]);
 
+  // Fetch cities list on selectedState change
   useEffect(() => {
     if (!selectedState) {
       setCities([]);
@@ -189,6 +195,7 @@ const [states, setStates] = useState<StateType[]>([]);
       .catch(console.error);
   }, [selectedState]);
 
+  // Fetch standard majors list
   useEffect(() => {
     apiFetch("/standard_majors")
       .then((res) => res.json())
@@ -213,6 +220,7 @@ const [states, setStates] = useState<StateType[]>([]);
     setSelectedCountry(val);
     setSelectedState("");
     setSelectedCity("");
+    setRawMemberState("");
     setMember((prev) => (prev ? { ...prev, country: val, state: "", city: "" } : prev));
   }
 
@@ -237,8 +245,7 @@ const [states, setStates] = useState<StateType[]>([]);
       setOtherMajorText("");
       setDisplayMajorText("");
       setMember((prev) =>
-        prev ? { ...prev, major_id: null, major_other: "", major: undefined
- } : prev
+        prev ? { ...prev, major_id: null, major_other: "", major: undefined } : prev
       );
     } else {
       const id = Number(val);
@@ -247,8 +254,7 @@ const [states, setStates] = useState<StateType[]>([]);
       setOtherMajorText("");
       setDisplayMajorText(majorObj?.name || "");
       setMember((prev) =>
-        prev ? { ...prev, major_id: id, major_other: null, major: undefined
- } : prev
+        prev ? { ...prev, major_id: id, major_other: null, major: undefined } : prev
       );
     }
   }
@@ -271,15 +277,13 @@ const [states, setStates] = useState<StateType[]>([]);
       setSelectedMajorId(matched.id);
       setOtherMajorText("");
       setMember((prev) =>
-        prev ? { ...prev, major_id: matched.id, major_other: null, major: undefined
- } : prev
+        prev ? { ...prev, major_id: matched.id, major_other: null, major: undefined } : prev
       );
     } else {
       setSelectedMajorId("other");
       setOtherMajorText(val);
       setMember((prev) =>
-        prev ? { ...prev, major_id: null, major_other: val, major: undefined
- } : prev
+        prev ? { ...prev, major_id: null, major_other: val, major: undefined } : prev
       );
     }
   }
@@ -314,7 +318,7 @@ const [states, setStates] = useState<StateType[]>([]);
       const updatedMember = {
         ...member,
         experience_level: editableExperienceLevel,
-        major: displayMajorText, // <== Add this line to save editable major text
+        major: displayMajorText, // <== save editable major text
         photo_url,
       };
 
@@ -552,14 +556,16 @@ const [states, setStates] = useState<StateType[]>([]);
             disabled={!selectedCountry}
             className="w-full p-2 border rounded"
           >
-              <option value="">Select state</option>
-  {states.map((s) => (
-    <option key={s.abbreviation} value={s.abbreviation}>
-      {s.name}
-    </option>
+            <option value="">Select state</option>
+            {states.map((s) => (
+              <option key={s.abbreviation} value={s.abbreviation}>
+                {s.name}
+              </option>
             ))}
           </select>
-          <p className="text-sm text-green-600 mt-1">Saved: {states.find((s) => s.abbreviation === member?.state)?.name || member?.state || "None"}</p>
+          <p className="text-sm text-green-600 mt-1">
+            Saved: {states.find((s) => s.abbreviation === member?.state)?.name || member?.state || "None"}
+          </p>
         </label>
 
         {/* City Dropdown */}
