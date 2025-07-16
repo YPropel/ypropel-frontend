@@ -227,9 +227,10 @@ export default function MembersDirectory() {
 
               <div className="flex-grow">
                 <h2 className="text-2xl font-bold text-[#001f3f]">{member.name}</h2> {/* Bigger name */}
-                {member.title && member.title.trim() !== "" && (
-                  <p className="text-sm font-bold text-[#001f3f]">{member.title}</p>
+               {typeof member.title === "string" && member.title.trim() !== "" && (
+                 <p className="text-sm font-bold text-[#001f3f]">{member.title}</p>
                 )}
+
                 {(member.experience_level || member.major || member.university) && (
                   <p className="text-sm text-gray-600">
                     {[member.experience_level, member.major, member.university]
