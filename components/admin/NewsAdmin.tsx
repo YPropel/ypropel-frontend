@@ -115,6 +115,11 @@ export default function NewsAdmin() {
       setTitle("");
       setContent("");
       setUrl("");
+      // Release and clear the image preview URL
+  if (previewUrl) {
+    URL.revokeObjectURL(previewUrl);
+  }
+ 
       setImageFile(null);
       setPreviewUrl(null);
       fetchNews(); // Refresh news list
