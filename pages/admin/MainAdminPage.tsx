@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/router";
-import jwtDecode from "jwt-decode";
+import * as jwtDecode from "jwt-decode";
 import { apiFetch } from "../../apiClient";
 import AuthGuard from "../../components/AuthGuard";
 
@@ -32,7 +32,7 @@ export default function AdminDashboard() {
     }
 
     try {
-      const decoded: DecodedToken = jwtDecode(token);
+      const decoded: DecodedToken = jwtDecode.default(token);
       const role = localStorage.getItem("role");
       const adminCheck =
         decoded.is_admin === true ||
