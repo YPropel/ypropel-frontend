@@ -1,7 +1,6 @@
-// pages/admin/MainAdminPage.tsx
 import React, { useEffect, useState } from "react";
-import { useRouter } from "next/router";
 import Link from "next/link";
+import { useRouter } from "next/router";
 
 const adminPages = [
   { label: "Articles", href: "/admin/articles" },
@@ -17,22 +16,21 @@ export default function MainAdminPage() {
   const [isAdmin, setIsAdmin] = useState<boolean | null>(null);
 
   useEffect(() => {
-    // Simple admin check based on localStorage flag "isAdmin"
     const adminFlag = localStorage.getItem("isAdmin");
     if (adminFlag === "true") {
       setIsAdmin(true);
     } else {
       setIsAdmin(false);
-      router.push("/unauthorized"); // redirect if not admin
+      router.push("/unauthorized");
     }
   }, [router]);
 
   if (isAdmin === null) {
-    return <p>Loading...</p>; // or spinner
+    return <p>Loading...</p>;
   }
 
   if (!isAdmin) {
-    return null; // user is redirected, so no content here
+    return null; // redirecting
   }
 
   return (
