@@ -65,11 +65,11 @@ export default function Sidebar() {
       setProfile(null);
       return;
     }
-   const res = await apiFetch(`/users/${id}`, {
-  headers: {
-    Authorization: `Bearer ${token}`,
-  },
-});
+    const res = await apiFetch(`/users/${id}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
 
     if (res.ok) {
       const data = await res.json();
@@ -194,6 +194,16 @@ export default function Sidebar() {
           </ul>
         </div>
       ))}
+
+      {/* New box for About Us and Terms of Use */}
+      <div className="border-t border-gray-200 pt-4 mt-6 text-gray-500 text-sm space-y-2">
+        <Link href="/about" className="block hover:underline hover:text-gray-700">
+          About Us
+        </Link>
+        <Link href="/terms" className="block hover:underline hover:text-gray-700">
+          Terms of Use
+        </Link>
+      </div>
     </aside>
   );
 }
