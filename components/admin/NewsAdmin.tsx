@@ -8,6 +8,7 @@ type NewsItem = {
   title: string;
   content: string;
   image_url: string;
+  url?: string;
 };
 
 import { apiFetch } from "../../apiClient";
@@ -22,7 +23,8 @@ export default function NewsAdmin() {
   const [isSuccess, setIsSuccess] = useState(false);
   const [loading, setLoading] = useState(false);
   const [newsList, setNewsList] = useState<NewsItem[]>([]);
-
+  const [url, setUrl] = useState("");
+  
   // Fetch all news posts
   const fetchNews = async () => {
     try {
@@ -111,6 +113,7 @@ export default function NewsAdmin() {
       setMessage("✅ News created!");
       setTitle("");
       setContent("");
+      setUrl("");
       setImageFile(null);
       setPreviewUrl(null);
       fetchNews(); // Refresh news list
@@ -176,6 +179,13 @@ export default function NewsAdmin() {
         rows={4}
         value={content}
         onChange={(e) => setContent(e.target.value)}
+      />
+       <input
+        type="text"
+        placeholder="News URL (optional)"
+        className="w-full border px-3 py-2 mb-3"
+        value={url}
+        onChange={(e) => setUrl(e.target.value)}
       />
       <input
         type="file"
