@@ -180,6 +180,21 @@ export default function PitchPoint() {
     }
   }
 
+  function getYouTubeEmbedUrl(url: string): string | null {
+  try {
+    const ytRegex =
+      /(?:youtube\.com\/(?:watch\?v=|embed\/)|youtu\.be\/)([a-zA-Z0-9_-]{11})/;
+    const match = url.match(ytRegex);
+    if (match && match[1]) {
+      return `https://www.youtube.com/embed/${match[1]}`;
+    }
+    return null;
+  } catch {
+    return null;
+  }
+}
+
+
   function isEmbedUrl(url: string) {
     return url.includes("youtube.com/embed") || url.includes("youtu.be");
   }
@@ -434,100 +449,102 @@ export default function PitchPoint() {
           </div>
         )}
 
-        {/* Videos List */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-          {filteredVideos.length === 0 && (
-            <p className="text-center text-gray-500 col-span-2">
-              No videos available.
-            </p>
+       {/* Videos List */}
+<div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+  {filteredVideos.length === 0 && (
+    <p className="text-center text-gray-500 col-span-2">
+      No videos available.
+    </p>
+  )}
+  {filteredVideos.map(
+    ({
+      id,
+      user_id,
+      title,
+      description,
+      category,
+      video_url,
+      likes,
+      follows,
+      shares,
+      likedByUser,
+      followedByUser,
+    }) => {
+      const embedUrl = getYouTubeEmbedUrl(video_url);
+
+      return (
+        <div
+          key={id}
+          className="bg-white rounded shadow p-4 flex flex-col items-center"
+        >
+          <div className="mb-1 text-sm text-blue-700 font-semibold">
+            {category || "Uncategorized"}
+          </div>
+          <h2 className="text-xl font-semibold text-blue-900 mb-2 text-center">
+            {title}
+          </h2>
+          {description && (
+            <p className="mb-3 text-center text-gray-700">{description}</p>
           )}
-          {filteredVideos.map(
-            ({
-              id,
-              user_id,
-              title,
-              description,
-              category,
-              video_url,
-              likes,
-              follows,
-              shares,
-              likedByUser,
-              followedByUser,
-            }) => (
-              <div
-                key={id}
-                className="bg-white rounded shadow p-4 flex flex-col items-center"
+
+          <div className="w-full aspect-w-16 aspect-h-9 rounded overflow-hidden mb-4">
+            {embedUrl ? (
+              <iframe
+                src={embedUrl}
+                title={title}
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowFullScreen
+                className="w-full h-full"
+              />
+            ) : (
+              <video
+                src={video_url}
+                controls
+                className="w-full h-full object-cover"
+              />
+            )}
+          </div>
+
+          <div className="flex justify-center space-x-4 text-gray-700 w-full">
+            <button
+              onClick={() => toggleLike(id, likedByUser)}
+              className={`cursor-pointer px-4 py-1 rounded text-sm transition-colors ${
+                likedByUser
+                  ? "bg-green-700 text-white"
+                  : "bg-green-200 text-green-800 hover:bg-green-300"
+              }`}
+              aria-label={`Like video titled ${title}`}
+            >
+              👍 Like ({likes})
+            </button>
+            <button
+              onClick={() => toggleFollow(id, followedByUser)}
+              className={`cursor-pointer px-4 py-1 rounded text-sm transition-colors ${
+                followedByUser
+                  ? "bg-green-700 text-white"
+                  : "bg-green-200 text-green-800 hover:bg-green-300"
+              }`}
+              aria-label={`Follow video titled ${title}`}
+            >
+              ⭐ Follow ({follows})
+            </button>
+
+            {user_id === currentUserId && (
+              <button
+                onClick={() => handleDeleteVideo(id)}
+                className="px-3 py-1 rounded bg-red-600 text-white hover:bg-red-700"
+                aria-label={`Delete video titled ${title}`}
               >
-                <div className="mb-1 text-sm text-blue-700 font-semibold">
-                  {category || "Uncategorized"}
-                </div>
-                <h2 className="text-xl font-semibold text-blue-900 mb-2 text-center">
-                  {title}
-                </h2>
-                {description && (
-                  <p className="mb-3 text-center text-gray-700">{description}</p>
-                )}
-
-                <div className="w-full aspect-w-16 aspect-h-9 rounded overflow-hidden mb-4">
-                  {isEmbedUrl(video_url) ? (
-                    <iframe
-                      src={video_url}
-                      title={title}
-                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                      allowFullScreen
-                      className="w-full h-full"
-                    />
-                  ) : (
-                    <video
-                      src={video_url}
-                      controls
-                      className="w-full h-full object-cover"
-                    />
-                  )}
-                </div>
-
-                <div className="flex justify-center space-x-4 text-gray-700 w-full">
-                  <button
-                    onClick={() => toggleLike(id, likedByUser)}
-                    className={`cursor-pointer px-4 py-1 rounded text-sm transition-colors ${
-                      likedByUser
-                        ? "bg-green-700 text-white"
-                        : "bg-green-200 text-green-800 hover:bg-green-300"
-                    }`}
-                    aria-label={`Like video titled ${title}`}
-                  >
-                    👍 Like ({likes})
-                  </button>
-                  <button
-                    onClick={() => toggleFollow(id, followedByUser)}
-                    className={`cursor-pointer px-4 py-1 rounded text-sm transition-colors ${
-                      followedByUser
-                        ? "bg-green-700 text-white"
-                        : "bg-green-200 text-green-800 hover:bg-green-300"
-                    }`}
-                    aria-label={`Follow video titled ${title}`}
-                  >
-                    ⭐ Follow ({follows})
-                  </button>
-                 
-                
-                  {user_id === currentUserId && (
-                    
-                    <button
-                      onClick={() => handleDeleteVideo(id)}
-                      className="px-3 py-1 rounded bg-red-600 text-white hover:bg-red-700"
-                      aria-label={`Delete video titled ${title}`}
-                    >
-                      Delete
-
-                    </button>
-                  )}
-                </div>
-              </div>
-            )
-          )}
+                Delete
+              </button>
+            )}
+          </div>
         </div>
+      );
+    }
+  )}
+</div>
+
       </div>
     </AuthGuard>
   );
