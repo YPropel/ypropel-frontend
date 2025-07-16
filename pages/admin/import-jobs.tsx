@@ -33,7 +33,17 @@ if (source === "adzuna") {
   }
 } else if (source === "sunnova") {
   apiRoute = "/admin/import-sunnova-jobs";
-} else {
+} else if (source === "simplyhired") {
+  if (jobType === "hourly") {
+    apiRoute = "/admin/import-simplyhired-hourly-jobs";
+  } else if (jobType === "internship") {
+    apiRoute = "/admin/import-simplyhired-internship-jobs";
+  } else {
+    apiRoute = "/admin/import-simplyhired-entry-jobs";
+  }
+}
+
+else {
   apiRoute = "/admin/import-entry-jobs";
 }
 
@@ -90,6 +100,7 @@ if (source === "adzuna") {
         <option value="adzuna">Adzuna</option>
         <option value="careerjet">Careerjet</option>
         <option value="sunnova">Sunnova</option>
+         <option value="simplyhired">SimplyHired</option> 
       </select>
 
       <label htmlFor="jobType" className="block mb-2 font-medium">
