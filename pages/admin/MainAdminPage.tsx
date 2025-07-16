@@ -3,6 +3,7 @@ import Link from "next/link";
 import { useRouter } from "next/router";
 import jwtDecode from "jwt-decode";
 import { apiFetch } from "../../apiClient";
+import AuthGuard from "../../components/AuthGuard";
 
 const adminPages = [
   { label: "Articles", href: "/admin/articles" },
