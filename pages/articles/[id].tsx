@@ -26,28 +26,35 @@ export default function ArticleDetailPage() {
   useEffect(() => {
     if (!id) return;
 
-    const fetchArticle = async () => {
-      try {
-         const res = await apiFetch(`/articles/${id}`);
-        if (res.ok) {
-          const data = await res.json();
-          setArticle(data);
-        }
-        // Fetch likes data (requires user to be authenticated)
-         const resLikes = await apiFetch(`/articles/${id}/likes`);
-         if (resLikes.ok) {
-           const likesData = await resLikes.json();
-           setTotalLikes(likesData.totalLikes);
-           setUserLiked(likesData.userLiked);
-         }
-         } 
-      
-        catch (err) {
-         console.error("Failed to load article:", err);
-        } finally {
-          setLoading(false);
-       }
-      };
+   const token = localStorage.getItem("token");
+
+const fetchArticle = async () => {
+  try {
+    const res = await apiFetch(`/articles/${id}`);
+    if (res.ok) {
+      const data = await res.json();
+      setArticle(data);
+    }
+    if (token) {
+      const resLikes = await apiFetch(`/articles/${id}/likes`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      if (resLikes.ok) {
+        const likesData = await resLikes.json();
+        setTotalLikes(likesData.totalLikes);
+        setUserLiked(likesData.userLiked);
+      }
+    }
+  } catch (err) {
+    console.error("Failed to load article or likes:", err);
+  } finally {
+    setLoading(false);
+  }
+};
+
+
 
     fetchArticle();
   }, [id]);
@@ -61,7 +68,12 @@ export default function ArticleDetailPage() {
 
   try {
     const method = userLiked ? "DELETE" : "POST";
-    const res = await apiFetch(`/articles/${id}/like`, { method });
+    const res = await apiFetch(`/articles/${id}/like`, {
+      method,
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
 
     if (res.ok) {
       setUserLiked(!userLiked);
@@ -73,6 +85,7 @@ export default function ArticleDetailPage() {
     alert("Error updating like");
   }
 };
+
 //-------------
   return (
     <div className="max-w-4xl mx-auto px-4 py-8">
