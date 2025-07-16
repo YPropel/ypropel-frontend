@@ -104,7 +104,8 @@ export default function NewsAdmin() {
         "Content-Type": "application/json",
         Authorization: `Bearer ${token}`,
       },
-      body: JSON.stringify({ title, content, image_url: imageUrl }),
+     body: JSON.stringify({ title, content, image_url: imageUrl, url }),
+
     });
 
     const data = await res.json();
