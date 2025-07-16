@@ -9,15 +9,15 @@ type Member = {
   password_hash?: string;
   title?: string;
   university?: string;
-  major?: string; // legacy fallback, not used for new input
-  major_id?: number | null; // new field
-  major_other?: string | null; // new field
+  major?: string;
+  major_id?: number | null;
+  major_other?: string | null;
   experience_level?: string;
   skills?: string;
   company?: string;
   courses_completed?: string;
   country?: string;
-  state?: string;
+  state?: string; // abbreviation string e.g. "TX"
   city?: string;
   birthdate?: string;
   volunteering_work?: string;
@@ -27,6 +27,11 @@ type Member = {
 
 type StandardMajor = {
   id: number;
+  name: string;
+};
+
+type State = {
+  abbreviation: string;
   name: string;
 };
 
@@ -46,14 +51,13 @@ function EditMemberForm({
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
   const [countries, setCountries] = useState<string[]>([]);
-  const [states, setStates] = useState<string[]>([]);
+  const [states, setStates] = useState<State[]>([]);
   const [cities, setCities] = useState<string[]>([]);
 
   const [selectedCountry, setSelectedCountry] = useState<string>("");
   const [selectedState, setSelectedState] = useState<string>("");
   const [selectedCity, setSelectedCity] = useState<string>("");
 
-  // Standard majors state
   const [standardMajors, setStandardMajors] = useState<StandardMajor[]>([]);
   const [selectedMajorId, setSelectedMajorId] = useState<string | number>("");
   const [otherMajorText, setOtherMajorText] = useState("");
@@ -64,7 +68,6 @@ function EditMemberForm({
   >([]);
   const [editableExperienceLevel, setEditableExperienceLevel] = useState<string>("");
 
-  // Fetch standard experience levels for dropdown
   useEffect(() => {
     apiFetch("/standard_experience_levels")
       .then((res) => res.json())
@@ -72,14 +75,12 @@ function EditMemberForm({
       .catch(console.error);
   }, []);
 
-  // Fetch editable experience level value on member change
   useEffect(() => {
     if (member?.experience_level) {
       setEditableExperienceLevel(member.experience_level);
     }
   }, [member?.experience_level]);
 
-  // Sync major fields on member or standardMajors load
   useEffect(() => {
     if (member && standardMajors.length > 0) {
       if (member.major_id) {
@@ -213,8 +214,7 @@ function EditMemberForm({
       setOtherMajorText("");
       setDisplayMajorText("");
       setMember((prev) =>
-        prev ? { ...prev, major_id: null, major_other: "", major: undefined
- } : prev
+        prev ? { ...prev, major_id: null, major_other: "", major: undefined } : prev
       );
     } else {
       const id = Number(val);
@@ -223,8 +223,7 @@ function EditMemberForm({
       setOtherMajorText("");
       setDisplayMajorText(majorObj?.name || "");
       setMember((prev) =>
-        prev ? { ...prev, major_id: id, major_other: null, major: undefined
- } : prev
+        prev ? { ...prev, major_id: id, major_other: null, major: undefined } : prev
       );
     }
   }
@@ -247,15 +246,13 @@ function EditMemberForm({
       setSelectedMajorId(matched.id);
       setOtherMajorText("");
       setMember((prev) =>
-        prev ? { ...prev, major_id: matched.id, major_other: null, major: undefined
- } : prev
+        prev ? { ...prev, major_id: matched.id, major_other: null, major: undefined } : prev
       );
     } else {
       setSelectedMajorId("other");
       setOtherMajorText(val);
       setMember((prev) =>
-        prev ? { ...prev, major_id: null, major_other: val, major: undefined
- } : prev
+        prev ? { ...prev, major_id: null, major_other: val, major: undefined } : prev
       );
     }
   }
@@ -290,7 +287,7 @@ function EditMemberForm({
       const updatedMember = {
         ...member,
         experience_level: editableExperienceLevel,
-        major: displayMajorText, // <== Add this line to save editable major text
+        major: displayMajorText,
         photo_url,
       };
 
@@ -343,6 +340,11 @@ function EditMemberForm({
       setShowDeleteConfirm(false);
     }
   }
+
+  // Helper to get full state name from abbreviation
+  const getStateName = (abbr: string) => {
+    return states.find((s) => s.abbreviation === abbr)?.name || abbr;
+  };
 
   if (error) return <p className="text-red-600">{error}</p>;
   if (!member) return <p>Loading member info...</p>;
@@ -419,7 +421,6 @@ function EditMemberForm({
           </select>
         </label>
 
-        {/* Other major text input (shows only if 'other' selected) */}
         {selectedMajorId === "other" && (
           <label className="block mb-2">
             Please specify your major:
@@ -433,10 +434,7 @@ function EditMemberForm({
           </label>
         )}
 
-        {/* Display selected major as styled text */}
-        <label className="text-sm text-green-600 mt-1">
-          Saved:
-        </label>
+        <label className="text-sm text-green-600 mt-1">Saved:</label>
         <p className="text-sm text-green-600 mt-1">{displayMajorText || "None"}</p>
 
         {/* Experience Level */}
@@ -458,10 +456,7 @@ function EditMemberForm({
           </select>
         </label>
 
-        {/* Display selected experience level as styled text */}
-        <label className="text-sm text-green-600 mt-1">
-          Saved:
-        </label>
+        <label className="text-sm text-green-600 mt-1">Saved:</label>
         <p className="text-sm text-green-600 mt-1">{editableExperienceLevel || "None"}</p>
 
         {/* Skills */}
@@ -530,12 +525,12 @@ function EditMemberForm({
           >
             <option value="">Select state</option>
             {states.map((s) => (
-              <option key={s} value={s}>
-                {s}
+              <option key={s.abbreviation} value={s.abbreviation}>
+                {s.name}
               </option>
             ))}
           </select>
-          <p className="text-sm text-green-600 mt-1">Saved: {member?.state || "None"}</p>
+          <p className="text-sm text-green-600 mt-1">Saved: {getStateName(member?.state || "")}</p>
         </label>
 
         {/* City Dropdown */}
