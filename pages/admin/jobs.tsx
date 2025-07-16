@@ -228,14 +228,15 @@ useEffect(() => {
       const method = selectedJob ? "PUT" : "POST";
       const url = selectedJob ? `/admin/jobs/${selectedJob.id}` : "/admin/jobs";
 
-      const res = await fetch(url, {
-        method,
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify(formData),
-      });
+     const res = await apiFetch(url, {
+  method,
+  headers: {
+    "Content-Type": "application/json",
+    Authorization: `Bearer ${token}`,
+  },
+  body: JSON.stringify(formData),
+});
+
 
       if (!res.ok) {
         const data = await res.json();
