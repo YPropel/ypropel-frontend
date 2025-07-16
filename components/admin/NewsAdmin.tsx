@@ -24,6 +24,7 @@ export default function NewsAdmin() {
   const [loading, setLoading] = useState(false);
   const [newsList, setNewsList] = useState<NewsItem[]>([]);
   const [url, setUrl] = useState("");
+  const [fileInputKey, setFileInputKey] = useState(Date.now());
   
   // Fetch all news posts
   const fetchNews = async () => {
@@ -115,15 +116,12 @@ export default function NewsAdmin() {
       setTitle("");
       setContent("");
       setUrl("");
-      setPreviewUrl("");
-     
-      // Release and clear the image preview URL
-  if (previewUrl) {
-    URL.revokeObjectURL(previewUrl);
-  }
- 
+  
       setImageFile(null);
       setPreviewUrl(null);
+
+      setFileInputKey(Date.now());
+
       fetchNews(); // Refresh news list
     } else {
       setIsSuccess(false);
@@ -200,6 +198,7 @@ export default function NewsAdmin() {
         accept="image/*"
         className="mb-3"
         onChange={handleImageChange}
+        key={fileInputKey}
       />
       {previewUrl && (
         <img
