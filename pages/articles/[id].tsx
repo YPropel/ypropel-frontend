@@ -1,9 +1,10 @@
+
+'use client';
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 import { apiFetch } from "../../apiClient"; // adjust path if needed
 
-const [totalLikes, setTotalLikes] = useState(0);
-const [userLiked, setUserLiked] = useState(false);
+
 
 
 type Article = {
@@ -19,6 +20,8 @@ export default function ArticleDetailPage() {
   const { id } = router.query;
   const [article, setArticle] = useState<Article | null>(null);
   const [loading, setLoading] = useState(true);
+  const [totalLikes, setTotalLikes] = useState(0);
+  const [userLiked, setUserLiked] = useState(false);
 
   useEffect(() => {
     if (!id) return;
