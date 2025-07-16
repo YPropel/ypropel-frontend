@@ -4,10 +4,16 @@ import React, { useEffect, useState, useRef } from "react";
 import { apiFetch } from "../../apiClient"; 
 
 export default function AdminJobFairs() {
+
   const [jobFairs, setJobFairs] = useState<any[]>([]);
-  const [states, setStates] = useState<string[]>([]);
+  //const [states, setStates] = useState<string[]>([]);
+  type StateType = { name: string; abbreviation: string };
+const [states, setStates] = useState<StateType[]>([]);
+
+
   const [cities, setCities] = useState<string[]>([]);
   const [selectedState, setSelectedState] = useState("");
+  
 
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
@@ -45,10 +51,12 @@ export default function AdminJobFairs() {
   }, []);
 
   useEffect(() => {
-    if (selectedState) {
-      fetchCities(selectedState);
-    }
-  }, [selectedState]);
+  if (selectedState) {
+    fetchCities(selectedState); // selectedState is abbreviation now
+  }
+}, [selectedState]);
+
+
 
   const handleImageUpload = async (file: File) => {
     const formData = new FormData();
@@ -188,15 +196,17 @@ export default function AdminJobFairs() {
             value={newJobFair.location_state}
             onChange={(e) => {
               setSelectedState(e.target.value);
-              setNewJobFair((prev) => ({ ...prev, location_state: e.target.value, location_city: "" }));
+              setNewJobFair((prev) => ({ ...prev, location_state: e.target.value, location_city: ""
+                
+               }));
             }}
             className="border p-2 rounded w-1/2"
           >
             <option value="">Select State</option>
-            {states.map((s) => (
-              <option key={s} value={s}>
-                {s}
-              </option>
+  {states.map((s) => (
+    <option key={s.abbreviation} value={s.abbreviation}>
+      {s.name}
+    </option>
             ))}
           </select>
           <select
