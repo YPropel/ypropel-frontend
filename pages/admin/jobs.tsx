@@ -147,15 +147,13 @@ useEffect(() => {
     setFormData((prev) => ({ ...prev, city: "" }));
     return;
   }
-              // Find full state name from abbreviation
-  const stateObj = states.find((s) => s.abbreviation === formData.state);
-  const fullStateName = stateObj ? stateObj.name : formData.state; // fallback
 
-  apiFetch(`/us-cities?state=${encodeURIComponent(fullStateName)}`)
+  // Send abbreviation directly, no need to find full name
+  apiFetch(`/us-cities?state=${encodeURIComponent(formData.state)}`)
     .then((res) => res.json())
     .then(setCities)
     .catch(() => setCities([]));
-}, [formData.state, formData.country, states]);
+}, [formData.state, formData.country]);
 
 
 
