@@ -45,6 +45,7 @@ const sidebarMenu = [
       { label: "Members Directory", href: "/members", icon: <FaUsers /> },
       { label: "View-Edit Profile", href: "/profile", icon: <FaUser /> },
       { label: "About Us", href: "/about", icon: <FaInfoCircle /> },
+      { label: "Terms of Use", href: "/terms", icon: <FaInfoCircle /> },
     ],
   },
 ];
@@ -195,14 +196,13 @@ export default function Sidebar() {
         </div>
       ))}
 
-      {/* New box for About Us and Terms of Use */}
-      <div className="border-t border-gray-200 pt-4 mt-6 text-gray-500 text-sm space-y-2">
-        <Link href="/about" className="block hover:underline hover:text-gray-700">
-          About Us
-        </Link>
-        <Link href="/terms" className="block hover:underline hover:text-gray-700">
-          Terms of Use
-        </Link>
+      {/* Contact box under Terms of Use */}
+      <div className="border border-gray-300 rounded p-3 text-gray-600 text-xs max-w-[90%] mx-auto mt-4">
+        Contact Us at{" "}
+        <a href="mailto:ypropel@ypropel.com" className="underline hover:text-blue-700">
+          ypropel@ypropel.com
+        </a>
+        .
       </div>
     </aside>
   );
