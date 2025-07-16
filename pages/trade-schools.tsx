@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from "react";
 import AuthGuard from "../components/AuthGuard";
+import { apiFetch } from "../apiClient";
+
 
 type TradeSchool = {
   id: number;
@@ -10,7 +12,7 @@ type TradeSchool = {
   website?: string;
 };
 
-const BACKEND_BASE_URL = "http://localhost:4000"; // <-- Adjust this to your backend URL
+//const BACKEND_BASE_URL = "http://localhost:4000"; // <-- Adjust this to your backend URL
 
 export default function TradeSchools() {
   const [tradeSchools, setTradeSchools] = useState<TradeSchool[]>([]);
@@ -24,7 +26,8 @@ export default function TradeSchools() {
   useEffect(() => {
     async function fetchStates() {
       try {
-        const res = await fetch(`${BACKEND_BASE_URL}/trade-schools/states`);
+       const res = await apiFetch("/trade-schools/states");
+
         console.log("States response status:", res.status);
         if (!res.ok) throw new Error("Failed to fetch states");
         const data = await res.json();
@@ -48,7 +51,8 @@ export default function TradeSchools() {
         if (stateFilter) {
           queryParams.append("state", stateFilter);
         }
-        const res = await fetch(`${BACKEND_BASE_URL}/trade-schools?${queryParams.toString()}`);
+        const res = await apiFetch(`/trade-schools?${queryParams.toString()}`);
+
         console.log("Trade schools response status:", res.status);
         if (!res.ok) throw new Error("Failed to fetch trade schools");
         const data = await res.json();
