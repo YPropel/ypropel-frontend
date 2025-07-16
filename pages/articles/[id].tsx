@@ -22,6 +22,8 @@ export default function ArticleDetailPage() {
   const [loading, setLoading] = useState(true);
   const [totalLikes, setTotalLikes] = useState(0);
   const [userLiked, setUserLiked] = useState(false);
+  const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
+
 
   useEffect(() => {
     if (!id) return;
