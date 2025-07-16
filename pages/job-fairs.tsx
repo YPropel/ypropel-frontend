@@ -16,8 +16,17 @@ export default function JobFairsPage() {
   const [jobFairs, setJobFairs] = useState<JobFair[]>([]);
   const [stateFilter, setStateFilter] = useState("");
   const [cityFilter, setCityFilter] = useState("");
-  const [availableStates, setAvailableStates] = useState<string[]>([]);
+  //const [availableStates, setAvailableStates] = useState<string[]>([]);
+  type StateType = { name: string; abbreviation: string };
+const [availableStates, setAvailableStates] = useState<StateType[]>([]);
   const [availableCities, setAvailableCities] = useState<string[]>([]);
+
+//------function to Map the abbreviation to full state name before filtering
+  const getStateNameByAbbreviation = (abbr: string) => {
+  const found = availableStates.find((s) => s.abbreviation === abbr);
+  return found ? found.name : abbr;
+};
+
 
   useEffect(() => {
     const fetchJobFairs = async () => {
@@ -67,15 +76,14 @@ export default function JobFairsPage() {
 
   const filteredJobFairs = jobFairs
   .filter((job) => {
-    const [state, city] = job.location.split(" - ");
-    const matchState = stateFilter ? state === stateFilter : true;
+    const [stateName, city] = job.location.split(" - ");
+    const filterStateName = stateFilter ? getStateNameByAbbreviation(stateFilter) : "";
+    const matchState = stateFilter ? stateName === filterStateName : true;
     const matchCity = cityFilter ? city === cityFilter : true;
     return matchState && matchCity;
   })
-  .sort(
-    (a, b) =>
-      new Date(b.start_datetime).getTime() - new Date(a.start_datetime).getTime()
-  );
+  .sort((a, b) => new Date(b.start_datetime).getTime() - new Date(a.start_datetime).getTime());
+
 
 
   return (
@@ -94,10 +102,10 @@ export default function JobFairsPage() {
         >
           <option value="">All States</option>
           {availableStates.map((s) => (
-            <option key={s} value={s}>
-              {s}
-            </option>
-          ))}
+  <option key={s.abbreviation} value={s.abbreviation}>
+    {s.name}
+  </option>
+))}
         </select>
 
         <select
