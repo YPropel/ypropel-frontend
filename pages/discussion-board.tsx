@@ -82,7 +82,7 @@ const [editingCommentId, setEditingCommentId] = useState<number | null>(null);
 
 
 
-  const toggleLike = async (id: number) => {
+ const toggleLike = async (id: number) => {
   const token = localStorage.getItem("token");
   if (!token) return;
 
@@ -95,13 +95,15 @@ const [editingCommentId, setEditingCommentId] = useState<number | null>(null);
     });
 
     if (res.ok) {
+      const data = await res.json(); // { liked: boolean, totalLikes: number }
+
       setDiscussionTopics((prev) =>
         prev.map((topic) =>
           topic.id === id
             ? {
                 ...topic,
-                liked: !topic.liked,
-                likes: topic.liked ? topic.likes - 1 : topic.likes + 1,
+                liked: data.liked,
+                likes: data.totalLikes,
               }
             : topic
         )
