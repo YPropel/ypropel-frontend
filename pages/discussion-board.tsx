@@ -986,8 +986,9 @@ const topTopics = [...discussionTopics].sort((a, b) => b.likes - a.likes).slice(
       <>
       <div className="mt-3 space-y-1 text-sm">
       {comments.map((comment) => (
-       <div key={comment.id} className="relative group">
-
+       <div key={comment.id} 
+       className="relative group mb-3 p-2 border rounded bg-gray-50"   
+       >     
         <span>{comment.userName}</span>: {comment.content}
        {collapsedComments[comment.id] ? (
         <>
@@ -1030,8 +1031,12 @@ const topTopics = [...discussionTopics].sort((a, b) => b.likes - a.likes).slice(
     </>
   ) : (
     <>
-      {comment.content}
-      <div className="absolute right-0 top-1 opacity-0 group-hover:opacity-100 transition-opacity flex gap-2">
+     <p className="whitespace-pre-wrap mt-1 mb-6"> {comment.content}</p>
+     <div
+          className="absolute left-0 right-0 bottom-0 flex gap-3 text-xs opacity-0 group-hover:opacity-100 transition-opacity px-2 pb-1 bg-white
+                     sm:opacity-100 sm:static sm:bg-transparent sm:translate-y-0"
+          style={{ transform: "translateY(100%)" }}
+        >
         <button
           onClick={() =>
             setCollapsedComments((prev) => ({ ...prev, [comment.id]: true }))
@@ -1042,6 +1047,7 @@ const topTopics = [...discussionTopics].sort((a, b) => b.likes - a.likes).slice(
         </button>
        {Number(comment.userId) === Number(userId) && (
            <>
+           
         <button
           onClick={() => handleDeleteComment(id, comment.id)}
           className="text-red-600 hover:underline text-xs"
