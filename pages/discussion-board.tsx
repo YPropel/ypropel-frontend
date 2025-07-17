@@ -907,7 +907,7 @@ const topTopics = [...discussionTopics].sort((a, b) => b.likes - a.likes).slice(
        {/* Discussion Title */}
            <h3 className="font-semibold text-lg mb-1">{title}</h3>
          {/* Discussion Title */}
-    <h3 className="font-semibold text-lg mb-1">{title}</h3>   
+   
        {/* Author */}
        <p className="font-semibold text-blue-900 mb-1">{author}</p>
       {/* Topic Content or Editing */}
