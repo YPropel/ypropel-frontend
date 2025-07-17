@@ -351,57 +351,67 @@ const handleAddComment = async (discussionId: number) => {
   };
 
  const addNewTopic = async () => {
-  if (!newTopic.trim()) return;
-
-   if (!newTitle.trim() || !newTopic.trim()) {
+  if (!newTitle || !newTopic || !newTitle.trim() || !newTopic.trim()) {
     alert("Please enter both a title and topic content.");
     return;
   }
 
   const token = localStorage.getItem("token");
-  if (!token) return;
+  if (!token) {
+    alert("You must be logged in to post a discussion topic.");
+    return;
+  }
 
-  const res = await apiFetch("/discussion_topics", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${token}`,
-    },
-    body: JSON.stringify({ topic: newTopic }),
-  });
-
-  if (res.ok) {
-    // Re-fetch all topics so likes/follows/comments are correct
-    const discussionRes = await apiFetch("/discussion_topics", {
-      headers: { Authorization: `Bearer ${token}` },
+  try {
+    const res = await apiFetch("/discussion_topics", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({ title: newTitle.trim(), topic: newTopic.trim() }),
     });
 
-    if (!discussionRes.ok) {
-      const text = await discussionRes.text();
-      throw new Error(`Failed to reload discussions: ${discussionRes.status} ${text}`);
-    }
+    if (res.ok) {
+      // Re-fetch updated discussion topics after adding new one
+      const discussionRes = await apiFetch("/discussion_topics", {
+        headers: { Authorization: `Bearer ${token}` },
+      });
 
-    const discussions = await discussionRes.json();
-    setDiscussionTopics(
-      discussions.map((d: any) => ({
-        id: d.id,
-        author: d.author,
-        topic: d.topic,
-        liked: d.liked || false,
-        followed: d.followed || false,
-        shares: d.shares || 0,
-        likes: d.likes || 0,
-        upvotes: d.upvotes || 0,      // ✅ include this
-    upvoted: d.upvoted || false,
-        comments: d.comments || [],
-      }))
-    );
-    setNewTitle("");
-    setNewTopic("");
-  } else {
-    alert("Failed to post discussion topic.");
+      if (discussionRes.ok) {
+        const discussions = await discussionRes.json();
+
+        setDiscussionTopics(
+          discussions.map((d: any) => ({
+            id: d.id,
+            author: d.author,
+            title: d.title,
+            topic: d.topic,
+            liked: d.liked || false,
+            followed: d.followed || false,
+            shares: d.shares || 0,
+            likes: d.likes || 0,
+            upvotes: d.upvotes || 0,
+            upvoted: d.upvoted || false,
+            comments: d.comments || [],
+          }))
+        );
+
+        // Clear inputs after successful post
+        setNewTitle("");
+        setNewTopic("");
+      } else {
+        alert("Failed to reload discussion topics.");
+      }
+    } else {
+      alert("Failed to post discussion topic.");
+    }
+  } catch (err) {
+    console.error("Error posting new discussion topic:", err);
+    alert("An error occurred while posting your topic.");
   }
 };
+
 
 //----------------------
 
