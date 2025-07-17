@@ -142,6 +142,7 @@ useEffect(() => {
         if (discussionRes.ok) {
           const discussions = await discussionRes.json();
           console.log("Discussion IDs after posting:", discussions.map((d: any) => d.id)); // ✅ here
+ console.log("idddddddddddddddddddddd:",user.id);
 
    setDiscussionTopics(
     discussions.map((d: any) => {
