@@ -867,119 +867,110 @@ const topTopics = [...discussionTopics].sort((a, b) => b.likes - a.likes).slice(
             </div>
             <div className="space-y-4">
               
-          {discussionTopics.map(({ id, author, authorId, topic, liked, followed, shares, likes, comments, upvoted, upvotes }) => (
-            
-        
+          {discussionTopics.map(({ id, author, authorId,title, topic, liked, followed, shares, likes, comments, upvoted, upvotes }) => (                 
           <div key={id} className="border rounded p-4 shadow bg-white relative">
+          {/* 3-Dots Menu */}
+           {Number(authorId) === Number(userId) && (
+           <div className="absolute right-2 top-2">
+            <button
+            onClick={() => setMenuOpenId((prev) => (prev === id ? null : id))}
+             className="text-gray-600 hover:text-gray-900"
+            >
+               ⋮
+            </button>
 
-    {/* 3-Dots Menu */}
-     {Number(authorId) === Number(userId) && (
-      <div className="absolute right-2 top-2">
-        <button
-         onClick={() => setMenuOpenId((prev) => (prev === id ? null : id))}
-        className="text-gray-600 hover:text-gray-900"
-         >
-        ⋮
-        </button>
-
-      {menuOpenId === id && (
-        <div className="absolute right-0 mt-2 w-32 bg-white border rounded shadow z-20">
-          <button
+          {menuOpenId === id && (
+          <div className="absolute right-0 mt-2 w-32 bg-white border rounded shadow z-20">
+            <button
             onClick={() => {
               setEditTopicId(id);
               setEditText(topic);
               setMenuOpenId(null);
            }}
           className="block w-full text-left px-4 py-2 hover:bg-gray-100"
-         >
-          Edit
-        </button>
-        <button
-          onClick={() => {
+          >
+           Edit
+         </button>
+         <button
+            onClick={() => {
             handleDeleteTopic(id);
             setMenuOpenId(null);
           }}
           className="block w-full text-left px-4 py-2 text-red-600 hover:bg-gray-100"
+         >
+            Delete
+           </button>
+        </div>
+          )}
+        </div>
+        )}
+       {/* Discussion Title */}
+           <h3 className="font-semibold text-lg mb-1">{title}</h3>
+         {/* Discussion Title */}
+    <h3 className="font-semibold text-lg mb-1">{title}</h3>   
+       {/* Author */}
+       <p className="font-semibold text-blue-900 mb-1">{author}</p>
+      {/* Topic Content or Editing */}
+      {editTopicId === id ? (
+       <>
+      <textarea
+          className="w-full border rounded p-2 mb-2"
+         rows={2}
+         value={editText}
+        onChange={(e) => setEditText(e.target.value)}
+          />
+       <button
+        className="bg-blue-900 text-white px-3 py-1 rounded mr-2"
+         onClick={() => saveEditedTopic(id, editText)}
         >
-          Delete
-        </button>
-      </div>
-    )}
-  </div>
+          Save
+       </button>
+       <button
+           className="text-gray-600"
+         onClick={() => setEditTopicId(null)}
+         >
+          Cancel
+       </button>
+        </>
+        ) : (
+        <> 
+        <h3 className="font-semibold text-lg mb-1">{/* discussion title here */}</h3>
+        <p className="mb-4 whitespace-pre-wrap">{topic}</p>
 
-  
-)}
-
-    {/* Author */}
-    <p className="font-semibold text-blue-900 mb-1">{author}</p>
-
-   {/* Topic Content or Editing */}
-{editTopicId === id ? (
-  <>
-    <textarea
-      className="w-full border rounded p-2 mb-2"
-      rows={2}
-      value={editText}
-      onChange={(e) => setEditText(e.target.value)}
-    />
-    <button
-      className="bg-blue-900 text-white px-3 py-1 rounded mr-2"
-      onClick={() => saveEditedTopic(id, editText)}
-    >
-      Save
-    </button>
-    <button
-      className="text-gray-600"
-      onClick={() => setEditTopicId(null)}
-    >
-      Cancel
-    </button>
-  </>
-) : (
-  <>
-    
-   <h3 className="font-semibold text-lg mb-1">{/* discussion title here */}</h3>
-<p className="mb-4 whitespace-pre-wrap">{topic}</p>
-
-  </>
-)}
-
-
-    
-
-    <div className="flex space-x-6 text-sm text-gray-600 mb-2">
-      <button
-        onClick={() => toggleLike(id)}
-        className={`hover:underline ${liked ? "text-blue-900 font-semibold" : ""}`}
-      >
+          </> 
+        )}
+      <div className="flex space-x-6 text-sm text-gray-600 mb-2">
+        <button
+          onClick={() => toggleLike(id)}
+          className={`hover:underline ${liked ? "text-blue-900 font-semibold" : ""}`}
+        >
         {liked ? "Unlike" : "Like"} ({likes})
-      </button>
-      <button
-        onClick={() => toggleFollow(id)}
-        className={`hover:underline ${followed ? "text-blue-900 font-semibold" : ""}`}
-      >
-        {followed ? "Following" : "Follow"}
-      </button>
-      <button onClick={() => shareTopic(id)} className="hover:underline">
+        </button>
+       <button
+         onClick={() => toggleFollow(id)}
+          className={`hover:underline ${followed ? "text-blue-900 font-semibold" : ""}`}
+          >
+          {followed ? "Following" : "Follow"}
+         </button>
+       <button onClick={() => shareTopic(id)} className="hover:underline">
         Share ({shares})
       </button>
-
       <button
-    onClick={() => toggleUpvote(id)}
-    className={`hover:underline ${upvoted ? "text-green-700 font-semibold" : ""}`}
-  >
-    {upvoted ? "Remove Upvote" : "Upvote"} ({upvotes})
-  </button>  
-    </div>
+         onClick={() => toggleUpvote(id)}
+         className={`hover:underline ${upvoted ? "text-green-700 font-semibold" : ""}`}
+         >
+          {upvoted ? "Remove Upvote" : "Upvote"} ({upvotes})
+       </button>  
+        </div>
 
-    {/* ✅ Comment Input -----Comment Textbox to Add comment on topics------ */}
-    <div className="mt-2 space-y-2">
-      <textarea
-        rows={2}
-        className="w-full p-2 border rounded text-sm"
-        placeholder="Write a comment..."
-        value={newCommentText[id] || ""}
-        onChange={(e) =>
+       {/* ✅ Comment Input -----Comment Textbox to Add comment on topics------ */}
+        <div className="mt-2 space-y-2">
+         <textarea
+          rows={2}
+          className="w-full p-2 border rounded text-sm"
+           placeholder="Write a comment..."
+          value={newCommentText[id] || ""}
+          onChange={(e) =>
           setNewCommentText((prev) => ({ ...prev, [id]: e.target.value }))
         }
       />
@@ -991,35 +982,35 @@ const topTopics = [...discussionTopics].sort((a, b) => b.likes - a.likes).slice(
       </button>
     </div>
 
-{/*------ ✅ Toggle Show/Hide (collapse) Comments -----   this line must starts after the above closed div otherwise it won't be under the post box*/}
-<button
-  className="text-xs text-blue-700 mt-1"
-  onClick={() => toggleComments(id)}
->
-  {showComments[id] ? "Hide Comments" : "Show Comments"}
-</button>
-{/* ✅ Comment List + Add + Edit/Delete */}
-{showComments[id] && (
-  <>
-    <div className="mt-3 space-y-1 text-sm">
-  {comments.map((comment) => (
-  <div key={comment.id} className="relative group">
-
-    <span>{comment.userName}</span>: {comment.content}
-  {collapsedComments[comment.id] ? (
-    <>
-      <span className="text-gray-600 italic">(collapsed)</span>
+        {/*------ ✅ Toggle Show/Hide (collapse) Comments -----   this line must starts after the above closed div otherwise it won't be under the post box*/}
       <button
-        onClick={() =>
-          setCollapsedComments((prev) => ({ ...prev, [comment.id]: false }))
-        }
-        className="ml-2 text-xs text-blue-700 hover:underline"
-      >
-        Show
-      </button>
-    </>
-  ) : editingCommentId === comment.id ? (
-    <>
+       className="text-xs text-blue-700 mt-1"
+         onClick={() => toggleComments(id)}
+        >
+         {showComments[id] ? "Hide Comments" : "Show Comments"}
+        </button>
+        {/* ✅ Comment List + Add + Edit/Delete */}
+      {showComments[id] && (
+      <>
+      <div className="mt-3 space-y-1 text-sm">
+      {comments.map((comment) => (
+       <div key={comment.id} className="relative group">
+
+        <span>{comment.userName}</span>: {comment.content}
+       {collapsedComments[comment.id] ? (
+        <>
+        <span className="text-gray-600 italic">(collapsed)</span>
+       <button
+            onClick={() =>
+           setCollapsedComments((prev) => ({ ...prev, [comment.id]: false }))
+          }
+            className="ml-2 text-xs text-blue-700 hover:underline"
+          >
+           Show
+        </button>
+         </>
+        ) : editingCommentId === comment.id ? (
+       <>
       <textarea
         className="border p-1 mt-1 w-full text-sm"
         value={editCommentText[comment.id] || ""}
