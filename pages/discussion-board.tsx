@@ -66,6 +66,7 @@ const [selectedUsersToAdd, setSelectedUsersToAdd] = useState<{ id: number; name:
 const [showDropdownForCircle, setShowDropdownForCircle] = useState<number | null>(null);
 const [userId, setUserId] = useState<number | null>(null);
 const [searchQuery, setSearchQuery] = useState("");
+const [newTitle, setNewTitle] = useState("");
 
 //new 1
 const [showComments, setShowComments] = useState<{ [key: number]: boolean }>({});
@@ -352,6 +353,11 @@ const handleAddComment = async (discussionId: number) => {
  const addNewTopic = async () => {
   if (!newTopic.trim()) return;
 
+   if (!newTitle.trim() || !newTopic.trim()) {
+    alert("Please enter both a title and topic content.");
+    return;
+  }
+
   const token = localStorage.getItem("token");
   if (!token) return;
 
@@ -390,7 +396,7 @@ const handleAddComment = async (discussionId: number) => {
         comments: d.comments || [],
       }))
     );
-
+    setNewTitle("");
     setNewTopic("");
   } else {
     alert("Failed to post discussion topic.");
@@ -818,6 +824,13 @@ const topTopics = [...discussionTopics].sort((a, b) => b.likes - a.likes).slice(
         {/* Discussion Tab */}
         {activeTab === "discussion" && (
           <>
+          <input
+    type="text"
+    className="w-full p-3 border rounded mb-2"
+    placeholder="Enter discussion title..."
+    value={newTitle}
+    onChange={(e) => setNewTitle(e.target.value)}
+  />
             <div className="mb-6">
               <textarea
                 className="w-full p-3 border rounded resize-none"
@@ -902,7 +915,9 @@ const topTopics = [...discussionTopics].sort((a, b) => b.likes - a.likes).slice(
 ) : (
   <>
     
-    <p className="mb-4 whitespace-pre-wrap">{topic}</p>
+   <h3 className="font-semibold text-lg mb-1">{/* discussion title here */}</h3>
+<p className="mb-4 whitespace-pre-wrap">{topic}</p>
+
   </>
 )}
 

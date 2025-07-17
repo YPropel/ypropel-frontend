@@ -67,7 +67,7 @@ export default function ArticlesPage() {
                 <p className="text-sm text-green-600 font-semibold mb-2">
                  ♥ Likes: {article.total_likes ?? 0}
                 </p>
-                <p className="text-gray-600 text-sm flex-grow">
+                <p className="text-gray-600 text-sm flex-grow ">
                   {getExcerpt(article.content)}
                 </p>
                 <span className="mt-3 text-green-600 font-semibold text-sm">
