@@ -23,6 +23,11 @@ const categories = [
   "Productivity",
   "Skill Development",
   "Motivation",
+  "College Tips",
+  "Job Interview Tips",
+  "School Tips",
+  "General Advice",
+  "Fact"
 ];
 
 export default function PitchPoint() {
