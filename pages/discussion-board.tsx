@@ -21,6 +21,7 @@ type DiscussionComment = {
 type DiscussionTopic = {
   id: number;
   author: string;
+   authorId: number; 
    title: string; 
   topic: string;
   liked: boolean;
@@ -146,6 +147,7 @@ useEffect(() => {
   discussions.map((d: any) => ({
     id: d.id,
     author: d.author,
+    authorId: d.user_id,
     topic: d.topic,
     liked: d.liked ?? false,
     followed: d.followed ?? false,
@@ -861,42 +863,44 @@ const topTopics = [...discussionTopics].sort((a, b) => b.likes - a.likes).slice(
 
 
             <div className="space-y-4">
-          {discussionTopics.map(({ id, author, topic, liked, followed, shares, likes, comments, upvoted, upvotes }) => (
+          {discussionTopics.map(({ id, author, authorId, topic, liked, followed, shares, likes, comments, upvoted, upvotes }) => (
   <div key={id} className="border rounded p-4 shadow bg-white relative">
 
     {/* 3-Dots Menu */}
-    <div className="absolute right-2 top-2">
-      <button
-        onClick={() => setMenuOpenId((prev) => (prev === id ? null : id))}
-        className="text-gray-600 hover:text-gray-900"
-      >
-        ⋮
-      </button>
+{authorId === userId && (
+  <div className="absolute right-2 top-2">
+    <button
+      onClick={() => setMenuOpenId((prev) => (prev === id ? null : id))}
+      className="text-gray-600 hover:text-gray-900"
+    >
+      ⋮
+    </button>
 
-      {menuOpenId === id && (
-        <div className="absolute right-0 mt-2 w-32 bg-white border rounded shadow z-20">
-          <button
-            onClick={() => {
-              setEditTopicId(id);
-              setEditText(topic);
-              setMenuOpenId(null);
-            }}
-            className="block w-full text-left px-4 py-2 hover:bg-gray-100"
-          >
-            Edit
-          </button>
-          <button
-            onClick={() => {
-              handleDeleteTopic(id);
-              setMenuOpenId(null);
-            }}
-            className="block w-full text-left px-4 py-2 text-red-600 hover:bg-gray-100"
-          >
-            Delete
-          </button>
-        </div>
-      )}
-    </div>
+    {menuOpenId === id && (
+      <div className="absolute right-0 mt-2 w-32 bg-white border rounded shadow z-20">
+        <button
+          onClick={() => {
+            setEditTopicId(id);
+            setEditText(topic);
+            setMenuOpenId(null);
+          }}
+          className="block w-full text-left px-4 py-2 hover:bg-gray-100"
+        >
+          Edit
+        </button>
+        <button
+          onClick={() => {
+            handleDeleteTopic(id);
+            setMenuOpenId(null);
+          }}
+          className="block w-full text-left px-4 py-2 text-red-600 hover:bg-gray-100"
+        >
+          Delete
+        </button>
+      </div>
+    )}
+  </div>
+)}
 
     {/* Author */}
     <p className="font-semibold text-blue-900 mb-1">{author}</p>
