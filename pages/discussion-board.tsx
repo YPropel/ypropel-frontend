@@ -150,7 +150,7 @@ useEffect(() => {
       return {
         id: d.id,
         author: d.author,
-        authorId: d.user_id,
+        authorId: d.authorId, 
         topic: d.topic,
         liked: d.liked ?? false,
         followed: d.followed ?? false,
