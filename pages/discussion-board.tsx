@@ -147,7 +147,7 @@ useEffect(() => {
   discussions.map((d: any) => ({
     id: d.id,
     author: d.author,
-    authorId: d.userid,
+    authorId: d.user_id,
     topic: d.topic,
     liked: d.liked ?? false,
     followed: d.followed ?? false,
@@ -866,7 +866,7 @@ const topTopics = [...discussionTopics].sort((a, b) => b.likes - a.likes).slice(
           <div key={id} className="border rounded p-4 shadow bg-white relative">
 
     {/* 3-Dots Menu */}
-     {authorId === userId && (
+     {Number(authorId) === Number(userId) && (
       <div className="absolute right-2 top-2">
         <button
          onClick={() => setMenuOpenId((prev) => (prev === id ? null : id))}
