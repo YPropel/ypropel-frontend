@@ -1055,27 +1055,16 @@ const topTopics = [...discussionTopics].sort((a, b) => b.likes - a.likes).slice(
         >
           Collapse
         </button>
-        {comment.userId === userId && (
-          <>
-            <button
-              onClick={() => {
-                setEditingCommentId(comment.id);
-                setEditCommentText((prev) => ({
-                  ...prev,
-                  [comment.id]: comment.content,
-                }));
-              }}
-              className="text-blue-600 hover:underline text-xs"
-            >
-              Edit
-            </button>
-            <button
-              onClick={() => handleDeleteComment(id, comment.id)}
-              className="text-red-600 hover:underline text-xs"
-            >
-              Delete
-            </button>
-          </>
+       {Number(comment.userId) === Number(userId) && (
+           <>
+        <button
+          onClick={() => handleDeleteComment(id, comment.id)}
+          className="text-red-600 hover:underline text-xs"
+        >
+          Delete
+        </button>
+        {/* Add Edit button if needed here */}
+      </>
         )}
       </div>
     </>
