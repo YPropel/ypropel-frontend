@@ -420,7 +420,6 @@ const handleAddComment = async (discussionId: number) => {
     alert("An error occurred while posting your topic.");
   }
 };
-
 //----------------------
 
   const handleCommentSubmit = async (discussionId: number) => {
