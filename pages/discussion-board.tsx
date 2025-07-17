@@ -21,6 +21,7 @@ type DiscussionComment = {
 type DiscussionTopic = {
   id: number;
   author: string;
+   title: string; 
   topic: string;
   liked: boolean;
   followed: boolean;
@@ -1270,13 +1271,13 @@ const topTopics = [...discussionTopics].sort((a, b) => b.likes - a.likes).slice(
       {activeTab === "discussion" && (
         <aside className="hidden lg:block col-span-1 p-4 bg-white rounded shadow h-fit sticky top-6">
           <h2 className="text-xl font-semibold mb-4 text-blue-900">Top Topics</h2>
-          <ul className="space-y-3">
-            {topTopics.map(({ id, topic, likes }) => (
-              <li key={id} className="text-gray-800 hover:text-blue-900 cursor-pointer border-b border-gray-200 pb-2">
-                {topic} ({likes} likes)
-              </li>
-            ))}
-          </ul>
+         <ul className="space-y-3">
+           {topTopics.map(({ id, title, likes }) => (
+          <li key={id} className="text-gray-800 hover:text-blue-900 cursor-pointer border-b border-gray-200 pb-2">
+           {title} ({likes} likes)
+         </li>
+          ))}
+        </ul>
         </aside>
       )}
     </div>
