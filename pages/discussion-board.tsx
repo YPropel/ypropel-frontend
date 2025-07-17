@@ -77,6 +77,10 @@ const [editCommentText, setEditCommentText] = useState<{ [key: number]: string }
 const [editingCommentId, setEditingCommentId] = useState<number | null>(null);
 //--New 2
 
+const [ownerEmailSearch, setOwnerEmailSearch] = useState("");
+const [circleNameSearch, setCircleNameSearch] = useState("");
+
+
 //---delete and edit discussion-topics comment components----
 
 
@@ -120,8 +124,9 @@ const [editingCommentId, setEditingCommentId] = useState<number | null>(null);
   
 // --------✅ Fetch data from backend on mount---------------
 useEffect(() => {
-  const fetchUserAndThenData = async () => {
+     const fetchUserAndThenData = async () => {
     const token = localStorage.getItem("token");
+
     if (!token) return;
 
     try {
@@ -186,6 +191,14 @@ useEffect(() => {
 
   fetchUserAndThenData();
 }, []);
+//--------------------------
+
+//----✅  fetch for search circles by email and circle name
+useEffect(() => {
+  if (userId && userEmail) {
+    fetchStudyCircles(userId, userEmail, ownerEmailSearch, circleNameSearch);
+  }
+}, [ownerEmailSearch, circleNameSearch, userId, userEmail]);
 
 
 //----------function to send message in chat inside circles----
@@ -672,39 +685,50 @@ const handleAddMember = async (userId: number, circleId: number) => {
 
 // 🔁 Helper function to refresh study circles and update UI
 // 🔁 Helper function to refresh study circles and update UI
-  const fetchStudyCircles = async (userId: number, userEmail: string) => {
-  const token = localStorage.getItem("token");
-  if (!token) return;
+  const fetchStudyCircles = async (
+      userId: number, 
+      userEmail: string, 
+      ownerEmailFilter = "", 
+      circleNameFilter = "") => {
 
-  const res = await apiFetch("/study-circles", {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  });
+      const token = localStorage.getItem("token");
+      if (!token) return;
 
-  if (res.ok) {
-    const circles = await res.json();
+       // Build query string params based on filters for search circles 
+      const params = new URLSearchParams();
+      if (ownerEmailFilter.trim() !== "") params.append("ownerEmail", ownerEmailFilter.trim());
+      if (circleNameFilter.trim() !== "") params.append("circleName", circleNameFilter.trim());
 
-    setStudyCircles(
-      circles.map((c: any) => {
-        const base = {
-          id: c.id,
-          name: c.name,
-          isPublic: c.is_public,
-          members: Array.isArray(c.members) ? c.members : [],
-          created_by: c.created_by ?? userId,
-        };
 
-        if (!base.members.includes(userEmail) && base.created_by === userId && userEmail) {
-          base.members.push(userEmail);
-        }
+      const res = await apiFetch(`/study-circles?${params.toString()}`, {
+      headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
 
-        return base;
-      })
-    );
-  } else {
-    console.error("❌ Failed to refresh study circles");
-  }
+      if (res.ok) {
+        const circles = await res.json();
+
+        setStudyCircles(
+          circles.map((c: any) => {
+            const base = {
+              id: c.id,
+              name: c.name,
+              isPublic: c.is_public,
+              members: Array.isArray(c.members) ? c.members : [],
+              created_by: c.created_by ?? userId,
+            };
+
+            if (!base.members.includes(userEmail) && base.created_by === userId && userEmail) {
+              base.members.push(userEmail);
+            }
+
+            return base;
+          })
+        );
+      } else {
+        console.error("❌ Failed to refresh study circles");
+      }
 };
 
 //--------function to delete circles by owner----
@@ -1131,96 +1155,112 @@ const topTopics = [...discussionTopics].sort((a, b) => b.likes - a.likes).slice(
                 </button>
               </div>
             )}
+            <div className="mb-4 flex gap-4">
+            <input
+              type="text"
+              placeholder="Search by owner email"
+              className="flex-grow p-2 border rounded"
+              value={ownerEmailSearch}
+              onChange={(e) => setOwnerEmailSearch(e.target.value)}
+            />
+            <input
+              type="text"
+              placeholder="Search by circle name"
+              className="flex-grow p-2 border rounded"
+              value={circleNameSearch}
+              onChange={(e) => setCircleNameSearch(e.target.value)}
+            />
+          </div>
 
             <div className="space-y-4">
            {studyCircles.map(({ id, name, isPublic, members, created_by }) => (
-  <div key={id} className="border rounded p-4 shadow bg-white">
-   <div className="flex justify-between items-center mb-2">
-  <div className="flex items-center gap-2">
-    <h3 className="font-semibold text-blue-900 text-lg">{name}</h3>
+          <div key={id} className="border rounded p-4 shadow bg-white">
+          <div className="flex justify-between items-center mb-2">
+          <div className="flex items-center gap-2">
+            <h3 className="font-semibold text-blue-900 text-lg">{name}</h3>
 
-   {created_by === userId && (
-  <>
-    <button
-      className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded hover:bg-blue-200"
-      onClick={() => openAddMemberDropdown(id)}
-    >
-      + Add Members
-    </button>
-    <button
-      className="text-xs bg-red-100 text-red-800 px-2 py-1 rounded hover:bg-red-200 ml-2"
-      onClick={() => handleDeleteCircle(id)}
-    >
-      🗑 Delete
-    </button>
-  </>
-)}
-
-  </div>
-
-  <span
-    className={`text-sm px-2 py-1 rounded ${
-      isPublic ? "bg-green-200 text-green-800" : "bg-yellow-200 text-yellow-800"
-    }`}
-  >
-    {isPublic ? "Public" : "Private"}
-  </span>
-</div>
-
-
-    <p className="text-gray-700 mb-1">
-      Members: {Array.isArray(members) && members.length > 0 ? members.join(", ") : "No members yet"}
-    </p>
-
-    {created_by === userId && showDropdownForCircle === id && (
-  <div className="mt-2">
-    <input
-      type="text"
-      value={searchQuery}
-      onChange={handleSearchChange}
-      placeholder="Search users..."
-      className="p-1 border rounded text-sm w-full"
-    />
-    <ul className="mt-1 border rounded bg-white max-h-32 overflow-y-auto">
-      {searchResults.map((user) => (
-        <li
-          key={user.id}
-          onClick={() => handleAddMember(user.id, id)}
-          className="px-2 py-1 cursor-pointer hover:bg-gray-100 text-sm"
+        {created_by === userId && (
+        <>
+          <button
+            className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded hover:bg-blue-200"
+            onClick={() => openAddMemberDropdown(id)}
+          >
+            + Add Members
+          </button>
+          <button
+          className="text-xs bg-red-100 text-red-800 px-2 py-1 rounded hover:bg-red-200 ml-2"
+          onClick={() => handleDeleteCircle(id)}
         >
-          {user.name} ({user.email})
-        </li>
-      ))}
-    </ul>
-  </div>
-)}
+          🗑 Delete
+        </button>
+      </>
+    )}
+
+      </div>
+
+      <span
+        className={`text-sm px-2 py-1 rounded ${
+          isPublic ? "bg-green-200 text-green-800" : "bg-yellow-200 text-yellow-800"
+        }`}
+      >
+        {isPublic ? "Public" : "Private"}
+      </span>
+    </div>
 
 
-   {members.includes(userEmail) ? (
-  <div className="flex space-x-2 mt-2">
-    <button
-      onClick={() => toggleJoinCircle(id)}
-      className="text-sm px-3 py-1 rounded bg-red-200 text-red-800 hover:bg-red-300"
-    >
-      Leave Circle
-    </button>
-    <button
-      onClick={() => router.push(`/circlechat?id=${id}`)}
-      className="text-sm px-3 py-1 rounded bg-blue-200 text-blue-800 hover:bg-blue-300"
-    >
-      Start Chat
-    </button>
-  </div>
-) : isPublic ? (
-  <button
-    onClick={() => toggleJoinCircle(id)}
-    className="mt-2 text-sm px-3 py-1 rounded bg-green-200 text-green-800 hover:bg-green-300"
-  >
-    Join Circle
-  </button>
-) : (
-  <p className="text-sm text-red-500 mt-2">This is a private circle. You must be invited to join.</p>
-)}
+        <p className="text-gray-700 mb-1">
+          Members: {Array.isArray(members) && members.length > 0 ? members.join(", ") : "No members yet"}
+        </p>
+
+        {created_by === userId && showDropdownForCircle === id && (
+      <div className="mt-2">
+        <input
+          type="text"
+          value={searchQuery}
+          onChange={handleSearchChange}
+          placeholder="Search users..."
+          className="p-1 border rounded text-sm w-full"
+        />
+        <ul className="mt-1 border rounded bg-white max-h-32 overflow-y-auto">
+          {searchResults.map((user) => (
+            <li
+              key={user.id}
+              onClick={() => handleAddMember(user.id, id)}
+              className="px-2 py-1 cursor-pointer hover:bg-gray-100 text-sm"
+            >
+              {user.name} ({user.email})
+            </li>
+          ))}
+        </ul>
+      </div>
+    )}
+
+
+      {members.includes(userEmail) ? (
+      <div className="flex space-x-2 mt-2">
+        <button
+          onClick={() => toggleJoinCircle(id)}
+          className="text-sm px-3 py-1 rounded bg-red-200 text-red-800 hover:bg-red-300"
+        >
+          Leave Circle
+        </button>
+        <button
+          onClick={() => router.push(`/circlechat?id=${id}`)}
+          className="text-sm px-3 py-1 rounded bg-blue-200 text-blue-800 hover:bg-blue-300"
+        >
+          Start Chat
+        </button>
+      </div>
+    ) : isPublic ? (
+      <button
+        onClick={() => toggleJoinCircle(id)}
+        className="mt-2 text-sm px-3 py-1 rounded bg-green-200 text-green-800 hover:bg-green-300"
+      >
+        Join Circle
+      </button>
+    ) : (
+      <p className="text-sm text-red-500 mt-2">This is a private circle. You must be invited to join.</p>
+    )}
 
     {/* 🔧 Chat UI - show only if this is the active chat circle */}
     {activeChatCircle === id && (
