@@ -143,29 +143,30 @@ useEffect(() => {
           const discussions = await discussionRes.json();
           console.log("Discussion IDs after posting:", discussions.map((d: any) => d.id)); // ✅ here
 
-          setDiscussionTopics(
-  discussions.map((d: any) => ({
-    id: d.id,
-    author: d.author,
-    authorId: d.user_id,
-    topic: d.topic,
-    liked: d.liked ?? false,
-    followed: d.followed ?? false,
-    shares: d.shares || 0,
-    likes: d.likes || 0,
-    upvotes: d.upvotes || 0,
-    upvoted: d.upvoted || false,
-    comments: (d.comments || []).map((c: any, idx: number): DiscussionComment => ({
-    id: c.id ?? idx,
-    userId: c.user_id,         // Note: from DB, field is user_id
-    userName: c.user_name,     // matches the alias in query
-    content: c.content,
-    createdAt: c.created_at,
-    })),
-
-  }))
-);
-
+   setDiscussionTopics(
+    discussions.map((d: any) => {
+      console.log("authorId value:", d.user_id); // <-- Added console.log here
+      return {
+        id: d.id,
+        author: d.author,
+        authorId: d.user_id,
+        topic: d.topic,
+        liked: d.liked ?? false,
+        followed: d.followed ?? false,
+        shares: d.shares || 0,
+        likes: d.likes || 0,
+        upvotes: d.upvotes || 0,
+        upvoted: d.upvoted ?? false,
+        comments: (d.comments || []).map((c: any, idx: number) => ({
+          id: c.id ?? idx,
+          userId: c.user_id,
+          userName: c.user_name,
+          content: c.content,
+          createdAt: c.created_at,
+        })),
+      };
+    })
+  );
         }
       }
 
