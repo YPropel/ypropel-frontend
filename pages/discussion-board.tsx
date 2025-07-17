@@ -863,11 +863,15 @@ const topTopics = [...discussionTopics].sort((a, b) => b.likes - a.likes).slice(
 
 
             <div className="space-y-4">
+              
           {discussionTopics.map(({ id, author, authorId, topic, liked, followed, shares, likes, comments, upvoted, upvotes }) => (
+            
+            
   <div key={id} className="border rounded p-4 shadow bg-white relative">
 
     {/* 3-Dots Menu */}
-{authorId === userId && (
+    
+{authorId === 1702 && (
   <div className="absolute right-2 top-2">
     <button
       onClick={() => setMenuOpenId((prev) => (prev === id ? null : id))}
