@@ -855,7 +855,7 @@ const topTopics = [...discussionTopics].sort((a, b) => b.likes - a.likes).slice(
             }`}
             onClick={() => setActiveTab("studyCircle")}
           >
-            Study Circle
+            Study Circles
           </button>
         </div>
 
