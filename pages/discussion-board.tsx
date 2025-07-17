@@ -142,15 +142,16 @@ useEffect(() => {
         if (discussionRes.ok) {
           const discussions = await discussionRes.json();
           console.log("Discussion IDs after posting:", discussions.map((d: any) => d.id)); // ✅ here
- console.log("idddddddddddddddddddddd:",user.id);
+ 
 
    setDiscussionTopics(
     discussions.map((d: any) => {
       console.log("authorId value:", d.user_id); // <-- Added console.log here
       return {
+        
         id: d.id,
         author: d.author,
-        authorId: d.authorId, 
+       authorId: d.authorId ?? d.user_id,
         topic: d.topic,
         liked: d.liked ?? false,
         followed: d.followed ?? false,
@@ -168,6 +169,7 @@ useEffect(() => {
       };
     })
   );
+  
         }
       }
 
