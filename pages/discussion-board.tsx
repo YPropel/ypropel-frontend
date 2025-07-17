@@ -392,6 +392,7 @@ const handleAddComment = async (discussionId: number) => {
           discussions.map((d: any) => ({
             id: d.id,
             author: d.author,
+            authorId: d.authorId ?? d.user_id,  // ensure this is set correctly
             title: d.title,
             topic: d.topic,
             liked: d.liked || false,
@@ -418,7 +419,6 @@ const handleAddComment = async (discussionId: number) => {
     alert("An error occurred while posting your topic.");
   }
 };
-
 
 //----------------------
 
