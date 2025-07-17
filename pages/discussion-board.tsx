@@ -871,7 +871,7 @@ const topTopics = [...discussionTopics].sort((a, b) => b.likes - a.likes).slice(
 
     {/* 3-Dots Menu */}
     
-{authorId === 1702 && (
+{authorId === userId && (
   <div className="absolute right-2 top-2">
     <button
       onClick={() => setMenuOpenId((prev) => (prev === id ? null : id))}
