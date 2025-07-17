@@ -866,7 +866,7 @@ const topTopics = [...discussionTopics].sort((a, b) => b.likes - a.likes).slice(
           <div key={id} className="border rounded p-4 shadow bg-white relative">
 
     {/* 3-Dots Menu */}
-    
+     {authorId === userId && (
       <div className="absolute right-2 top-2">
         <button
          onClick={() => setMenuOpenId((prev) => (prev === id ? null : id))}
@@ -899,7 +899,7 @@ const topTopics = [...discussionTopics].sort((a, b) => b.likes - a.likes).slice(
       </div>
     )}
   </div>
-
+)}
 
     {/* Author */}
     <p className="font-semibold text-blue-900 mb-1">{author}</p>
