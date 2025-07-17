@@ -359,7 +359,7 @@ const handleAddComment = async (discussionId: number) => {
   };
 
  const addNewTopic = async () => {
-  if (!newTitle || !newTopic || !newTitle.trim() || !newTopic.trim()) {
+  if (!newTitle?.trim() || !newTopic?.trim()) {
     alert("Please enter both a title and topic content.");
     return;
   }
@@ -381,37 +381,29 @@ const handleAddComment = async (discussionId: number) => {
     });
 
     if (res.ok) {
-      // Re-fetch updated discussion topics after adding new one
-      const discussionRes = await apiFetch("/discussion_topics", {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const newTopicData = await res.json();
 
-      if (discussionRes.ok) {
-        const discussions = await discussionRes.json();
+      // Immediately update state with new topic including title
+      setDiscussionTopics(prev => [
+        {
+          id: newTopicData.id,
+          author: newTopicData.author || "You",
+          authorId: newTopicData.authorId ?? newTopicData.user_id,
+          title: newTopicData.title,
+          topic: newTopicData.topic,
+          liked: false,
+          followed: false,
+          shares: 0,
+          likes: 0,
+          upvotes: 0,
+          upvoted: false,
+          comments: [],
+        },
+        ...prev,
+      ]);
 
-        setDiscussionTopics(
-          discussions.map((d: any) => ({
-            id: d.id,
-            author: d.author,
-            authorId: d.authorId ?? d.user_id,  // ensure this is set correctly
-            title: d.title,
-            topic: d.topic,
-            liked: d.liked || false,
-            followed: d.followed || false,
-            shares: d.shares || 0,
-            likes: d.likes || 0,
-            upvotes: d.upvotes || 0,
-            upvoted: d.upvoted || false,
-            comments: d.comments || [],
-          }))
-        );
-
-        // Clear inputs after successful post
-        setNewTitle("");
-        setNewTopic("");
-      } else {
-        alert("Failed to reload discussion topics.");
-      }
+      setNewTitle("");
+      setNewTopic("");
     } else {
       alert("Failed to post discussion topic.");
     }
@@ -420,6 +412,7 @@ const handleAddComment = async (discussionId: number) => {
     alert("An error occurred while posting your topic.");
   }
 };
+
 //----------------------
 
   const handleCommentSubmit = async (discussionId: number) => {
@@ -907,7 +900,7 @@ const topTopics = [...discussionTopics].sort((a, b) => b.likes - a.likes).slice(
        <p className="font-semibold text-blue-900 mb-1">{author}</p>
        {/* Discussion Title */}
            <h3 className="font-semibold text-lg mb-1">{title}</h3>
-         {/* Discussion Title */}
+         
        {/* Topic Content or Editing */}
         {editTopicId === id ? (
        <>
