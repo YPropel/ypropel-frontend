@@ -552,7 +552,7 @@ console.log("Uploading videoooooooo file:", newVideoFile);
                 </>
               ) : (
                 <>
-                  <p>{post.content}</p>
+                  <p style={{ whiteSpace: "pre-wrap" }} >{post.content}</p>
 
                   {imageUrlToShow && (
                     <img
