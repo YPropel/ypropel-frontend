@@ -902,7 +902,7 @@ const topTopics = [...discussionTopics].sort((a, b) => b.likes - a.likes).slice(
 ) : (
   <>
     
-    <p className="mb-4">{topic}</p>
+    <p className="mb-4 whitespace-pre-wrap">{topic}</p>
   </>
 )}
 
@@ -1210,7 +1210,8 @@ const topTopics = [...discussionTopics].sort((a, b) => b.likes - a.likes).slice(
         <div className="h-40 overflow-y-auto bg-gray-100 p-2 mb-2 rounded text-sm">
           {(circleMessages[id] || []).map((msg, idx) => (
             <div key={idx}>
-              <span className="font-semibold">{msg.sender || "You"}:</span> {msg.message}
+              <span className="font-semibold">{msg.sender || "You"}:</span> 
+              <span className="whitespace-pre-wrap">{msg.message}</span>
             </div>
           ))}
         </div>
