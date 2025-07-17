@@ -864,14 +864,7 @@ const topTopics = [...discussionTopics].sort((a, b) => b.likes - a.likes).slice(
               
           {discussionTopics.map(({ id, author, authorId, topic, liked, followed, shares, likes, comments, upvoted, upvotes }) => (
             
-         <>
-    {console.log("authorId vs userId:", {
-      authorId,
-      userId,
-      idsMatch: Number(authorId) === Number(userId),
-      typeAuthorId: typeof authorId,
-      typeUserId: typeof userId,
-    })}
+        
           <div key={id} className="border rounded p-4 shadow bg-white relative">
 
     {/* 3-Dots Menu */}
