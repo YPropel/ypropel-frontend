@@ -131,6 +131,7 @@ useEffect(() => {
         const user = await userRes.json();
         setUserEmail(user.email);
         setUserId(user.id);
+        
 
         // ✅ Only fetch circles *after* userId/userEmail are available
         await fetchStudyCircles(user.id, user.email);
@@ -1002,7 +1003,8 @@ const topTopics = [...discussionTopics].sort((a, b) => b.likes - a.likes).slice(
   <>
     <div className="mt-3 space-y-1 text-sm">
   {comments.map((comment) => (
-  <div key={comment.id}>
+  <div key={comment.id} className="relative group">
+
     <span>{comment.userName}</span>: {comment.content}
   {collapsedComments[comment.id] ? (
     <>
