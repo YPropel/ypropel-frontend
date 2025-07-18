@@ -46,21 +46,7 @@ const [showPremiumMessage, setShowPremiumMessage] = useState(false);
     fetchCourses();
    }, []);
    //-----Useeffect to get is permium field for the user
-  useEffect(() => {
-  async function fetchUserProfile() {
-    try {
-      const res = await apiFetch("/users/me");
-      if (!res.ok) throw new Error("Failed to fetch user profile");
-      const data = await res.json();
-      setIsPremium(data.is_premium);
-    } catch {
-      setIsPremium(false);
-    } finally {
-      setUserLoading(false);
-    }
-  }
-  fetchUserProfile();
-}, []);
+  
 //--------------------------
 
  async function openCourseDetail(id: number) {
