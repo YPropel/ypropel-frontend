@@ -1,6 +1,9 @@
 import React, { useEffect, useState } from "react";
 import AuthGuard from "../components/AuthGuard";
 import { apiFetch } from "../apiClient"; 
+
+
+
 type MiniCourse = {
   id: number;
   title: string;
@@ -19,8 +22,16 @@ export default function MiniCoursesPage() {
   const [loadingDetail, setLoadingDetail] = useState(false);
   const [detailError, setDetailError] = useState<string | null>(null);
 
+  const [isPremium, setIsPremium] = useState<boolean | null>(null);
+  const [userLoading, setUserLoading] = useState(true);
+
+const [showPremiumMessage, setShowPremiumMessage] = useState(false);
+
+
+  //-- useeffect to get courses 
   useEffect(() => {
     async function fetchCourses() {
+
       try {
         const res = await apiFetch("/mini-courses");
         if (!res.ok) throw new Error("Failed to fetch courses");
@@ -31,30 +42,57 @@ export default function MiniCoursesPage() {
       } finally {
         setLoading(false);
       }
-    }
+     }
     fetchCourses();
-  }, []);
-
-  async function openCourseDetail(id: number) {
-    setLoadingDetail(true);
-    setDetailError(null);
+   }, []);
+   //-----Useeffect to get is permium field for the user
+  useEffect(() => {
+  async function fetchUserProfile() {
     try {
-      const res = await apiFetch(`/mini-courses/${id}`);
-      if (!res.ok) throw new Error("Failed to fetch course details");
+      const res = await apiFetch("/users/me");
+      if (!res.ok) throw new Error("Failed to fetch user profile");
       const data = await res.json();
-      setSelectedCourse(data);
-    } catch (err: any) {
-      setDetailError(err.message || "Unknown error");
+      setIsPremium(data.is_premium);
+    } catch {
+      setIsPremium(false);
     } finally {
-      setLoadingDetail(false);
+      setUserLoading(false);
     }
   }
+  fetchUserProfile();
+}, []);
+//--------------------------
+
+ async function openCourseDetail(id: number) {
+  if (userLoading) return; // wait for user info
+
+  if (!isPremium) {
+    setShowPremiumMessage(true);
+    return;
+  }
+
+  setShowPremiumMessage(false);
+  setLoadingDetail(true);
+  setDetailError(null);
+  try {
+    const res = await apiFetch(`/mini-courses/${id}`);
+    if (!res.ok) throw new Error("Failed to fetch course details");
+    const data = await res.json();
+    setSelectedCourse(data);
+  } catch (err: any) {
+    setDetailError(err.message || "Unknown error");
+  } finally {
+    setLoadingDetail(false);
+  }
+}
+
 
   function closeModal() {
     setSelectedCourse(null);
     setDetailError(null);
   }
 
+ if (userLoading) return <p>Loading user info...</p>;
   if (loading) return <p>Loading courses...</p>;
   if (error) return <p className="text-red-600">Error: {error}</p>;
 
@@ -62,6 +100,28 @@ export default function MiniCoursesPage() {
     <AuthGuard>
       <div className="container mx-auto p-4">
         <h1 className="text-3xl font-bold mb-6">Mini Courses</h1>
+         {/* Inline Premium Message */}
+        {showPremiumMessage && (
+          <div className="mb-4 p-4 bg-yellow-100 border border-yellow-400 text-yellow-800 rounded flex items-center justify-between">
+            <div>
+              This is a premium feature costing <strong>$4.00/month</strong>.{" "}
+              <button
+                onClick={() => (window.location.href = "/subscribe")}
+                className="underline text-blue-600 hover:text-blue-800"
+              >
+                Upgrade now
+              </button>{" "}
+              to access all courses.
+            </div>
+            <button
+              onClick={() => setShowPremiumMessage(false)}
+              aria-label="Close message"
+              className="ml-4 font-bold text-xl leading-none"
+            >
+              &times;
+            </button>
+          </div>
+        )}
 
         <div className="divide-y divide-gray-300">
           {courses.map((course) => (
