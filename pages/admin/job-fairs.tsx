@@ -1,20 +1,12 @@
-// pages/admin/job-fairs.tsx
-
 import React, { useEffect, useState, useRef } from "react";
 import { apiFetch } from "../../apiClient"; 
 
 export default function AdminJobFairs() {
-
   const [jobFairs, setJobFairs] = useState<any[]>([]);
-  //const [states, setStates] = useState<string[]>([]);
   type StateType = { name: string; abbreviation: string };
-const [states, setStates] = useState<StateType[]>([]);
-
-
+  const [states, setStates] = useState<StateType[]>([]);
   const [cities, setCities] = useState<string[]>([]);
   const [selectedState, setSelectedState] = useState("");
-  
-
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
   const [newJobFair, setNewJobFair] = useState({
@@ -26,6 +18,20 @@ const [states, setStates] = useState<StateType[]>([]);
     location_city: "",
     start_datetime: "",
   });
+
+  // ----------- CHANGED: Helper to get token or redirect -----------
+  function getTokenOrRedirect() {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      alert("❌ You must be logged in.");
+      setTimeout(() => {
+        localStorage.removeItem("token");
+        window.location.href = "/admin/login"; // adjust path if needed
+      }, 1500);
+      return null;
+    }
+    return token;
+  }
 
   const fetchStates = async () => {
     const res = await apiFetch("/us-states");
@@ -51,12 +57,10 @@ const [states, setStates] = useState<StateType[]>([]);
   }, []);
 
   useEffect(() => {
-  if (selectedState) {
-    fetchCities(selectedState); // selectedState is abbreviation now
-  }
-}, [selectedState]);
-
-
+    if (selectedState) {
+      fetchCities(selectedState);
+    }
+  }, [selectedState]);
 
   const handleImageUpload = async (file: File) => {
     const formData = new FormData();
@@ -73,8 +77,9 @@ const [states, setStates] = useState<StateType[]>([]);
     }
   };
 
+  // ----------- CHANGED: Use getTokenOrRedirect and handle auth errors in handleAdd -----------
   const handleAdd = async () => {
-    const token = localStorage.getItem("token");
+    const token = getTokenOrRedirect();
     if (!token) return;
 
     const {
@@ -125,6 +130,16 @@ const [states, setStates] = useState<StateType[]>([]);
       body: JSON.stringify(payload),
     });
 
+    // ----------- CHANGED: Auth error handling -----------
+    if (res.status === 401 || res.status === 403) {
+      alert("❌ Unauthorized. Redirecting to login...");
+      localStorage.removeItem("token");
+      setTimeout(() => {
+        window.location.href = "/admin/login";
+      }, 1500);
+      return;
+    }
+
     if (!res.ok) {
       alert("Failed to add job fair.");
       return;
@@ -144,12 +159,24 @@ const [states, setStates] = useState<StateType[]>([]);
     fetchJobFairs();
   };
 
+  // ----------- CHANGED: Use getTokenOrRedirect and auth error handling in handleDelete -----------
   const handleDelete = async (id: number) => {
-    const token = localStorage.getItem("token");
+    const token = getTokenOrRedirect();
+    if (!token) return;
+
     const res = await apiFetch(`/admin/job-fairs/${id}`, {
       method: "DELETE",
       headers: { Authorization: `Bearer ${token}` },
     });
+
+    if (res.status === 401 || res.status === 403) {
+      alert("❌ Unauthorized. Redirecting to login...");
+      localStorage.removeItem("token");
+      setTimeout(() => {
+        window.location.href = "/admin/login";
+      }, 1500);
+      return;
+    }
 
     if (res.ok) {
       setJobFairs((prev) => prev.filter((j) => j.id !== id));
@@ -196,17 +223,15 @@ const [states, setStates] = useState<StateType[]>([]);
             value={newJobFair.location_state}
             onChange={(e) => {
               setSelectedState(e.target.value);
-              setNewJobFair((prev) => ({ ...prev, location_state: e.target.value, location_city: ""
-                
-               }));
+              setNewJobFair((prev) => ({ ...prev, location_state: e.target.value, location_city: "" }));
             }}
             className="border p-2 rounded w-1/2"
           >
             <option value="">Select State</option>
-  {states.map((s) => (
-    <option key={s.abbreviation} value={s.abbreviation}>
-      {s.name}
-    </option>
+            {states.map((s) => (
+              <option key={s.abbreviation} value={s.abbreviation}>
+                {s.name}
+              </option>
             ))}
           </select>
           <select
