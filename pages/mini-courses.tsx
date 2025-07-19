@@ -2,8 +2,6 @@ import React, { useEffect, useState } from "react";
 import AuthGuard from "../components/AuthGuard";
 import { apiFetch } from "../apiClient"; 
 
-
-
 type MiniCourse = {
   id: number;
   title: string;
@@ -22,128 +20,43 @@ export default function MiniCoursesPage() {
   const [loadingDetail, setLoadingDetail] = useState(false);
   const [detailError, setDetailError] = useState<string | null>(null);
 
-  const [isPremium, setIsPremium] = useState<boolean | null>(null);
-  const [userLoading, setUserLoading] = useState(true);
-
-const [showPremiumMessage, setShowPremiumMessage] = useState(false);
-
-
-  //-- useeffect to get courses 
-  useEffect(() => {
-    async function fetchCourses() {
-
-      try {
-        const res = await apiFetch("/mini-courses");
-        if (!res.ok) throw new Error("Failed to fetch courses");
-        const data = await res.json();
-        setCourses(data);
-      } catch (err: any) {
-        setError(err.message || "Unknown error");
-      } finally {
-        setLoading(false);
-      }
-     }
-    fetchCourses();
-   }, []);
-   //-----Useeffect to get is permium field for the user
-<<<<<<< HEAD
-  useEffect(() => {
-  async function fetchUserProfile() {
+  async function fetchCourses() {
     try {
-      console.log("Start fetching user profile");
-      const res = await apiFetch("/users/me");
-      console.log("Profile fetch response:", res);
-=======
- useEffect(() => {
-  async function fetchUserProfile() {
-    try {
-      const token = localStorage.getItem("token");
-      console.log("Token at fetchUserProfile:", token);
-
-      const res = await apiFetch("/users/me");
-      console.log("Profile fetch status:", res.status);
-
->>>>>>> 8dc8a2e (old code before mini-coursese)
-      if (!res.ok) throw new Error("Failed to fetch user profile");
+      const res = await apiFetch("/mini-courses");
+      if (!res.ok) throw new Error("Failed to fetch courses");
       const data = await res.json();
-      console.log("User profile data:", data);
-      setIsPremium(data.is_premium);
-    } catch (err) {
-      console.error("Error fetching user profile:", err);
-      setIsPremium(false);
+      setCourses(data);
+    } catch (err: any) {
+      setError(err.message || "Unknown error");
     } finally {
-<<<<<<< HEAD
-      console.log("Finished fetching user profile, setting userLoading false");
-=======
->>>>>>> 8dc8a2e (old code before mini-coursese)
-      setUserLoading(false);
+      setLoading(false);
     }
   }
-  fetchUserProfile();
-}, []);
 
-//--------------------------
+  useEffect(() => {
+    fetchCourses();
+  }, []);
 
- async function openCourseDetail(id: number) {
-  if (userLoading) return; // wait for user info
-
-  if (!isPremium) {
-    setShowPremiumMessage(true);
-    return;
+  async function openCourseDetail(id: number) {
+    setLoadingDetail(true);
+    setDetailError(null);
+    try {
+      const res = await apiFetch(`/mini-courses/${id}`);
+      if (!res.ok) throw new Error("Failed to fetch course details");
+      const data = await res.json();
+      setSelectedCourse(data);
+    } catch (err: any) {
+      setDetailError(err.message || "Unknown error");
+    } finally {
+      setLoadingDetail(false);
+    }
   }
-
-  setShowPremiumMessage(false);
-  setLoadingDetail(true);
-  setDetailError(null);
-  try {
-    const res = await apiFetch(`/mini-courses/${id}`);
-    if (!res.ok) throw new Error("Failed to fetch course details");
-    const data = await res.json();
-    setSelectedCourse(data);
-  } catch (err: any) {
-    setDetailError(err.message || "Unknown error");
-  } finally {
-    setLoadingDetail(false);
-  }
-}
-
-
-  fetchUserProfile();
-}, []);
-      s
-
-//--------------------------
-
- async function openCourseDetail(id: number) {
-  if (userLoading) return; // wait for user info
-
-  if (!isPremium) {
-    setShowPremiumMessage(true);
-    return;
-  }
-
-  setShowPremiumMessage(false);
-  setLoadingDetail(true);
-  setDetailError(null);
-  try {
-    const res = await apiFetch(`/mini-courses/${id}`);
-    if (!res.ok) throw new Error("Failed to fetch course details");
-    const data = await res.json();
-    setSelectedCourse(data);
-  } catch (err: any) {
-    setDetailError(err.message || "Unknown error");
-  } finally {
-    setLoadingDetail(false);
-  }
-}
-
 
   function closeModal() {
     setSelectedCourse(null);
     setDetailError(null);
   }
 
- if (userLoading) return <p>Loading user info...</p>;
   if (loading) return <p>Loading courses...</p>;
   if (error) return <p className="text-red-600">Error: {error}</p>;
 
@@ -151,28 +64,6 @@ const [showPremiumMessage, setShowPremiumMessage] = useState(false);
     <AuthGuard>
       <div className="container mx-auto p-4">
         <h1 className="text-3xl font-bold mb-6">Mini Courses</h1>
-         {/* Inline Premium Message */}
-        {showPremiumMessage && (
-          <div className="mb-4 p-4 bg-yellow-100 border border-yellow-400 text-yellow-800 rounded flex items-center justify-between">
-            <div>
-              This is a premium feature costing <strong>$4.00/month</strong>.{" "}
-              <button
-                onClick={() => (window.location.href = "/subscribe")}
-                className="underline text-blue-600 hover:text-blue-800"
-              >
-                Upgrade now
-              </button>{" "}
-              to access all courses.
-            </div>
-            <button
-              onClick={() => setShowPremiumMessage(false)}
-              aria-label="Close message"
-              className="ml-4 font-bold text-xl leading-none"
-            >
-              &times;
-            </button>
-          </div>
-        )}
 
         <div className="divide-y divide-gray-300">
           {courses.map((course) => (
