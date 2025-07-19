@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { apiFetch } from "../../apiClient"; 
 
-// --- ADD THIS IMPORT for token helper ---
-import { getTokenOrRedirect } from "../../utils/auth"; // <<-- NEW
+// ADD THIS IMPORT AT THE TOP:
+import { getTokenOrRedirect } from "../../utils/auth";  // <-- NEW import
 
 type Job = {
   id: number;
@@ -48,8 +48,9 @@ export default function AdminJobsPage() {
   const [states, setStates] = useState<{ name: string; abbreviation: string }[]>([]);
   const [cities, setCities] = useState<string[]>([]);
 
-  // --- REPLACE direct localStorage token fetch with helper that redirects ---
-  const token = getTokenOrRedirect(); // <<-- CHANGED HERE
+  // CHANGE THIS LINE:
+  // const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
+  const token = getTokenOrRedirect();  // <-- UPDATED to safer token fetch and redirect
 
   const [formData, setFormData] = useState<Partial<Job>>({
     title: "",
@@ -72,17 +73,17 @@ export default function AdminJobsPage() {
 
   // Fetch jobs list
   useEffect(() => {
-    // --- REMOVE manual token null check, handled by getTokenOrRedirect ---
-    // if (!token) {
-    //   setError("Not authenticated");
-    //   return;
-    // }
+    if (!token) {
+      setError("Not authenticated");
+      return;
+    }
 
     async function fetchJobs() {
       setLoading(true);
       setError(null);
 
       try {
+        // <-- Added leading slash here
         const res = await apiFetch("/admin/jobs", {
           headers: { Authorization: `Bearer ${token}` },
         });
@@ -106,9 +107,8 @@ export default function AdminJobsPage() {
 
   // Fetch categories list
   useEffect(() => {
-    // --- REMOVE manual token check ---
-    // if (!token) return;
-
+    if (!token) return;
+    // <-- Added leading slash here
     apiFetch("/admin/job-categories", {
       headers: { Authorization: `Bearer ${token}` },
     })
@@ -122,6 +122,7 @@ export default function AdminJobsPage() {
 
   // Fetch countries once
   useEffect(() => {
+    // <-- Added leading slash here
     apiFetch("/countries")
       .then((res) => res.json())
       .then(setCountries)
@@ -129,6 +130,7 @@ export default function AdminJobsPage() {
   }, []);
 
   // Fetch states when country changes (only if USA)
+  // <-- Added leading slash here
   useEffect(() => {
     if (formData.country === "USA" || formData.country === "United States") {
       apiFetch("/us-states")
@@ -143,7 +145,8 @@ export default function AdminJobsPage() {
     }
   }, [formData.country]);
 
-  // Fetch cities when state changes
+  //---- Fetch cities when state changes
+  // --------Fetch cities when state changes (convert abbreviation to full name)
   useEffect(() => {
     if (!formData.state || !(formData.country === "USA" || formData.country === "United States")) {
       setCities([]);
@@ -151,6 +154,7 @@ export default function AdminJobsPage() {
       return;
     }
 
+    // Send abbreviation directly, no need to find full name
     apiFetch(`/us-cities?state=${encodeURIComponent(formData.state)}`)
       .then((res) => res.json())
       .then(setCities)
@@ -199,11 +203,10 @@ export default function AdminJobsPage() {
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
 
-    // --- REMOVE manual token check ---
-    // if (!token) {
-    //   alert("Not authenticated");
-    //   return;
-    // }
+    if (!token) {
+      alert("Not authenticated");
+      return;
+    }
 
     if (!formData.title?.trim()) {
       alert("Title is required");
@@ -253,14 +256,13 @@ export default function AdminJobsPage() {
 
   async function handleDelete(id: number) {
     if (!confirm("Are you sure you want to delete this job?")) return;
-
-    // --- REMOVE manual token check ---
-    // if (!token) {
-    //   alert("Not authenticated");
-    //   return;
-    // }
+    if (!token) {
+      alert("Not authenticated");
+      return;
+    }
 
     try {
+      // <-- Added leading slash here
       const res = await apiFetch(`/admin/jobs/${id}`, {
         method: "DELETE",
         headers: { Authorization: `Bearer ${token}` },
@@ -331,6 +333,8 @@ export default function AdminJobsPage() {
             ))}
           </select>
 
+         
+
           {/* Add new category */}
           <div className="mt-4 flex gap-2 items-center">
             <input
@@ -345,6 +349,7 @@ export default function AdminJobsPage() {
               onClick={async () => {
                 if (!newCategoryName.trim()) return alert("Category name required");
                 try {
+                  // <-- Added leading slash here
                   const res = await apiFetch("/admin/job-categories", {
                     method: "POST",
                     headers: {
@@ -369,55 +374,55 @@ export default function AdminJobsPage() {
             </button>
           </div>
         </div>
+         {/* Toggle Delete List Button */}
+          <button
+            type="button"
+            className="mt-2 text-sm text-red-600 underline hover:text-red-800"
+            onClick={() => setShowDeleteList((show) => !show)}
+          >
+            {showDeleteList ? "Hide Delete Category List" : "Delete Category"}
+          </button>
 
-        {/* Toggle Delete List Button */}
-        <button
-          type="button"
-          className="mt-2 text-sm text-red-600 underline hover:text-red-800"
-          onClick={() => setShowDeleteList((show) => !show)}
-        >
-          {showDeleteList ? "Hide Delete Category List" : "Delete Category"}
-        </button>
-
-        {/* Conditionally rendered Delete List */}
-        {showDeleteList && (
-          <ul className="mt-2 max-h-40 overflow-auto border rounded p-2">
-            {categories.map((cat) => (
-              <li key={cat.id} className="flex items-center justify-between py-1">
-                <span>{cat.name}</span>
-                <button
-                  type="button"
-                  onClick={async () => {
-                    if (!confirm(`Delete category "${cat.name}"?`)) return;
-                    try {
-                      const res = await apiFetch(`/admin/job-categories/${cat.id}`, {
-                        method: "DELETE",
-                        headers: {
-                          Authorization: `Bearer ${token}`,
-                        },
-                      });
-                      if (!res.ok) {
-                        const data = await res.json();
-                        throw new Error(data.error || "Failed to delete category");
+          {/* Conditionally rendered Delete List */}
+          {showDeleteList && (
+            <ul className="mt-2 max-h-40 overflow-auto border rounded p-2">
+              {categories.map((cat) => (
+                <li key={cat.id} className="flex items-center justify-between py-1">
+                  <span>{cat.name}</span>
+                  <button
+                    type="button"
+                    onClick={async () => {
+                      if (!confirm(`Delete category "${cat.name}"?`)) return;
+                      try {
+                        // <-- Added leading slash here
+                        const res = await apiFetch(`/admin/job-categories/${cat.id}`, {
+                          method: "DELETE",
+                          headers: {
+                            Authorization: `Bearer ${token}`,
+                          },
+                        });
+                        if (!res.ok) {
+                          const data = await res.json();
+                          throw new Error(data.error || "Failed to delete category");
+                        }
+                        setRefreshFlag((f) => !f); // refresh categories list
+                        if (formData.category === cat.name) {
+                          setFormData((prev) => ({ ...prev, category: "" }));
+                        }
+                        setShowDeleteList(false); // close after deletion
+                      } catch (err: any) {
+                        alert(err.message);
                       }
-                      setRefreshFlag((f) => !f); // refresh categories list
-                      if (formData.category === cat.name) {
-                        setFormData((prev) => ({ ...prev, category: "" }));
-                      }
-                      setShowDeleteList(false); // close after deletion
-                    } catch (err: any) {
-                      alert(err.message);
-                    }
-                  }}
-                  className="ml-2 text-red-600 hover:text-red-800"
-                  title="Delete Category"
-                >
-                  Delete
-                </button>
-              </li>
-            ))}
-          </ul>
-        )}
+                    }}
+                    className="ml-2 text-red-600 hover:text-red-800"
+                    title="Delete Category"
+                  >
+                    Delete
+                  </button>
+                </li>
+              ))}
+            </ul>
+          )}
 
         {/* Country */}
         <div>
@@ -446,20 +451,21 @@ export default function AdminJobsPage() {
             State
           </label>
           <select
-            id="state"
-            name="state"
-            value={formData.state || ""}
-            onChange={handleChange}
-            disabled={!(formData.country === "USA" || formData.country === "United States")}
-            className="w-full border rounded px-3 py-2"
-          >
-            <option value="">Select State</option>
-            {states.map((s: { name: string; abbreviation: string }) => (
-              <option key={s.abbreviation} value={s.abbreviation}>
-                {s.name}
-              </option>
-            ))}
-          </select>
+  id="state"
+  name="state"
+  value={formData.state || ""}
+  onChange={handleChange}
+  disabled={!(formData.country === "USA" || formData.country === "United States")}
+  className="w-full border rounded px-3 py-2"
+>
+  <option value="">Select State</option>
+  {states.map((s: { name: string; abbreviation: string }) => (
+    <option key={s.abbreviation} value={s.abbreviation}>
+      {s.name}
+    </option>
+  ))}
+</select>
+
         </div>
 
         {/* City */}
@@ -473,8 +479,9 @@ export default function AdminJobsPage() {
             value={formData.city || ""}
             onChange={handleChange}
             disabled={
-              !formData.state || !(formData.country === "USA" || formData.country === "United States")
-            }
+  !formData.state || !(formData.country === "USA" || formData.country === "United States")
+}
+
             className="w-full border rounded px-3 py-2"
           >
             <option value="">Select City</option>
@@ -526,6 +533,7 @@ export default function AdminJobsPage() {
           <label htmlFor="apply_url" className="block font-semibold mb-1">
             Apply URL <span className="text-red-600">*</span>
           </label>
+
           <input
             id="apply_url"
             name="apply_url"
@@ -549,6 +557,62 @@ export default function AdminJobsPage() {
             value={formData.requirements || ""}
             onChange={handleChange}
             className="w-full border rounded px-3 py-2"
+          />
+        </div>
+{/* Title */}
+<div>
+  <label htmlFor="title" className="block font-semibold mb-1">
+    Title <span className="text-red-600">*</span>
+  </label>
+  <input
+    id="title"
+    name="title"
+    type="text"
+    value={formData.title || ""}
+    onChange={handleChange}
+    required
+    className="w-full border rounded px-3 py-2"
+  />
+</div>
+
+        {/* Description */}
+        <div>
+          <label htmlFor="description" className="block font-semibold mb-1">
+            Description
+          </label>
+          <textarea
+            id="description"
+            name="description"
+            rows={4}
+            value={formData.description || ""}
+            onChange={handleChange}
+            className="w-full border rounded px-3 py-2"
+          />
+        </div>
+
+        {/* Is Active and Expires At */}
+        <div className="flex items-center space-x-4">
+          <label htmlFor="is_active" className="font-semibold flex items-center space-x-2">
+            <input
+              id="is_active"
+              name="is_active"
+              type="checkbox"
+              checked={formData.is_active || false}
+              onChange={handleChange}
+            />
+            <span>Active</span>
+          </label>
+
+          <label htmlFor="expires_at" className="font-semibold">
+            Expires At
+          </label>
+          <input
+            id="expires_at"
+            name="expires_at"
+            type="date"
+            value={formData.expires_at ? formData.expires_at.split("T")[0] : ""}
+            onChange={handleChange}
+            className="border rounded px-3 py-2"
           />
         </div>
 
