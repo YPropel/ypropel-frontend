@@ -46,12 +46,24 @@ const [showPremiumMessage, setShowPremiumMessage] = useState(false);
     fetchCourses();
    }, []);
    //-----Useeffect to get is permium field for the user
+<<<<<<< HEAD
   useEffect(() => {
   async function fetchUserProfile() {
     try {
       console.log("Start fetching user profile");
       const res = await apiFetch("/users/me");
       console.log("Profile fetch response:", res);
+=======
+ useEffect(() => {
+  async function fetchUserProfile() {
+    try {
+      const token = localStorage.getItem("token");
+      console.log("Token at fetchUserProfile:", token);
+
+      const res = await apiFetch("/users/me");
+      console.log("Profile fetch status:", res.status);
+
+>>>>>>> 8dc8a2e (old code before mini-coursese)
       if (!res.ok) throw new Error("Failed to fetch user profile");
       const data = await res.json();
       console.log("User profile data:", data);
@@ -60,12 +72,45 @@ const [showPremiumMessage, setShowPremiumMessage] = useState(false);
       console.error("Error fetching user profile:", err);
       setIsPremium(false);
     } finally {
+<<<<<<< HEAD
       console.log("Finished fetching user profile, setting userLoading false");
+=======
+>>>>>>> 8dc8a2e (old code before mini-coursese)
       setUserLoading(false);
     }
   }
   fetchUserProfile();
 }, []);
+
+//--------------------------
+
+ async function openCourseDetail(id: number) {
+  if (userLoading) return; // wait for user info
+
+  if (!isPremium) {
+    setShowPremiumMessage(true);
+    return;
+  }
+
+  setShowPremiumMessage(false);
+  setLoadingDetail(true);
+  setDetailError(null);
+  try {
+    const res = await apiFetch(`/mini-courses/${id}`);
+    if (!res.ok) throw new Error("Failed to fetch course details");
+    const data = await res.json();
+    setSelectedCourse(data);
+  } catch (err: any) {
+    setDetailError(err.message || "Unknown error");
+  } finally {
+    setLoadingDetail(false);
+  }
+}
+
+
+  fetchUserProfile();
+}, []);
+      s
 
 //--------------------------
 

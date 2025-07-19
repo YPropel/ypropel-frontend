@@ -519,7 +519,9 @@ if (!userId) return res.status(401).json({ error: "Unauthorized" });
   })
 );
 
-// -----POST create a new post
+// -----POST create a new post on home page----------
+
+
 // POST create a new post
 app.post(
   "/posts",
@@ -565,7 +567,7 @@ app.post(
       res.status(500).json({ error: "Failed to create post" });
     }
   })
-);
+); 
 
 
 //----- PUT update a post by ID (protected)
@@ -1242,6 +1244,7 @@ app.get(
 //---------------------------------------------
 // --------------Discussion Topics route---------------
 //--------------Post Discussion Topic---------------
+
 app.post(
   "/discussion_topics",
   authenticateToken,
@@ -1278,6 +1281,7 @@ app.post(
       topic: newTopic.topic,
       createdAt: newTopic.created_at,
       author: authorName,
+      authorId: userId,
       liked: false,
       followed: false,
       upvoted: false,
@@ -1351,6 +1355,178 @@ app.post(
   })
 );
 
+ //-------Discussion topics comments  --------
+    app.post(
+  "/discussion_topics/:topicId/comments",
+  authenticateToken,
+  asyncHandler(async (req: Request, res: Response) => {
+    const topicId = parseInt(req.params.topicId, 10);
+    const userId = req.user?.userId;
+    const { content } = req.body;
+
+    if (!userId) return res.status(401).json({ error: "Unauthorized" });
+    if (isNaN(topicId)) return res.status(400).json({ error: "Invalid topic ID" });
+    if (!content || content.trim() === "") {
+      return res.status(400).json({ error: "Content is required" });
+    }
+
+    // Insert the comment
+    const insertResult = await query(
+      `INSERT INTO discussion_comments (topic_id, user_id, content, created_at)
+       VALUES ($1, $2, $3, NOW())
+       RETURNING id, topic_id, user_id, content, created_at`,
+      [topicId, userId, content]
+    );
+
+    const newComment = insertResult.rows[0];
+
+    // Get the user name to return with comment
+    const userResult = await query(`SELECT name FROM users WHERE id = $1`, [userId]);
+    const userName = userResult.rows[0]?.name || "Unknown";
+
+    // Return the comment with userName
+    res.status(201).json({
+      id: newComment.id,
+      userId: newComment.user_id,
+      userName,
+      content: newComment.content,
+      createdAt: newComment.created_at,
+    });
+  })
+);
+
+
+//----Get comments for discussion topic---
+app.get(
+  "/discussion_topics",
+  authenticateToken,
+  asyncHandler(async (req: Request, res: Response) => {
+    const userId = req.user?.userId;
+    if (!userId) return res.status(401).json({ error: "Unauthorized" });
+
+    // Get all discussion topics with author names
+    const topicsResult = await query(
+      `SELECT dt.*, u.name AS author_name
+       FROM discussion_topics dt
+       JOIN users u ON dt.user_id = u.id
+       ORDER BY dt.created_at DESC`
+    );
+    // Get all upvotes for the current user
+const upvotesResult = await query(
+  "SELECT topic_id FROM discussion_upvotes WHERE user_id = $1",
+  [userId]
+);
+
+// Count total upvotes per topic
+const upvoteCountsResult = await query(`
+  SELECT topic_id, COUNT(*) AS count
+  FROM discussion_upvotes
+  GROUP BY topic_id
+`);
+
+const upvotedTopicIds = new Set(upvotesResult.rows.map((r) => r.topic_id));
+const upvoteCountsMap: { [key: number]: number } = {};
+for (const row of upvoteCountsResult.rows) {
+  upvoteCountsMap[row.topic_id] = parseInt(row.count, 10);
+}
+
+
+    const topicIds = topicsResult.rows.map((t) => t.id);
+    let commentsResult = { rows: [] as any[] };
+
+    if (topicIds.length > 0) {
+      commentsResult = await query(
+        `SELECT c.*, u.name AS user_name
+         FROM discussion_comments c
+         JOIN users u ON c.user_id = u.id
+         WHERE c.topic_id = ANY($1::int[])
+         ORDER BY c.created_at ASC`,
+        [topicIds]
+      );
+    }
+
+    const commentsByTopicId: { [key: number]: any[] } = {};
+    for (const comment of commentsResult.rows) {
+      if (!commentsByTopicId[comment.topic_id]) {
+        commentsByTopicId[comment.topic_id] = [];
+      }
+      commentsByTopicId[comment.topic_id].push(comment);
+    }
+
+    // Fetch likes and follows by the current user
+    const likesResult = await query(
+      "SELECT topic_id FROM discussion_likes WHERE user_id = $1",
+      [userId]
+    );
+    const followsResult = await query(
+      "SELECT topic_id FROM discussion_follows WHERE user_id = $1",
+      [userId]
+    );
+
+    const likedTopicIds = new Set(likesResult.rows.map((r) => r.topic_id));
+    const followedTopicIds = new Set(followsResult.rows.map((r) => r.topic_id));
+const likesCountResult = await query(`
+  SELECT topic_id, COUNT(*) AS count
+  FROM discussion_likes
+  GROUP BY topic_id
+`);
+const likesCountMap: { [key: number]: number } = {};
+for (const row of likesCountResult.rows) {
+  likesCountMap[row.topic_id] = parseInt(row.count, 10);
+}
+    const enrichedTopics = topicsResult.rows.map((topic) => ({
+      id: topic.id,
+       title: topic.title,      
+      topic: topic.topic,
+      authorId: topic.user_id,
+      createdAt: topic.created_at,
+      author: topic.author_name,
+       likes: likesCountMap[topic.id] || 0, 
+      shares: topic.shares || 0,
+      liked: likedTopicIds.has(topic.id),
+      upvotes: upvoteCountsMap[topic.id] || 0,
+upvoted: upvotedTopicIds.has(topic.id),
+      followed: followedTopicIds.has(topic.id),
+      comments: commentsByTopicId[topic.id] || [],
+    }));
+
+    res.json(enrichedTopics);
+  })
+);
+
+//--------allow user to delete comment
+app.delete(
+  "/discussion_topics/comments/:commentId",
+  authenticateToken,
+  asyncHandler(async (req: Request, res: Response) => {
+    const commentId = parseInt(req.params.commentId, 10);
+    const userId = req.user?.userId;
+
+    if (!userId) return res.status(401).json({ error: "Unauthorized" });
+    if (isNaN(commentId)) return res.status(400).json({ error: "Invalid comment ID" });
+
+    // Check ownership
+    const commentCheck = await query(
+      "SELECT user_id FROM discussion_comments WHERE id = $1",
+      [commentId]
+    );
+
+    if (commentCheck.rows.length === 0) {
+      return res.status(404).json({ error: "Comment not found" });
+    }
+
+    if (commentCheck.rows[0].user_id !== userId) {
+      return res.status(403).json({ error: "Forbidden: You can only delete your own comments" });
+    }
+
+    // Delete comment
+    await query("DELETE FROM discussion_comments WHERE id = $1", [commentId]);
+
+    res.json({ message: "Comment deleted successfully" });
+  })
+);
+
+
 // ---Post discussion topics upvote--
 app.post(
   "/discussion_topics/:topicId/upvote",
@@ -1378,107 +1554,6 @@ app.post(
 );
 
 
-//--Get All discussion topics---
-// ✅ GET discussion topics with author, comments, likes, follows
-app.get(
-  "/discussion_topics",
-  authenticateToken,
-  asyncHandler(async (req: Request, res: Response) => {
-    const userId = req.user?.userId;
-    if (!userId) return res.status(401).json({ error: "Unauthorized" });
-
-    // ✅ 1. Get topics with author names
-    const topicsResult = await query(
-      `SELECT dt.id, dt.user_id, dt.title, dt.topic, dt.created_at,
-              u.name AS author_name,
-              (SELECT COUNT(*) FROM discussion_upvotes du WHERE du.topic_id = dt.id) AS upvotes
-       FROM discussion_topics dt
-       JOIN users u ON dt.user_id = u.id
-       ORDER BY dt.created_at DESC`
-    );
-
-//--get upvotes--
-    const upvotesResult = await query(
-  "SELECT topic_id FROM discussion_upvotes WHERE user_id = $1",
-  [userId]
-);
-const upvotedTopicIds = new Set(upvotesResult.rows.map((r) => r.topic_id));
-//----------------
-    const topicIds = topicsResult.rows.map((t) => t.id);
-
-    // ✅ 2. Get comment list
-    let commentsResult = { rows: [] as any[] };
-    if (topicIds.length > 0) {
-      commentsResult = await query(
-        `SELECT c.*, u.name AS user_name
-         FROM discussion_comments c
-         JOIN users u ON c.user_id = u.id
-         WHERE c.topic_id = ANY($1::int[])
-         ORDER BY c.created_at ASC`,
-        [topicIds]
-      );
-    }
-
-    // ✅ 3. Organize comments by topic ID
-    const commentsByTopicId: { [key: number]: any[] } = {};
-    for (const comment of commentsResult.rows) {
-      if (!commentsByTopicId[comment.topic_id]) {
-        commentsByTopicId[comment.topic_id] = [];
-      }
-      commentsByTopicId[comment.topic_id].push(comment);
-    }
-
-    // ✅ 4. Get user's likes and follows
-    const likesResult = await query(
-      "SELECT topic_id FROM discussion_likes WHERE user_id = $1",
-      [userId]
-    );
-    const followsResult = await query(
-      "SELECT topic_id FROM discussion_follows WHERE user_id = $1",
-      [userId]
-    );
-
-    
-
-    const likedTopicIds = new Set(likesResult.rows.map((r) => r.topic_id));
-    const followedTopicIds = new Set(followsResult.rows.map((r) => r.topic_id));
-
-    // ✅ 5. Get like counts
-    const likeCountsResult = await query(
-      `SELECT topic_id, COUNT(*) as like_count
-       FROM discussion_likes
-       GROUP BY topic_id`
-    );
-    const likeCounts: { [key: number]: number } = {};
-    for (const row of likeCountsResult.rows) {
-      likeCounts[row.topic_id] = parseInt(row.like_count, 10);
-    }
-
-    
-
-
-    // ✅ 6. Merge everything into enriched topic objects
-    const enrichedTopics = topicsResult.rows.map((topic) => ({
-  id: topic.id,
-  topic: topic.topic,
-   title: topic.title,
-  createdAt: topic.created_at,
-  author: topic.author_name,
-  likes: likeCounts[topic.id] || 0,
-  shares: topic.shares || 0,
-  upvotes: topic.upvotes || 0,  // ✅ add this line
-  liked: likedTopicIds.has(topic.id),
-  followed: followedTopicIds.has(topic.id),
-  upvoted: upvotedTopicIds.has(topic.id),
-  comments: commentsByTopicId[topic.id] || [],
-  
-}));
-
-
-    // ✅ 7. Return to frontend
-    res.json(enrichedTopics);
-  })
-);
 
 //----delete discussion topic---
 app.delete(
@@ -1544,6 +1619,7 @@ app.post(
   asyncHandler(async (req: Request, res: Response) => {
     const { name, isPublic, members } = req.body;
     const userId = req.user?.userId;
+    
 
     if (!userId) return res.status(401).json({ error: "Unauthorized" });
     if (!name || name.trim() === "") return res.status(400).json({ error: "Study circle name is required" });
@@ -1592,13 +1668,28 @@ app.get(
   "/study-circles",
   authenticateToken,
   asyncHandler(async (_req: Request, res: Response) => {
-    const circles = await query(
+  
+    const ownerEmail = (_req.query.ownerEmail as string) || null;
+     const circleName = (_req.query.circleName as string) || null;
+
+   /* const circles = await query(
       `SELECT sc.id, sc.name, sc.is_public, sc.created_at, sc.user_id AS created_by, u.name AS creator
        FROM study_circles sc
        JOIN users u ON sc.user_id = u.id
        ORDER BY sc.created_at DESC`
+    );*/
+
+    const  results = await query(
+       `SELECT sc.id, sc.name, sc.is_public, sc.created_at, sc.user_id AS created_by, u.name AS creator, u.email AS owner_email
+       FROM study_circles sc
+       JOIN users u ON sc.user_id = u.id
+       WHERE ($1::text IS NULL OR u.email ILIKE '%' || $1 || '%')
+         AND ($2::text IS NULL OR sc.name ILIKE '%' || $2 || '%')
+       ORDER BY sc.created_at DESC`,
+      [ownerEmail, circleName]
     );
 
+      //  Get members for circles (same as before)
     const memberResults = await query(
       `SELECT scm.circle_id, u.email
        FROM study_circle_members scm
@@ -1612,10 +1703,12 @@ app.get(
       is_public: boolean;
       creator: string;
       created_by: number; // ✅ Important for permission checks
+       owner_email: string;   // for search circles by member email
       members: string[];
     }>();
 
-    circles.rows.forEach(circle => {
+   // Build map from filtered circles only
+    results.rows.forEach(circle => {
       circleMap.set(circle.id, { ...circle, members: [] });
     });
 
@@ -1756,119 +1849,7 @@ app.get("/users/search", authenticateToken, async (req: Request, res: Response):
 
 //---------------------------------------
 
-    //-------Discussion comments and --------
-    app.post(
-  "/discussion_topics/:topicId/comments",
-  authenticateToken,
-  asyncHandler(async (req: Request, res: Response) => {
-    const topicId = parseInt(req.params.topicId, 10);
-    const userId = req.user?.userId;
-    const { content } = req.body;
-
-    if (!userId) return res.status(401).json({ error: "Unauthorized" });
-    if (isNaN(topicId)) return res.status(400).json({ error: "Invalid topic ID" });
-    if (!content || content.trim() === "") {
-      return res.status(400).json({ error: "Content is required" });
-    }
-
-    const result = await query(
-      `INSERT INTO discussion_comments (topic_id, user_id, content, created_at)
-       VALUES ($1, $2, $3, NOW())
-       RETURNING id, topic_id, user_id, content, created_at`,
-      [topicId, userId, content]
-    );
-
-    res.status(201).json(result.rows[0]);
-  })
-);
-
-//----Get comments for discussion topic---
-app.get(
-  "/discussion_topics",
-  authenticateToken,
-  asyncHandler(async (req: Request, res: Response) => {
-    const userId = req.user?.userId;
-    if (!userId) return res.status(401).json({ error: "Unauthorized" });
-
-    // Get all discussion topics with author names
-    const topicsResult = await query(
-      `SELECT dt.*, u.name AS author_name
-       FROM discussion_topics dt
-       JOIN users u ON dt.user_id = u.id
-       ORDER BY dt.created_at DESC`
-    );
-    // Get all upvotes for the current user
-const upvotesResult = await query(
-  "SELECT topic_id FROM discussion_upvotes WHERE user_id = $1",
-  [userId]
-);
-
-// Count total upvotes per topic
-const upvoteCountsResult = await query(`
-  SELECT topic_id, COUNT(*) AS count
-  FROM discussion_upvotes
-  GROUP BY topic_id
-`);
-
-const upvotedTopicIds = new Set(upvotesResult.rows.map((r) => r.topic_id));
-const upvoteCountsMap: { [key: number]: number } = {};
-for (const row of upvoteCountsResult.rows) {
-  upvoteCountsMap[row.topic_id] = parseInt(row.count, 10);
-}
-
-
-    const topicIds = topicsResult.rows.map((t) => t.id);
-    let commentsResult = { rows: [] as any[] };
-
-    if (topicIds.length > 0) {
-      commentsResult = await query(
-        `SELECT c.*, u.name AS user_name
-         FROM discussion_comments c
-         JOIN users u ON c.user_id = u.id
-         WHERE c.topic_id = ANY($1::int[])
-         ORDER BY c.created_at ASC`,
-        [topicIds]
-      );
-    }
-
-    const commentsByTopicId: { [key: number]: any[] } = {};
-    for (const comment of commentsResult.rows) {
-      if (!commentsByTopicId[comment.topic_id]) {
-        commentsByTopicId[comment.topic_id] = [];
-      }
-      commentsByTopicId[comment.topic_id].push(comment);
-    }
-
-    // Fetch likes and follows by the current user
-    const likesResult = await query(
-      "SELECT topic_id FROM discussion_likes WHERE user_id = $1",
-      [userId]
-    );
-    const followsResult = await query(
-      "SELECT topic_id FROM discussion_follows WHERE user_id = $1",
-      [userId]
-    );
-
-    const likedTopicIds = new Set(likesResult.rows.map((r) => r.topic_id));
-    const followedTopicIds = new Set(followsResult.rows.map((r) => r.topic_id));
-
-    const enrichedTopics = topicsResult.rows.map((topic) => ({
-      id: topic.id,
-      topic: topic.topic,
-      createdAt: topic.created_at,
-      author: topic.author_name,
-      likes: topic.likes || 0,
-      shares: topic.shares || 0,
-      liked: likedTopicIds.has(topic.id),
-      followed: followedTopicIds.has(topic.id),
-      comments: commentsByTopicId[topic.id] || [],
-    }));
-
-    res.json(enrichedTopics);
-  })
-);
-
-
+   
 // -------- Get user by ID (protected) --------
 //-- Before new edit profile
 /* app.get(
