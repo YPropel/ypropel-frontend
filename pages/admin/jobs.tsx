@@ -1,9 +1,5 @@
 import React, { useEffect, useState } from "react";
 import { apiFetch } from "../../apiClient"; 
-
-// ADD THIS IMPORT AT THE TOP:
-import { getTokenOrRedirect } from "../../utils/auth";  // <-- NEW import
-
 type Job = {
   id: number;
   title: string;
@@ -45,12 +41,10 @@ export default function AdminJobsPage() {
   const [showDeleteList, setShowDeleteList] = useState(false);
 
   const [countries, setCountries] = useState<string[]>([]);
-  const [states, setStates] = useState<{ name: string; abbreviation: string }[]>([]);
+const [states, setStates] = useState<{ name: string; abbreviation: string }[]>([]);
   const [cities, setCities] = useState<string[]>([]);
 
-  // CHANGE THIS LINE:
-  // const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
-  const token = getTokenOrRedirect();  // <-- UPDATED to safer token fetch and redirect
+  const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
 
   const [formData, setFormData] = useState<Partial<Job>>({
     title: "",
@@ -130,36 +124,38 @@ export default function AdminJobsPage() {
   }, []);
 
   // Fetch states when country changes (only if USA)
-  // <-- Added leading slash here
+    // <-- Added leading slash here
   useEffect(() => {
-    if (formData.country === "USA" || formData.country === "United States") {
-      apiFetch("/us-states")
-        .then((res) => res.json())
-        .then((data) => {
-          setStates(data);
-        })
-        .catch(() => setStates([]));
-    } else {
-      setStates([]);
-      setFormData((prev) => ({ ...prev, state: "", city: "" }));
-    }
-  }, [formData.country]);
+  if (formData.country === "USA" || formData.country === "United States") {
+    apiFetch("/us-states")
+      .then((res) => res.json())
+      .then((data) => {
+        setStates(data);
+      })
+      .catch(() => setStates([]));
+  } else {
+    setStates([]);
+    setFormData((prev) => ({ ...prev, state: "", city: "" }));
+  }
+}, [formData.country]);
 
   //---- Fetch cities when state changes
   // --------Fetch cities when state changes (convert abbreviation to full name)
-  useEffect(() => {
-    if (!formData.state || !(formData.country === "USA" || formData.country === "United States")) {
-      setCities([]);
-      setFormData((prev) => ({ ...prev, city: "" }));
-      return;
-    }
+useEffect(() => {
+  if (!formData.state || !(formData.country === "USA" || formData.country === "United States")) {
+    setCities([]);
+    setFormData((prev) => ({ ...prev, city: "" }));
+    return;
+  }
 
-    // Send abbreviation directly, no need to find full name
-    apiFetch(`/us-cities?state=${encodeURIComponent(formData.state)}`)
-      .then((res) => res.json())
-      .then(setCities)
-      .catch(() => setCities([]));
-  }, [formData.state, formData.country]);
+  // Send abbreviation directly, no need to find full name
+  apiFetch(`/us-cities?state=${encodeURIComponent(formData.state)}`)
+    .then((res) => res.json())
+    .then(setCities)
+    .catch(() => setCities([]));
+}, [formData.state, formData.country]);
+
+
 
   // Load selected job data into form
   useEffect(() => {
@@ -232,14 +228,15 @@ export default function AdminJobsPage() {
       const method = selectedJob ? "PUT" : "POST";
       const url = selectedJob ? `/admin/jobs/${selectedJob.id}` : "/admin/jobs";
 
-      const res = await apiFetch(url, {
-        method,
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify(formData),
-      });
+     const res = await apiFetch(url, {
+  method,
+  headers: {
+    "Content-Type": "application/json",
+    Authorization: `Bearer ${token}`,
+  },
+  body: JSON.stringify(formData),
+});
+
 
       if (!res.ok) {
         const data = await res.json();
