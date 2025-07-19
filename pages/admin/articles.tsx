@@ -19,14 +19,38 @@ export default function AdminArticlesPage() {
   const [editingId, setEditingId] = useState<number | null>(null);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
+   // ---------xxx- CHANGED 1: Helper to get token or redirect -------------
+  function getTokenOrRedirect() {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      setMessage("❌ You must be logged in.");
+      // Optional redirect to login page:
+      // window.location.href = "/admin/login";
+      return null;
+    }
+    return token;
+  }
+// ------xxx------- CHANGED 2: Centralized auth error handler -------------
+  function handleAuthError(status: number) {
+    if (status === 401 || status === 403) {
+      setMessage("❌ Unauthorized. Redirecting to login...");
+      localStorage.removeItem("token");
+      setTimeout(() => {
+        window.location.href = "/admin/login";
+      }, 1500);
+      return true; // auth error handled
+    }
+    return false;
+  }
+
+//-------------------------
+
   // Fetch all articles on load
-  useEffect(() => {
+ /*-- xxx--- useEffect(() => {
     fetchArticles();
   }, []);
 
   const fetchArticles = async () => {
-    console.log("API base URL:", process.env.NEXT_PUBLIC_API_BASE_URL);
-
     const token = localStorage.getItem("token");
     if (!token) return;
     try {
@@ -43,8 +67,32 @@ export default function AdminArticlesPage() {
       console.error(err);
       setMessage("❌ Server error while fetching articles");
     }
-  };
+  }; */
+//---xxx
+// ------------- CHANGED fetchArticles with token & auth error handling -------------
+  const fetchArticles = async () => {
+    const token = getTokenOrRedirect();
+    if (!token) return;
 
+    try {
+      const res = await apiFetch("/admin/articles", {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      if (handleAuthError(res.status)) return;
+
+      if (res.ok) {
+        const data = await res.json();
+        setArticles(data);
+      } else {
+        setMessage("❌ Failed to fetch articles");
+      }
+    } catch (err) {
+      console.error(err);
+      setMessage("❌ Server error while fetching articles");
+    }
+  };
+  //----xxx
   const handleImageUpload = async () => {
     if (!coverImageFile) return;
 
@@ -73,7 +121,7 @@ export default function AdminArticlesPage() {
     }
   };
 
-  const handleSubmit = async () => {
+  /*--xxx const handleSubmit = async () => {
     const token = localStorage.getItem("token");
     if (!token) return;
 
@@ -92,7 +140,32 @@ export default function AdminArticlesPage() {
           content,
           cover_image: coverImageUrl,
         }),
+      });   */
+
+      // ------xxx------- CHANGED handleSubmit with token & auth error handling -------------
+  const handleSubmit = async () => {
+    const token = getTokenOrRedirect();
+    if (!token) return;
+
+    const url = editingId ? `/admin/articles/${editingId}` : "/admin/articles";
+    const method = editingId ? "PUT" : "POST";
+
+    try {
+      const res = await apiFetch(url, {
+        method,
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          title,
+          content,
+          cover_image: coverImageUrl,
+        }),
       });
+
+      if (handleAuthError(res.status)) return;
+      //----xxx
 
       const data = await res.json();
 
@@ -131,7 +204,7 @@ export default function AdminArticlesPage() {
     setMessage("");
   };
 
-  const handleDelete = async (id: number) => {
+  /*--xxx const handleDelete = async (id: number) => {
     if (!confirm("Are you sure you want to delete this article?")) return;
 
     const token = localStorage.getItem("token");
@@ -143,7 +216,23 @@ export default function AdminArticlesPage() {
         headers: {
           Authorization: `Bearer ${token}`,
         },
+      }); */
+
+       // xxx-------- CHANGED handleDelete with token & auth error handling -------------
+      const handleDelete = async (id: number) => {
+    if (!confirm("Are you sure you want to delete this article?")) return;
+
+    const token = getTokenOrRedirect();
+    if (!token) return;
+
+    try {
+      const res = await apiFetch(`/admin/articles/${id}`, {
+        method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
       });
+      //---xxx
 
       if (res.ok) {
         setMessage("🗑️ Article deleted successfully");
