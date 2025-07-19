@@ -8,17 +8,30 @@ export default function ImportJobsPage() {
   const [jobType, setJobType] = useState("entry_level"); // default job type
   const [rssUrl, setRssUrl] = useState(""); // new state for RSS URL input
 
+
+  // ---xxx-------- CHANGED: Add helper to get token or redirect -----------
+function getTokenOrRedirect() {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      setResult("❌ You must be logged in.");
+      setTimeout(() => {
+        localStorage.removeItem("token");
+        window.location.href = "/admin/login"; // adjust login path if needed
+      }, 1500);
+      setLoading(false);
+      return null;
+    }
+    return token;
+  }
+
   const handleImport = async () => {
     setLoading(true);
     setResult(null);
 
     try {
-      const token = localStorage.getItem("token");
-      if (!token) {
-        setResult("You must be logged in as admin.");
-        setLoading(false);
-        return;
-      }
+      // ----------- CHANGED: Use helper for token -----------
+      const token = getTokenOrRedirect();
+      if (!token) return;
 
       // Map source and jobType to API route
       let apiRoute = "";
@@ -61,6 +74,17 @@ export default function ImportJobsPage() {
         },
         body: JSON.stringify(bodyData),
       });
+
+      // ----------- CHANGED: Handle auth errors -----------
+      if (res.status === 401 || res.status === 403) {
+        setResult("❌ Unauthorized. Redirecting to login...");
+        localStorage.removeItem("token");
+        setTimeout(() => {
+          window.location.href = "/admin/login";
+        }, 1500);
+        setLoading(false);
+        return;
+      }
 
       if (!res.ok) {
         const errorText = await res.text();
