@@ -1,10 +1,3 @@
-//-- This page is the backend of NewsAdmin and all other backend components
-//  which is the admin dashboord where admin 
-// 1- can post news updates to the frontend News and Updates section
-//it covers Submit news post and delete news post 
-//Note: the News and update delete route for admin is in the ypropel-backend index.tsx
-
-
 import React, { useEffect, useState } from "react";
 import { useRouter } from "next/router";
 import { jwtDecode } from "jwt-decode";
@@ -19,7 +12,9 @@ type DecodedToken = {
   iat: number;
   exp: number;
 };
-//--- Open admin dashboard if user has "admin" role
+
+// --- No change needed here ---
+
 export default function AdminDashboard() {
   const router = useRouter();
   const [isAdmin, setIsAdmin] = useState<boolean | null>(null);
@@ -28,10 +23,11 @@ export default function AdminDashboard() {
     const token = localStorage.getItem("token");
     const role = localStorage.getItem("role");
 
+    // -------- CHANGED: Add check & redirect if no token --------
     if (!token) {
       console.warn("❌ No token found.");
       setIsAdmin(false);
-      router.push("/unauthorized");
+      router.push("/unauthorized"); // keep as is, or redirect to login if preferred
       return;
     }
 
