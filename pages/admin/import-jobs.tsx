@@ -6,7 +6,7 @@ export default function ImportJobsPage() {
   const [result, setResult] = useState<string | null>(null);
   const [source, setSource] = useState("adzuna"); // default source
   const [jobType, setJobType] = useState("entry_level"); // default job type
-  const [rssUrl, setRssUrl] = useState(""); // for SimplyHired only
+  const [rssUrl, setRssUrl] = useState(""); // for SimplyHired and newsletter URL
 
   function getTokenOrRedirect() {
     const token = localStorage.getItem("token");
@@ -31,6 +31,13 @@ export default function ImportJobsPage() {
       if (!token) return;
 
       let apiRoute = "";
+      let bodyData: any = {
+        keyword: jobType === "internship" ? "internship" : "",
+        location: "United States",
+        pages: 3,
+        job_type: jobType,
+      };
+
       if (source === "adzuna") {
         apiRoute = "/admin/import-entry-jobs";
       } else if (source === "careerjet") {
@@ -45,25 +52,23 @@ export default function ImportJobsPage() {
         apiRoute = "/admin/import-sunnova-jobs";
       } else if (source === "simplyhired") {
         apiRoute = "/admin/import-simplyhired-jobs";
+        if (rssUrl.trim()) {
+          bodyData.rssUrl = rssUrl.trim();
+        }
       } else if (source === "reddit") {
         apiRoute = "/admin/import-reddit-internships";
       } else if (source === "remotive") {
         apiRoute = "/admin/import-remotive-internships";
       } else if (source === "linkedin") {
         apiRoute = "/admin/import-newsletter-jobs";
+        if (!rssUrl.trim()) {
+          setResult("❌ Please enter the LinkedIn newsletter RSS URL.");
+          setLoading(false);
+          return;
+        }
+        bodyData = { newsletterUrl: rssUrl.trim() };
       } else {
         apiRoute = "/admin/import-entry-jobs";
-      }
-
-      const bodyData: any = {
-        keyword: jobType === "internship" ? "internship" : "",
-        location: "United States",
-        pages: 3,
-        job_type: jobType,
-      };
-
-      if (source === "simplyhired" && rssUrl.trim()) {
-        bodyData.rssUrl = rssUrl.trim();
       }
 
       const res = await apiFetch(apiRoute, {
@@ -103,7 +108,9 @@ export default function ImportJobsPage() {
               ? "Reddit internships"
               : source === "remotive"
               ? "Remotive internships"
-              : source.charAt(0).toUpperCase() + source.slice(1)
+              : source === "linkedin"
+              ? "LinkedIn newsletter"
+              : source
           }.`
         );
       } else {
@@ -135,7 +142,7 @@ export default function ImportJobsPage() {
         <option value="simplyhired">SimplyHired</option>
         <option value="reddit">Reddit r/internships</option>
         <option value="remotive">Remotive Internships</option>
-        <option value="linkedin">LinkedIn</option>
+        <option value="linkedin">LinkedIn Newsletter</option>
       </select>
 
       <label htmlFor="jobType" className="block mb-2 font-medium">
@@ -152,8 +159,8 @@ export default function ImportJobsPage() {
         <option value="internship">Internship</option>
       </select>
 
-      {/* RSS URL input only for SimplyHired */}
-      {source === "simplyhired" && (
+      {/* RSS URL input for SimplyHired and LinkedIn Newsletter */}
+      {(source === "simplyhired" || source === "linkedin") && (
         <>
           <label htmlFor="rssUrl" className="block mb-2 font-medium">
             Enter RSS Feed URL:
@@ -172,7 +179,10 @@ export default function ImportJobsPage() {
       <button
         className="bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700 disabled:opacity-50"
         onClick={handleImport}
-        disabled={loading || (source === "simplyhired" && !rssUrl.trim())}
+        disabled={
+          loading ||
+          ((source === "simplyhired" || source === "linkedin") && !rssUrl.trim())
+        }
       >
         {loading
           ? "Importing..."
@@ -183,6 +193,8 @@ export default function ImportJobsPage() {
                 ? "Reddit internships"
                 : source === "remotive"
                 ? "Remotive internships"
+                : source === "linkedin"
+                ? "LinkedIn newsletter"
                 : source.charAt(0).toUpperCase() + source.slice(1)
             }`}
       </button>
