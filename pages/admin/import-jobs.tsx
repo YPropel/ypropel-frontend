@@ -47,6 +47,8 @@ export default function ImportJobsPage() {
         apiRoute = "/admin/import-simplyhired-jobs";
       } else if (source === "reddit") {
         apiRoute = "/admin/import-reddit-internships";
+      } else if (source === "remotive") {
+        apiRoute = "/admin/import-remotive-internships";
       } else {
         apiRoute = "/admin/import-entry-jobs";
       }
@@ -94,7 +96,13 @@ export default function ImportJobsPage() {
         setResult(
           `Successfully imported ${
             data.inserted ?? "some"
-          } new jobs from ${source === "reddit" ? "Reddit internships" : source}.`
+          } new jobs from ${
+            source === "reddit"
+              ? "Reddit internships"
+              : source === "remotive"
+              ? "Remotive internships"
+              : source
+          }.`
         );
       } else {
         setResult("Import failed.");
@@ -124,6 +132,7 @@ export default function ImportJobsPage() {
         <option value="sunnova">Sunnova</option>
         <option value="simplyhired">SimplyHired</option>
         <option value="reddit">Reddit r/internships</option>
+        <option value="remotive">Remotive Internships</option>
       </select>
 
       <label htmlFor="jobType" className="block mb-2 font-medium">
@@ -169,6 +178,8 @@ export default function ImportJobsPage() {
             } Jobs from ${
               source === "reddit"
                 ? "Reddit internships"
+                : source === "remotive"
+                ? "Remotive internships"
                 : source.charAt(0).toUpperCase() + source.slice(1)
             }`}
       </button>
