@@ -1,10 +1,18 @@
 import React, { useEffect, useState, useRef } from "react";
-import { apiFetch } from "../../apiClient"; 
+import { apiFetch } from "../../apiClient";
+import jwtDecode from "jwt-decode";
+
+type DecodedToken = {
+  userId: number;
+  email: string;
+  is_admin: boolean | string | number;
+  iat: number;
+  exp: number;
+};
 
 export default function AdminJobFairs() {
-  
   const [jobFairs, setJobFairs] = useState<any[]>([]);
-  const [isAuthorized, setIsAuthorized] = useState<boolean | null>(null);  // <-- NEW
+  const [isAdmin, setIsAdmin] = useState<boolean | null>(null); // Admin auth state
   type StateType = { name: string; abbreviation: string };
   const [states, setStates] = useState<StateType[]>([]);
   const [cities, setCities] = useState<string[]>([]);
@@ -20,20 +28,44 @@ export default function AdminJobFairs() {
     location_city: "",
     start_datetime: "",
   });
-// ----------- CHANGED: Helper to get token or redirect -----------
-  function getTokenOrRedirect() {
+
+  // --- Check token and admin role, redirect if unauthorized ---
+  useEffect(() => {
     const token = localStorage.getItem("token");
+    const role = localStorage.getItem("role");
     if (!token) {
-      setTimeout(() => {
-        localStorage.removeItem("token");
-        window.location.href = "/admin/login";
-      }, 1500);
-      setIsAuthorized(false);
-      return null;
+      redirectToLogin();
+      return;
     }
-    setIsAuthorized(true);
-    return token;
-  }
+    try {
+      const decoded = jwtDecode<DecodedToken>(token);
+      const isAdminValue =
+        decoded.is_admin === true ||
+        decoded.is_admin === "true" ||
+        decoded.is_admin === 1 ||
+        String(decoded.is_admin).toLowerCase() === "true" ||
+        role === "admin";
+      if (!isAdminValue) {
+        redirectToLogin();
+        return;
+      }
+      setIsAdmin(true);
+    } catch {
+      redirectToLogin();
+    }
+
+    function redirectToLogin() {
+      setIsAdmin(false);
+      localStorage.removeItem("token");
+      setTimeout(() => {
+        window.location.href = "/admin/login";
+      }, 500);
+    }
+  }, []);
+
+  // --- Block render while checking admin ---
+  if (isAdmin === null) return <p>Checking authorization...</p>;
+  if (isAdmin === false) return null; // Block render if unauthorized
 
   const fetchStates = async () => {
     const res = await apiFetch("/us-states");
@@ -54,18 +86,9 @@ export default function AdminJobFairs() {
   };
 
   useEffect(() => {
-    getTokenOrRedirect(); 
     fetchStates();
     fetchJobFairs();
   }, []);
-   if (isAuthorized === false) {
-    return null; // or a loading spinner/message
-  }
-  
-  if (isAuthorized === null) {
-    return <p>Loading...</p>; // or blank while checking
-  }
-
 
   useEffect(() => {
     if (selectedState) {
@@ -88,9 +111,19 @@ export default function AdminJobFairs() {
     }
   };
 
-  // ----------- CHANGED: Use getTokenOrRedirect and handle auth errors in handleAdd -----------
+  // --- Use valid token only after admin check ---
+  function getToken() {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      alert("❌ You must be logged in.");
+      window.location.href = "/admin/login";
+      return null;
+    }
+    return token;
+  }
+
   const handleAdd = async () => {
-    const token = getTokenOrRedirect();
+    const token = getToken();
     if (!token) return;
 
     const {
@@ -105,7 +138,6 @@ export default function AdminJobFairs() {
 
     const location = `${location_state} - ${location_city}`;
 
-    // Validate required fields
     if (
       !title.trim() ||
       !description.trim() ||
@@ -119,10 +151,9 @@ export default function AdminJobFairs() {
       return;
     }
 
-    // Validate website format
     try {
       new URL(website);
-    } catch (err) {
+    } catch {
       alert("Please enter a valid website URL (e.g. https://example.com)");
       return;
     }
@@ -141,13 +172,10 @@ export default function AdminJobFairs() {
       body: JSON.stringify(payload),
     });
 
-    // ----------- CHANGED: Auth error handling -----------
     if (res.status === 401 || res.status === 403) {
       alert("❌ Unauthorized. Redirecting to login...");
       localStorage.removeItem("token");
-      setTimeout(() => {
-        window.location.href = "/admin/login";
-      }, 1500);
+      setTimeout(() => window.location.href = "/admin/login", 1500);
       return;
     }
 
@@ -170,9 +198,8 @@ export default function AdminJobFairs() {
     fetchJobFairs();
   };
 
-  // ----------- CHANGED: Use getTokenOrRedirect and auth error handling in handleDelete -----------
   const handleDelete = async (id: number) => {
-    const token = getTokenOrRedirect();
+    const token = getToken();
     if (!token) return;
 
     const res = await apiFetch(`/admin/job-fairs/${id}`, {
@@ -183,9 +210,7 @@ export default function AdminJobFairs() {
     if (res.status === 401 || res.status === 403) {
       alert("❌ Unauthorized. Redirecting to login...");
       localStorage.removeItem("token");
-      setTimeout(() => {
-        window.location.href = "/admin/login";
-      }, 1500);
+      setTimeout(() => window.location.href = "/admin/login", 1500);
       return;
     }
 
