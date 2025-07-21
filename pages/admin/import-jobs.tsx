@@ -50,7 +50,7 @@ export default function ImportJobsPage() {
       } else if (source === "remotive") {
         apiRoute = "/admin/import-remotive-internships";
       } else if (source === "linkedin") {
-        apiRoute = "/admin/import-linkedin-jobs";
+        apiRoute = "/admin/import-newsletter-jobs";
       } else {
         apiRoute = "/admin/import-entry-jobs";
       }
