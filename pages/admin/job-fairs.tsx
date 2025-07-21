@@ -1,18 +1,10 @@
 import React, { useEffect, useState, useRef } from "react";
-import { apiFetch } from "../../apiClient";
-import jwtDecode from "jwt-decode";
-
-type DecodedToken = {
-  userId: number;
-  email: string;
-  is_admin: boolean | string | number;
-  iat: number;
-  exp: number;
-};
+import { apiFetch } from "../../apiClient"; 
 
 export default function AdminJobFairs() {
   const [jobFairs, setJobFairs] = useState<any[]>([]);
-  const [isAdmin, setIsAdmin] = useState<boolean | null>(null); // Admin auth state
+  const [isAuthorized, setIsAuthorized] = useState<boolean | null>(null);
+
   type StateType = { name: string; abbreviation: string };
   const [states, setStates] = useState<StateType[]>([]);
   const [cities, setCities] = useState<string[]>([]);
@@ -29,43 +21,32 @@ export default function AdminJobFairs() {
     start_datetime: "",
   });
 
-  // --- Check token and admin role, redirect if unauthorized ---
+  // Minimal token check on page load
   useEffect(() => {
     const token = localStorage.getItem("token");
-    const role = localStorage.getItem("role");
     if (!token) {
-      redirectToLogin();
+      alert("❌ You must be logged in.");
+      localStorage.removeItem("token");
+      window.location.href = "/admin/login"; 
+      setIsAuthorized(false);
       return;
     }
-    try {
-      const decoded = jwtDecode<DecodedToken>(token);
-      const isAdminValue =
-        decoded.is_admin === true ||
-        decoded.is_admin === "true" ||
-        decoded.is_admin === 1 ||
-        String(decoded.is_admin).toLowerCase() === "true" ||
-        role === "admin";
-      if (!isAdminValue) {
-        redirectToLogin();
-        return;
-      }
-      setIsAdmin(true);
-    } catch {
-      redirectToLogin();
-    }
-
-    function redirectToLogin() {
-      setIsAdmin(false);
-      localStorage.removeItem("token");
-      setTimeout(() => {
-        window.location.href = "/admin/login";
-      }, 500);
-    }
+    setIsAuthorized(true);
+    // Now safe to fetch data
+    fetchStates();
+    fetchJobFairs();
   }, []);
 
-  // --- Block render while checking admin ---
-  if (isAdmin === null) return <p>Checking authorization...</p>;
-  if (isAdmin === false) return null; // Block render if unauthorized
+  const getTokenOrRedirect = () => {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      alert("❌ You must be logged in.");
+      localStorage.removeItem("token");
+      window.location.href = "/admin/login";
+      return null;
+    }
+    return token;
+  };
 
   const fetchStates = async () => {
     const res = await apiFetch("/us-states");
@@ -84,11 +65,6 @@ export default function AdminJobFairs() {
     const data = await res.json();
     setJobFairs(data);
   };
-
-  useEffect(() => {
-    fetchStates();
-    fetchJobFairs();
-  }, []);
 
   useEffect(() => {
     if (selectedState) {
@@ -111,19 +87,8 @@ export default function AdminJobFairs() {
     }
   };
 
-  // --- Use valid token only after admin check ---
-  function getToken() {
-    const token = localStorage.getItem("token");
-    if (!token) {
-      alert("❌ You must be logged in.");
-      window.location.href = "/admin/login";
-      return null;
-    }
-    return token;
-  }
-
   const handleAdd = async () => {
-    const token = getToken();
+    const token = getTokenOrRedirect();
     if (!token) return;
 
     const {
@@ -153,7 +118,7 @@ export default function AdminJobFairs() {
 
     try {
       new URL(website);
-    } catch {
+    } catch (err) {
       alert("Please enter a valid website URL (e.g. https://example.com)");
       return;
     }
@@ -175,7 +140,9 @@ export default function AdminJobFairs() {
     if (res.status === 401 || res.status === 403) {
       alert("❌ Unauthorized. Redirecting to login...");
       localStorage.removeItem("token");
-      setTimeout(() => window.location.href = "/admin/login", 1500);
+      setTimeout(() => {
+        window.location.href = "/admin/login";
+      }, 1500);
       return;
     }
 
@@ -199,7 +166,7 @@ export default function AdminJobFairs() {
   };
 
   const handleDelete = async (id: number) => {
-    const token = getToken();
+    const token = getTokenOrRedirect();
     if (!token) return;
 
     const res = await apiFetch(`/admin/job-fairs/${id}`, {
@@ -210,7 +177,9 @@ export default function AdminJobFairs() {
     if (res.status === 401 || res.status === 403) {
       alert("❌ Unauthorized. Redirecting to login...");
       localStorage.removeItem("token");
-      setTimeout(() => window.location.href = "/admin/login", 1500);
+      setTimeout(() => {
+        window.location.href = "/admin/login";
+      }, 1500);
       return;
     }
 
@@ -220,6 +189,9 @@ export default function AdminJobFairs() {
       alert("Failed to delete.");
     }
   };
+
+  if (isAuthorized === false) return null;
+  if (isAuthorized === null) return <p>Loading...</p>;
 
   return (
     <div className="max-w-4xl mx-auto p-6">
