@@ -2,9 +2,10 @@ import React, { useEffect, useState, useRef } from "react";
 import { apiFetch } from "../../apiClient"; 
 
 export default function AdminJobFairs() {
+  
   const [jobFairs, setJobFairs] = useState<any[]>([]);
-  const [isAuthorized, setIsAuthorized] = useState<boolean | null>(null);
 
+  const [isAuthorized, setIsAuthorized] = useState<boolean | null>(null);  // <-- NEW
   type StateType = { name: string; abbreviation: string };
   const [states, setStates] = useState<StateType[]>([]);
   const [cities, setCities] = useState<string[]>([]);
@@ -20,33 +21,19 @@ export default function AdminJobFairs() {
     location_city: "",
     start_datetime: "",
   });
-
-  // Minimal token check on page load
-  useEffect(() => {
+// ----------- CHANGED: Helper to get token or redirect -----------
+  function getTokenOrRedirect() {
     const token = localStorage.getItem("token");
     if (!token) {
       alert("❌ You must be logged in.");
-      localStorage.removeItem("token");
-      window.location.href = "/admin/login"; 
-      setIsAuthorized(false);
-      return;
-    }
-    setIsAuthorized(true);
-    // Now safe to fetch data
-    fetchStates();
-    fetchJobFairs();
-  }, []);
-
-  const getTokenOrRedirect = () => {
-    const token = localStorage.getItem("token");
-    if (!token) {
-      alert("❌ You must be logged in.");
-      localStorage.removeItem("token");
-      window.location.href = "/admin/login";
+      setTimeout(() => {
+        localStorage.removeItem("token");
+        window.location.href = "/admin/login"; // adjust path if needed
+      }, 1500);
       return null;
     }
     return token;
-  };
+  }
 
   const fetchStates = async () => {
     const res = await apiFetch("/us-states");
@@ -65,6 +52,11 @@ export default function AdminJobFairs() {
     const data = await res.json();
     setJobFairs(data);
   };
+
+  useEffect(() => {
+    fetchStates();
+    fetchJobFairs();
+  }, []);
 
   useEffect(() => {
     if (selectedState) {
@@ -87,6 +79,7 @@ export default function AdminJobFairs() {
     }
   };
 
+  // ----------- CHANGED: Use getTokenOrRedirect and handle auth errors in handleAdd -----------
   const handleAdd = async () => {
     const token = getTokenOrRedirect();
     if (!token) return;
@@ -103,6 +96,7 @@ export default function AdminJobFairs() {
 
     const location = `${location_state} - ${location_city}`;
 
+    // Validate required fields
     if (
       !title.trim() ||
       !description.trim() ||
@@ -116,6 +110,7 @@ export default function AdminJobFairs() {
       return;
     }
 
+    // Validate website format
     try {
       new URL(website);
     } catch (err) {
@@ -137,6 +132,7 @@ export default function AdminJobFairs() {
       body: JSON.stringify(payload),
     });
 
+    // ----------- CHANGED: Auth error handling -----------
     if (res.status === 401 || res.status === 403) {
       alert("❌ Unauthorized. Redirecting to login...");
       localStorage.removeItem("token");
@@ -165,6 +161,7 @@ export default function AdminJobFairs() {
     fetchJobFairs();
   };
 
+  // ----------- CHANGED: Use getTokenOrRedirect and auth error handling in handleDelete -----------
   const handleDelete = async (id: number) => {
     const token = getTokenOrRedirect();
     if (!token) return;
@@ -189,9 +186,6 @@ export default function AdminJobFairs() {
       alert("Failed to delete.");
     }
   };
-
-  if (isAuthorized === false) return null;
-  if (isAuthorized === null) return <p>Loading...</p>;
 
   return (
     <div className="max-w-4xl mx-auto p-6">
