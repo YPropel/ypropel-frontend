@@ -45,8 +45,8 @@ export default function ImportJobsPage() {
         apiRoute = "/admin/import-sunnova-jobs";
       } else if (source === "simplyhired") {
         apiRoute = "/admin/import-simplyhired-jobs";
-      } else if (source === "interninsider") {
-        apiRoute = "/admin/import-intern-insider";
+      } else if (source === "reddit") {
+        apiRoute = "/admin/import-reddit-internships";
       } else {
         apiRoute = "/admin/import-entry-jobs";
       }
@@ -90,9 +90,11 @@ export default function ImportJobsPage() {
 
       const data = await res.json();
 
-      if (data.success || data.inserted !== undefined) {
+      if (data.success || data.inserted !== undefined || data.message) {
         setResult(
-          `Successfully imported ${data.inserted ?? "some"} new jobs from ${source}.`
+          `Successfully imported ${
+            data.inserted ?? "some"
+          } new jobs from ${source === "reddit" ? "Reddit internships" : source}.`
         );
       } else {
         setResult("Import failed.");
@@ -121,7 +123,7 @@ export default function ImportJobsPage() {
         <option value="careerjet">Careerjet</option>
         <option value="sunnova">Sunnova</option>
         <option value="simplyhired">SimplyHired</option>
-        <option value="interninsider">Intern Insider</option> {/* New option */}
+        <option value="reddit">Reddit r/internships</option>
       </select>
 
       <label htmlFor="jobType" className="block mb-2 font-medium">
@@ -162,8 +164,12 @@ export default function ImportJobsPage() {
       >
         {loading
           ? "Importing..."
-          : `Import ${jobType.charAt(0).toUpperCase() + jobType.slice(1)} Jobs from ${
-              source.charAt(0).toUpperCase() + source.slice(1)
+          : `Import ${
+              jobType.charAt(0).toUpperCase() + jobType.slice(1)
+            } Jobs from ${
+              source === "reddit"
+                ? "Reddit internships"
+                : source.charAt(0).toUpperCase() + source.slice(1)
             }`}
       </button>
 
