@@ -30,34 +30,11 @@ const JOB_TYPES = [
   { label: "Hourly", value: "hourly" },
 ];
 
-const LOCATION_OPTIONS = ["Remote", "Onsite", "Hybrid"];
-
 export default function AdminJobsPage() {
+  // Admin auth state
   const [isAuthorized, setIsAuthorized] = useState<boolean | null>(null);
 
-  useEffect(() => {
-    const token = localStorage.getItem("token");
-    if (!token) {
-      alert("❌ You must be logged in.");
-      setTimeout(() => {
-        localStorage.removeItem("token");
-        window.location.href = "/admin/login";
-      }, 1500);
-      setIsAuthorized(false);
-      return;
-    }
-    // Here you can optionally decode token and check admin claims
-    // For now, assume presence of token means authorized
-    setIsAuthorized(true);
-  }, []);
-
-  if (isAuthorized === null) {
-    return <p>Loading...</p>;
-  }
-  if (isAuthorized === false) {
-    return null; // or some placeholder while redirect happens
-  }
-
+  // Your original states below - unchanged
   const [jobs, setJobs] = useState<Job[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -91,8 +68,26 @@ export default function AdminJobsPage() {
     city: "",
   });
 
-  // Fetch jobs list
+  const LOCATION_OPTIONS = ["Remote", "Onsite", "Hybrid"];
+
+  // Admin auth check on mount
   useEffect(() => {
+    if (!token) {
+      alert("❌ You must be logged in.");
+      setTimeout(() => {
+        localStorage.removeItem("token");
+        window.location.href = "/admin/login";
+      }, 1500);
+      setIsAuthorized(false);
+    } else {
+      setIsAuthorized(true);
+    }
+  }, [token]);
+
+  // Only fetch jobs if authorized
+  useEffect(() => {
+    if (!isAuthorized) return;
+
     if (!token) {
       setError("Not authenticated");
       return;
@@ -122,11 +117,12 @@ export default function AdminJobsPage() {
     }
 
     fetchJobs();
-  }, [token, refreshFlag]);
+  }, [token, refreshFlag, isAuthorized]);
 
-  // Fetch categories list
+  // Only fetch categories if authorized
   useEffect(() => {
-    if (!token) return;
+    if (!isAuthorized || !token) return;
+
     apiFetch("/admin/job-categories", {
       headers: { Authorization: `Bearer ${token}` },
     })
@@ -136,7 +132,7 @@ export default function AdminJobsPage() {
       })
       .then(setCategories)
       .catch((err) => console.error("Category fetch error:", err));
-  }, [token, refreshFlag]);
+  }, [token, refreshFlag, isAuthorized]);
 
   // Fetch countries once
   useEffect(() => {
@@ -148,6 +144,8 @@ export default function AdminJobsPage() {
 
   // Fetch states when country changes (only if USA)
   useEffect(() => {
+    if (!isAuthorized) return;
+
     if (formData.country === "USA" || formData.country === "United States") {
       apiFetch("/us-states")
         .then((res) => res.json())
@@ -159,10 +157,12 @@ export default function AdminJobsPage() {
       setStates([]);
       setFormData((prev) => ({ ...prev, state: "", city: "" }));
     }
-  }, [formData.country]);
+  }, [formData.country, isAuthorized]);
 
   // Fetch cities when state changes
   useEffect(() => {
+    if (!isAuthorized) return;
+
     if (!formData.state || !(formData.country === "USA" || formData.country === "United States")) {
       setCities([]);
       setFormData((prev) => ({ ...prev, city: "" }));
@@ -173,7 +173,7 @@ export default function AdminJobsPage() {
       .then((res) => res.json())
       .then(setCities)
       .catch(() => setCities([]));
-  }, [formData.state, formData.country]);
+  }, [formData.state, formData.country, isAuthorized]);
 
   // Load selected job data into form
   useEffect(() => {
@@ -293,6 +293,13 @@ export default function AdminJobsPage() {
     }
   }
 
+  if (isAuthorized === null) {
+    return <p>Loading authorization...</p>;
+  }
+  if (isAuthorized === false) {
+    return null; // or redirect placeholder while redirect happens
+  }
+
   return (
     <div className="max-w-5xl mx-auto p-6">
       <h1 className="text-3xl font-bold mb-6">Admin Job Management</h1>
@@ -373,7 +380,7 @@ export default function AdminJobsPage() {
                     throw new Error(data.error || "Failed to add category");
                   }
                   setNewCategoryName("");
-                  setRefreshFlag((f) => !f); // reload categories
+                  setRefreshFlag((f) => !f);
                 } catch (err: any) {
                   alert(err.message);
                 }
@@ -415,11 +422,11 @@ export default function AdminJobsPage() {
                         const data = await res.json();
                         throw new Error(data.error || "Failed to delete category");
                       }
-                      setRefreshFlag((f) => !f); // refresh categories list
+                      setRefreshFlag((f) => !f);
                       if (formData.category === cat.name) {
                         setFormData((prev) => ({ ...prev, category: "" }));
                       }
-                      setShowDeleteList(false); // close after deletion
+                      setShowDeleteList(false);
                     } catch (err: any) {
                       alert(err.message);
                     }
@@ -565,6 +572,63 @@ export default function AdminJobsPage() {
             value={formData.requirements || ""}
             onChange={handleChange}
             className="w-full border rounded px-3 py-2"
+          />
+        </div>
+
+        {/* Title */}
+        <div>
+          <label htmlFor="title" className="block font-semibold mb-1">
+            Title <span className="text-red-600">*</span>
+          </label>
+          <input
+            id="title"
+            name="title"
+            type="text"
+            value={formData.title || ""}
+            onChange={handleChange}
+            required
+            className="w-full border rounded px-3 py-2"
+          />
+        </div>
+
+        {/* Description */}
+        <div>
+          <label htmlFor="description" className="block font-semibold mb-1">
+            Description
+          </label>
+          <textarea
+            id="description"
+            name="description"
+            rows={4}
+            value={formData.description || ""}
+            onChange={handleChange}
+            className="w-full border rounded px-3 py-2"
+          />
+        </div>
+
+        {/* Is Active and Expires At */}
+        <div className="flex items-center space-x-4">
+          <label htmlFor="is_active" className="font-semibold flex items-center space-x-2">
+            <input
+              id="is_active"
+              name="is_active"
+              type="checkbox"
+              checked={formData.is_active || false}
+              onChange={handleChange}
+            />
+            <span>Active</span>
+          </label>
+
+          <label htmlFor="expires_at" className="font-semibold">
+            Expires At
+          </label>
+          <input
+            id="expires_at"
+            name="expires_at"
+            type="date"
+            value={formData.expires_at ? formData.expires_at.split("T")[0] : ""}
+            onChange={handleChange}
+            className="border rounded px-3 py-2"
           />
         </div>
 
