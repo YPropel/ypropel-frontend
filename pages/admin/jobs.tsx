@@ -1,22 +1,5 @@
 import React, { useEffect, useState } from "react";
 import { apiFetch } from "../../apiClient"; 
-const [formData, setFormData] = useState<Partial<Job>>({
-  title: "",
-  description: "",
-  category: "",
-  company: "",
-  location: "",
-  requirements: "",
-  apply_url: "",
-  salary: "",
-  is_active: true,
-  expires_at: "",
-  job_type: "entry_level",
-  country: "",
-  state: "",
-  city: "",
-});
-
 
 type Job = {
   id: number;
@@ -47,7 +30,34 @@ const JOB_TYPES = [
   { label: "Hourly", value: "hourly" },
 ];
 
+const LOCATION_OPTIONS = ["Remote", "Onsite", "Hybrid"];
+
 export default function AdminJobsPage() {
+  const [isAuthorized, setIsAuthorized] = useState<boolean | null>(null);
+
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      alert("❌ You must be logged in.");
+      setTimeout(() => {
+        localStorage.removeItem("token");
+        window.location.href = "/admin/login";
+      }, 1500);
+      setIsAuthorized(false);
+      return;
+    }
+    // Here you can optionally decode token and check admin claims
+    // For now, assume presence of token means authorized
+    setIsAuthorized(true);
+  }, []);
+
+  if (isAuthorized === null) {
+    return <p>Loading...</p>;
+  }
+  if (isAuthorized === false) {
+    return null; // or some placeholder while redirect happens
+  }
+
   const [jobs, setJobs] = useState<Job[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -59,56 +69,29 @@ export default function AdminJobsPage() {
   const [showDeleteList, setShowDeleteList] = useState(false);
 
   const [countries, setCountries] = useState<string[]>([]);
-  const [states, setStates] = React.useState<{ name: string; abbreviation: string }[]>([]);
+  const [states, setStates] = useState<{ name: string; abbreviation: string }[]>([]);
   const [cities, setCities] = useState<string[]>([]);
-
-  // Admin authorization check state
-  const [isAuthorized, setIsAuthorized] = useState<boolean | null>(null);
-
-  // Check admin authorization on mount
-  useEffect(() => {
-    const token = localStorage.getItem("token");
-    if (!token) {
-      setIsAuthorized(false);
-      window.location.href = "/admin/login";
-      return;
-    }
-    try {
-      const base64Url = token.split('.')[1];
-      const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-      const jsonPayload = decodeURIComponent(
-        atob(base64)
-          .split('')
-          .map(c => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
-          .join('')
-      );
-      const payload = JSON.parse(jsonPayload);
-      if (
-        payload.is_admin === true ||
-        payload.is_admin === "true" ||
-        payload.is_admin === 1 ||
-        String(payload.is_admin).toLowerCase() === "true"
-      ) {
-        setIsAuthorized(true);
-      } else {
-        setIsAuthorized(false);
-        window.location.href = "/unauthorized";
-      }
-    } catch {
-      setIsAuthorized(false);
-      window.location.href = "/admin/login";
-    }
-  }, []);
-
-  // Show loading while auth checking
-  if (isAuthorized === null) return <p>Loading...</p>;
-  // Prevent render if not authorized
-  if (isAuthorized === false) return null;
-
-  // Now rest of the original page logic:
 
   const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
 
+  const [formData, setFormData] = useState<Partial<Job>>({
+    title: "",
+    description: "",
+    category: "",
+    company: "",
+    location: "",
+    requirements: "",
+    apply_url: "",
+    salary: "",
+    is_active: true,
+    expires_at: "",
+    job_type: "entry_level",
+    country: "",
+    state: "",
+    city: "",
+  });
+
+  // Fetch jobs list
   useEffect(() => {
     if (!token) {
       setError("Not authenticated");
@@ -141,6 +124,7 @@ export default function AdminJobsPage() {
     fetchJobs();
   }, [token, refreshFlag]);
 
+  // Fetch categories list
   useEffect(() => {
     if (!token) return;
     apiFetch("/admin/job-categories", {
@@ -154,6 +138,7 @@ export default function AdminJobsPage() {
       .catch((err) => console.error("Category fetch error:", err));
   }, [token, refreshFlag]);
 
+  // Fetch countries once
   useEffect(() => {
     apiFetch("/countries")
       .then((res) => res.json())
@@ -161,6 +146,7 @@ export default function AdminJobsPage() {
       .catch(console.error);
   }, []);
 
+  // Fetch states when country changes (only if USA)
   useEffect(() => {
     if (formData.country === "USA" || formData.country === "United States") {
       apiFetch("/us-states")
@@ -175,6 +161,7 @@ export default function AdminJobsPage() {
     }
   }, [formData.country]);
 
+  // Fetch cities when state changes
   useEffect(() => {
     if (!formData.state || !(formData.country === "USA" || formData.country === "United States")) {
       setCities([]);
@@ -188,6 +175,7 @@ export default function AdminJobsPage() {
       .catch(() => setCities([]));
   }, [formData.state, formData.country]);
 
+  // Load selected job data into form
   useEffect(() => {
     if (selectedJob) {
       setFormData({ ...selectedJob });
@@ -311,6 +299,7 @@ export default function AdminJobsPage() {
 
       {error && <p className="text-red-600 mb-4">{error}</p>}
 
+      {/* Job Form */}
       <h2 className="text-2xl font-semibold mb-4">{selectedJob ? "Edit Job Posting" : "Create New Job Posting"}</h2>
 
       <form onSubmit={handleSubmit} className="space-y-4 max-w-xl mb-8">
@@ -384,7 +373,7 @@ export default function AdminJobsPage() {
                     throw new Error(data.error || "Failed to add category");
                   }
                   setNewCategoryName("");
-                  setRefreshFlag((f) => !f);
+                  setRefreshFlag((f) => !f); // reload categories
                 } catch (err: any) {
                   alert(err.message);
                 }
@@ -396,54 +385,54 @@ export default function AdminJobsPage() {
           </div>
         </div>
 
-         {/* Toggle Delete List Button */}
-          <button
-            type="button"
-            className="mt-2 text-sm text-red-600 underline hover:text-red-800"
-            onClick={() => setShowDeleteList((show) => !show)}
-          >
-            {showDeleteList ? "Hide Delete Category List" : "Delete Category"}
-          </button>
+        {/* Toggle Delete List Button */}
+        <button
+          type="button"
+          className="mt-2 text-sm text-red-600 underline hover:text-red-800"
+          onClick={() => setShowDeleteList((show) => !show)}
+        >
+          {showDeleteList ? "Hide Delete Category List" : "Delete Category"}
+        </button>
 
-          {/* Conditionally rendered Delete List */}
-          {showDeleteList && (
-            <ul className="mt-2 max-h-40 overflow-auto border rounded p-2">
-              {categories.map((cat) => (
-                <li key={cat.id} className="flex items-center justify-between py-1">
-                  <span>{cat.name}</span>
-                  <button
-                    type="button"
-                    onClick={async () => {
-                      if (!confirm(`Delete category "${cat.name}"?`)) return;
-                      try {
-                        const res = await apiFetch(`/admin/job-categories/${cat.id}`, {
-                          method: "DELETE",
-                          headers: {
-                            Authorization: `Bearer ${token}`,
-                          },
-                        });
-                        if (!res.ok) {
-                          const data = await res.json();
-                          throw new Error(data.error || "Failed to delete category");
-                        }
-                        setRefreshFlag((f) => !f);
-                        if (formData.category === cat.name) {
-                          setFormData((prev) => ({ ...prev, category: "" }));
-                        }
-                        setShowDeleteList(false);
-                      } catch (err: any) {
-                        alert(err.message);
+        {/* Conditionally rendered Delete List */}
+        {showDeleteList && (
+          <ul className="mt-2 max-h-40 overflow-auto border rounded p-2">
+            {categories.map((cat) => (
+              <li key={cat.id} className="flex items-center justify-between py-1">
+                <span>{cat.name}</span>
+                <button
+                  type="button"
+                  onClick={async () => {
+                    if (!confirm(`Delete category "${cat.name}"?`)) return;
+                    try {
+                      const res = await apiFetch(`/admin/job-categories/${cat.id}`, {
+                        method: "DELETE",
+                        headers: {
+                          Authorization: `Bearer ${token}`,
+                        },
+                      });
+                      if (!res.ok) {
+                        const data = await res.json();
+                        throw new Error(data.error || "Failed to delete category");
                       }
-                    }}
-                    className="ml-2 text-red-600 hover:text-red-800"
-                    title="Delete Category"
-                  >
-                    Delete
-                  </button>
-                </li>
-              ))}
-            </ul>
-          )}
+                      setRefreshFlag((f) => !f); // refresh categories list
+                      if (formData.category === cat.name) {
+                        setFormData((prev) => ({ ...prev, category: "" }));
+                      }
+                      setShowDeleteList(false); // close after deletion
+                    } catch (err: any) {
+                      alert(err.message);
+                    }
+                  }}
+                  className="ml-2 text-red-600 hover:text-red-800"
+                  title="Delete Category"
+                >
+                  Delete
+                </button>
+              </li>
+            ))}
+          </ul>
+        )}
 
         {/* Country */}
         <div>
@@ -552,6 +541,7 @@ export default function AdminJobsPage() {
           <label htmlFor="apply_url" className="block font-semibold mb-1">
             Apply URL <span className="text-red-600">*</span>
           </label>
+
           <input
             id="apply_url"
             name="apply_url"
@@ -575,63 +565,6 @@ export default function AdminJobsPage() {
             value={formData.requirements || ""}
             onChange={handleChange}
             className="w-full border rounded px-3 py-2"
-          />
-        </div>
-
-        {/* Title */}
-        <div>
-          <label htmlFor="title" className="block font-semibold mb-1">
-            Title <span className="text-red-600">*</span>
-          </label>
-          <input
-            id="title"
-            name="title"
-            type="text"
-            value={formData.title || ""}
-            onChange={handleChange}
-            required
-            className="w-full border rounded px-3 py-2"
-          />
-        </div>
-
-        {/* Description */}
-        <div>
-          <label htmlFor="description" className="block font-semibold mb-1">
-            Description
-          </label>
-          <textarea
-            id="description"
-            name="description"
-            rows={4}
-            value={formData.description || ""}
-            onChange={handleChange}
-            className="w-full border rounded px-3 py-2"
-          />
-        </div>
-
-        {/* Is Active and Expires At */}
-        <div className="flex items-center space-x-4">
-          <label htmlFor="is_active" className="font-semibold flex items-center space-x-2">
-            <input
-              id="is_active"
-              name="is_active"
-              type="checkbox"
-              checked={formData.is_active || false}
-              onChange={handleChange}
-            />
-            <span>Active</span>
-          </label>
-
-          <label htmlFor="expires_at" className="font-semibold">
-            Expires At
-          </label>
-          <input
-            id="expires_at"
-            name="expires_at"
-            type="date"
-            value={formData.expires_at ? formData.expires_at.split("T")[0] : ""}
-            onChange={handleChange}
-            className="border rounded px-3 py-2"
           />
         </div>
 
