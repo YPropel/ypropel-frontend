@@ -18,8 +18,7 @@ export default function AdminJobFairs() {
     location_city: "",
     start_datetime: "",
   });
-
-  // ----------- CHANGED: Helper to get token or redirect -----------
+// ----------- CHANGED: Helper to get token or redirect -----------
   function getTokenOrRedirect() {
     const token = localStorage.getItem("token");
     if (!token) {
