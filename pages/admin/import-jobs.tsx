@@ -6,17 +6,15 @@ export default function ImportJobsPage() {
   const [result, setResult] = useState<string | null>(null);
   const [source, setSource] = useState("adzuna"); // default source
   const [jobType, setJobType] = useState("entry_level"); // default job type
-  const [rssUrl, setRssUrl] = useState(""); // new state for RSS URL input
+  const [rssUrl, setRssUrl] = useState(""); // for SimplyHired only
 
-
-  // ---xxx-------- CHANGED: Add helper to get token or redirect -----------
-function getTokenOrRedirect() {
+  function getTokenOrRedirect() {
     const token = localStorage.getItem("token");
     if (!token) {
       setResult("❌ You must be logged in.");
       setTimeout(() => {
         localStorage.removeItem("token");
-        window.location.href = "/admin/login"; // adjust login path if needed
+        window.location.href = "/admin/login";
       }, 1500);
       setLoading(false);
       return null;
@@ -29,11 +27,9 @@ function getTokenOrRedirect() {
     setResult(null);
 
     try {
-      // ----------- CHANGED: Use helper for token -----------
       const token = getTokenOrRedirect();
       if (!token) return;
 
-      // Map source and jobType to API route
       let apiRoute = "";
       if (source === "adzuna") {
         apiRoute = "/admin/import-entry-jobs";
@@ -49,11 +45,12 @@ function getTokenOrRedirect() {
         apiRoute = "/admin/import-sunnova-jobs";
       } else if (source === "simplyhired") {
         apiRoute = "/admin/import-simplyhired-jobs";
+      } else if (source === "interninsider") {
+        apiRoute = "/admin/import-intern-insider";
       } else {
         apiRoute = "/admin/import-entry-jobs";
       }
 
-      // Build request body conditionally
       const bodyData: any = {
         keyword: jobType === "internship" ? "internship" : "",
         location: "United States",
@@ -61,7 +58,6 @@ function getTokenOrRedirect() {
         job_type: jobType,
       };
 
-      // If source is SimplyHired, send rssUrl (trimmed)
       if (source === "simplyhired" && rssUrl.trim()) {
         bodyData.rssUrl = rssUrl.trim();
       }
@@ -75,7 +71,6 @@ function getTokenOrRedirect() {
         body: JSON.stringify(bodyData),
       });
 
-      // ----------- CHANGED: Handle auth errors -----------
       if (res.status === 401 || res.status === 403) {
         setResult("❌ Unauthorized. Redirecting to login...");
         localStorage.removeItem("token");
@@ -95,8 +90,10 @@ function getTokenOrRedirect() {
 
       const data = await res.json();
 
-      if (data.success) {
-        setResult(`Successfully imported ${data.inserted} new jobs from ${source}.`);
+      if (data.success || data.inserted !== undefined) {
+        setResult(
+          `Successfully imported ${data.inserted ?? "some"} new jobs from ${source}.`
+        );
       } else {
         setResult("Import failed.");
       }
@@ -124,6 +121,7 @@ function getTokenOrRedirect() {
         <option value="careerjet">Careerjet</option>
         <option value="sunnova">Sunnova</option>
         <option value="simplyhired">SimplyHired</option>
+        <option value="interninsider">Intern Insider</option> {/* New option */}
       </select>
 
       <label htmlFor="jobType" className="block mb-2 font-medium">
@@ -140,7 +138,7 @@ function getTokenOrRedirect() {
         <option value="internship">Internship</option>
       </select>
 
-      {/* Show RSS URL input only when SimplyHired is selected */}
+      {/* RSS URL input only for SimplyHired */}
       {source === "simplyhired" && (
         <>
           <label htmlFor="rssUrl" className="block mb-2 font-medium">
