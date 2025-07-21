@@ -1,5 +1,23 @@
 import React, { useEffect, useState } from "react";
 import { apiFetch } from "../../apiClient"; 
+const [formData, setFormData] = useState<Partial<Job>>({
+  title: "",
+  description: "",
+  category: "",
+  company: "",
+  location: "",
+  requirements: "",
+  apply_url: "",
+  salary: "",
+  is_active: true,
+  expires_at: "",
+  job_type: "entry_level",
+  country: "",
+  state: "",
+  city: "",
+});
+
+
 type Job = {
   id: number;
   title: string;
@@ -41,31 +59,56 @@ export default function AdminJobsPage() {
   const [showDeleteList, setShowDeleteList] = useState(false);
 
   const [countries, setCountries] = useState<string[]>([]);
-const [states, setStates] = useState<{ name: string; abbreviation: string }[]>([]);
+  const [states, setStates] = React.useState<{ name: string; abbreviation: string }[]>([]);
   const [cities, setCities] = useState<string[]>([]);
+
+  // Admin authorization check state
+  const [isAuthorized, setIsAuthorized] = useState<boolean | null>(null);
+
+  // Check admin authorization on mount
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      setIsAuthorized(false);
+      window.location.href = "/admin/login";
+      return;
+    }
+    try {
+      const base64Url = token.split('.')[1];
+      const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+      const jsonPayload = decodeURIComponent(
+        atob(base64)
+          .split('')
+          .map(c => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
+          .join('')
+      );
+      const payload = JSON.parse(jsonPayload);
+      if (
+        payload.is_admin === true ||
+        payload.is_admin === "true" ||
+        payload.is_admin === 1 ||
+        String(payload.is_admin).toLowerCase() === "true"
+      ) {
+        setIsAuthorized(true);
+      } else {
+        setIsAuthorized(false);
+        window.location.href = "/unauthorized";
+      }
+    } catch {
+      setIsAuthorized(false);
+      window.location.href = "/admin/login";
+    }
+  }, []);
+
+  // Show loading while auth checking
+  if (isAuthorized === null) return <p>Loading...</p>;
+  // Prevent render if not authorized
+  if (isAuthorized === false) return null;
+
+  // Now rest of the original page logic:
 
   const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
 
-  const [formData, setFormData] = useState<Partial<Job>>({
-    title: "",
-    description: "",
-    category: "",
-    company: "",
-    location: "",
-    requirements: "",
-    apply_url: "",
-    salary: "",
-    is_active: true,
-    expires_at: "",
-    job_type: "entry_level",
-    country: "",
-    state: "",
-    city: "",
-  });
-
-  const LOCATION_OPTIONS = ["Remote", "Onsite", "Hybrid"];
-
-  // Fetch jobs list
   useEffect(() => {
     if (!token) {
       setError("Not authenticated");
@@ -77,7 +120,6 @@ const [states, setStates] = useState<{ name: string; abbreviation: string }[]>([
       setError(null);
 
       try {
-        // <-- Added leading slash here
         const res = await apiFetch("/admin/jobs", {
           headers: { Authorization: `Bearer ${token}` },
         });
@@ -99,10 +141,8 @@ const [states, setStates] = useState<{ name: string; abbreviation: string }[]>([
     fetchJobs();
   }, [token, refreshFlag]);
 
-  // Fetch categories list
   useEffect(() => {
     if (!token) return;
-    // <-- Added leading slash here
     apiFetch("/admin/job-categories", {
       headers: { Authorization: `Bearer ${token}` },
     })
@@ -114,50 +154,40 @@ const [states, setStates] = useState<{ name: string; abbreviation: string }[]>([
       .catch((err) => console.error("Category fetch error:", err));
   }, [token, refreshFlag]);
 
-  // Fetch countries once
   useEffect(() => {
-    // <-- Added leading slash here
     apiFetch("/countries")
       .then((res) => res.json())
       .then(setCountries)
       .catch(console.error);
   }, []);
 
-  // Fetch states when country changes (only if USA)
-    // <-- Added leading slash here
   useEffect(() => {
-  if (formData.country === "USA" || formData.country === "United States") {
-    apiFetch("/us-states")
+    if (formData.country === "USA" || formData.country === "United States") {
+      apiFetch("/us-states")
+        .then((res) => res.json())
+        .then((data) => {
+          setStates(data);
+        })
+        .catch(() => setStates([]));
+    } else {
+      setStates([]);
+      setFormData((prev) => ({ ...prev, state: "", city: "" }));
+    }
+  }, [formData.country]);
+
+  useEffect(() => {
+    if (!formData.state || !(formData.country === "USA" || formData.country === "United States")) {
+      setCities([]);
+      setFormData((prev) => ({ ...prev, city: "" }));
+      return;
+    }
+
+    apiFetch(`/us-cities?state=${encodeURIComponent(formData.state)}`)
       .then((res) => res.json())
-      .then((data) => {
-        setStates(data);
-      })
-      .catch(() => setStates([]));
-  } else {
-    setStates([]);
-    setFormData((prev) => ({ ...prev, state: "", city: "" }));
-  }
-}, [formData.country]);
+      .then(setCities)
+      .catch(() => setCities([]));
+  }, [formData.state, formData.country]);
 
-  //---- Fetch cities when state changes
-  // --------Fetch cities when state changes (convert abbreviation to full name)
-useEffect(() => {
-  if (!formData.state || !(formData.country === "USA" || formData.country === "United States")) {
-    setCities([]);
-    setFormData((prev) => ({ ...prev, city: "" }));
-    return;
-  }
-
-  // Send abbreviation directly, no need to find full name
-  apiFetch(`/us-cities?state=${encodeURIComponent(formData.state)}`)
-    .then((res) => res.json())
-    .then(setCities)
-    .catch(() => setCities([]));
-}, [formData.state, formData.country]);
-
-
-
-  // Load selected job data into form
   useEffect(() => {
     if (selectedJob) {
       setFormData({ ...selectedJob });
@@ -228,15 +258,14 @@ useEffect(() => {
       const method = selectedJob ? "PUT" : "POST";
       const url = selectedJob ? `/admin/jobs/${selectedJob.id}` : "/admin/jobs";
 
-     const res = await apiFetch(url, {
-  method,
-  headers: {
-    "Content-Type": "application/json",
-    Authorization: `Bearer ${token}`,
-  },
-  body: JSON.stringify(formData),
-});
-
+      const res = await apiFetch(url, {
+        method,
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(formData),
+      });
 
       if (!res.ok) {
         const data = await res.json();
@@ -259,7 +288,6 @@ useEffect(() => {
     }
 
     try {
-      // <-- Added leading slash here
       const res = await apiFetch(`/admin/jobs/${id}`, {
         method: "DELETE",
         headers: { Authorization: `Bearer ${token}` },
@@ -283,7 +311,6 @@ useEffect(() => {
 
       {error && <p className="text-red-600 mb-4">{error}</p>}
 
-      {/* Job Form */}
       <h2 className="text-2xl font-semibold mb-4">{selectedJob ? "Edit Job Posting" : "Create New Job Posting"}</h2>
 
       <form onSubmit={handleSubmit} className="space-y-4 max-w-xl mb-8">
@@ -330,8 +357,6 @@ useEffect(() => {
             ))}
           </select>
 
-         
-
           {/* Add new category */}
           <div className="mt-4 flex gap-2 items-center">
             <input
@@ -346,7 +371,6 @@ useEffect(() => {
               onClick={async () => {
                 if (!newCategoryName.trim()) return alert("Category name required");
                 try {
-                  // <-- Added leading slash here
                   const res = await apiFetch("/admin/job-categories", {
                     method: "POST",
                     headers: {
@@ -360,7 +384,7 @@ useEffect(() => {
                     throw new Error(data.error || "Failed to add category");
                   }
                   setNewCategoryName("");
-                  setRefreshFlag((f) => !f); // reload categories
+                  setRefreshFlag((f) => !f);
                 } catch (err: any) {
                   alert(err.message);
                 }
@@ -371,6 +395,7 @@ useEffect(() => {
             </button>
           </div>
         </div>
+
          {/* Toggle Delete List Button */}
           <button
             type="button"
@@ -391,7 +416,6 @@ useEffect(() => {
                     onClick={async () => {
                       if (!confirm(`Delete category "${cat.name}"?`)) return;
                       try {
-                        // <-- Added leading slash here
                         const res = await apiFetch(`/admin/job-categories/${cat.id}`, {
                           method: "DELETE",
                           headers: {
@@ -402,11 +426,11 @@ useEffect(() => {
                           const data = await res.json();
                           throw new Error(data.error || "Failed to delete category");
                         }
-                        setRefreshFlag((f) => !f); // refresh categories list
+                        setRefreshFlag((f) => !f);
                         if (formData.category === cat.name) {
                           setFormData((prev) => ({ ...prev, category: "" }));
                         }
-                        setShowDeleteList(false); // close after deletion
+                        setShowDeleteList(false);
                       } catch (err: any) {
                         alert(err.message);
                       }
@@ -448,21 +472,20 @@ useEffect(() => {
             State
           </label>
           <select
-  id="state"
-  name="state"
-  value={formData.state || ""}
-  onChange={handleChange}
-  disabled={!(formData.country === "USA" || formData.country === "United States")}
-  className="w-full border rounded px-3 py-2"
->
-  <option value="">Select State</option>
-  {states.map((s: { name: string; abbreviation: string }) => (
-    <option key={s.abbreviation} value={s.abbreviation}>
-      {s.name}
-    </option>
-  ))}
-</select>
-
+            id="state"
+            name="state"
+            value={formData.state || ""}
+            onChange={handleChange}
+            disabled={!(formData.country === "USA" || formData.country === "United States")}
+            className="w-full border rounded px-3 py-2"
+          >
+            <option value="">Select State</option>
+            {states.map((s: { name: string; abbreviation: string }) => (
+              <option key={s.abbreviation} value={s.abbreviation}>
+                {s.name}
+              </option>
+            ))}
+          </select>
         </div>
 
         {/* City */}
@@ -476,9 +499,8 @@ useEffect(() => {
             value={formData.city || ""}
             onChange={handleChange}
             disabled={
-  !formData.state || !(formData.country === "USA" || formData.country === "United States")
-}
-
+              !formData.state || !(formData.country === "USA" || formData.country === "United States")
+            }
             className="w-full border rounded px-3 py-2"
           >
             <option value="">Select City</option>
@@ -530,7 +552,6 @@ useEffect(() => {
           <label htmlFor="apply_url" className="block font-semibold mb-1">
             Apply URL <span className="text-red-600">*</span>
           </label>
-
           <input
             id="apply_url"
             name="apply_url"
@@ -556,21 +577,22 @@ useEffect(() => {
             className="w-full border rounded px-3 py-2"
           />
         </div>
-{/* Title */}
-<div>
-  <label htmlFor="title" className="block font-semibold mb-1">
-    Title <span className="text-red-600">*</span>
-  </label>
-  <input
-    id="title"
-    name="title"
-    type="text"
-    value={formData.title || ""}
-    onChange={handleChange}
-    required
-    className="w-full border rounded px-3 py-2"
-  />
-</div>
+
+        {/* Title */}
+        <div>
+          <label htmlFor="title" className="block font-semibold mb-1">
+            Title <span className="text-red-600">*</span>
+          </label>
+          <input
+            id="title"
+            name="title"
+            type="text"
+            value={formData.title || ""}
+            onChange={handleChange}
+            required
+            className="w-full border rounded px-3 py-2"
+          />
+        </div>
 
         {/* Description */}
         <div>
