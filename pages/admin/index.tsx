@@ -36,6 +36,7 @@ export default function AdminDashboard() {
       console.log("🔍 Decoded Token:", decoded);
       console.log("🔐 Role from localStorage:", role);
 
+      // -------- CHANGED: Check is_admin field and role explicitly --------
       const isAdminValue =
         decoded.is_admin === true ||
         decoded.is_admin === "true" ||
@@ -57,7 +58,9 @@ export default function AdminDashboard() {
     }
   }, [router]);
 
+  // Wait while admin check completes
   if (isAdmin === null) return null;
+  // Block non-admin users
   if (!isAdmin) return null;
 
   return (
