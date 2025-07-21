@@ -15,6 +15,18 @@ type MiniCourse = {
 };
 
 export default function AdminMiniCourses() {
+  // Admin token check & redirect
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      alert("You must be logged in as admin to access this page.");
+      setTimeout(() => {
+        localStorage.removeItem("token");
+        window.location.href = "/admin/login";
+      }, 1000);
+    }
+  }, []);
+
   const [courses, setCourses] = useState<MiniCourse[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
