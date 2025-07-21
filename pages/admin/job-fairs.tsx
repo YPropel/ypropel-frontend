@@ -2,7 +2,9 @@ import React, { useEffect, useState, useRef } from "react";
 import { apiFetch } from "../../apiClient"; 
 
 export default function AdminJobFairs() {
+  
   const [jobFairs, setJobFairs] = useState<any[]>([]);
+  const [isAuthorized, setIsAuthorized] = useState<boolean | null>(null);  // <-- NEW
   type StateType = { name: string; abbreviation: string };
   const [states, setStates] = useState<StateType[]>([]);
   const [cities, setCities] = useState<string[]>([]);
@@ -22,13 +24,14 @@ export default function AdminJobFairs() {
   function getTokenOrRedirect() {
     const token = localStorage.getItem("token");
     if (!token) {
-      alert("❌ You must be logged in.");
       setTimeout(() => {
         localStorage.removeItem("token");
-        window.location.href = "/admin/login"; // adjust path if needed
+        window.location.href = "/admin/login";
       }, 1500);
+      setIsAuthorized(false);
       return null;
     }
+    setIsAuthorized(true);
     return token;
   }
 
@@ -51,9 +54,18 @@ export default function AdminJobFairs() {
   };
 
   useEffect(() => {
+    getTokenOrRedirect(); 
     fetchStates();
     fetchJobFairs();
   }, []);
+   if (isAuthorized === false) {
+    return null; // or a loading spinner/message
+  }
+  
+  if (isAuthorized === null) {
+    return <p>Loading...</p>; // or blank while checking
+  }
+
 
   useEffect(() => {
     if (selectedState) {
