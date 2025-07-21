@@ -49,6 +49,8 @@ export default function ImportJobsPage() {
         apiRoute = "/admin/import-reddit-internships";
       } else if (source === "remotive") {
         apiRoute = "/admin/import-remotive-internships";
+      } else if (source === "linkedin") {
+        apiRoute = "/admin/import-linkedin-jobs";
       } else {
         apiRoute = "/admin/import-entry-jobs";
       }
@@ -101,7 +103,7 @@ export default function ImportJobsPage() {
               ? "Reddit internships"
               : source === "remotive"
               ? "Remotive internships"
-              : source
+              : source.charAt(0).toUpperCase() + source.slice(1)
           }.`
         );
       } else {
@@ -133,6 +135,7 @@ export default function ImportJobsPage() {
         <option value="simplyhired">SimplyHired</option>
         <option value="reddit">Reddit r/internships</option>
         <option value="remotive">Remotive Internships</option>
+        <option value="linkedin">LinkedIn</option>
       </select>
 
       <label htmlFor="jobType" className="block mb-2 font-medium">
