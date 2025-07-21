@@ -127,7 +127,7 @@ export default function SummerProgramsAdmin() {
       <div className="border p-4 rounded bg-white shadow">
         <h2 className="text-lg font-semibold mb-2">Add New Program</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {["title", "program_type", "location", "program_url", "price"].map((field) => (
+          {["title", "location", "program_url", "price"].map((field) => (
             <div key={field} className="flex flex-col">
               <input
                 type="text"
