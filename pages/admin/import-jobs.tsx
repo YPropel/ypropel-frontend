@@ -6,7 +6,8 @@ export default function ImportJobsPage() {
   const [result, setResult] = useState<string | null>(null);
   const [source, setSource] = useState("adzuna"); // default source
   const [jobType, setJobType] = useState("entry_level"); // default job type
-  const [rssUrl, setRssUrl] = useState(""); // for SimplyHired and newsletter URL
+  const [rssUrl, setRssUrl] = useState(""); // for SimplyHired only
+  const [emailHtml, setEmailHtml] = useState(""); // for LinkedIn Newsletter
 
   function getTokenOrRedirect() {
     const token = localStorage.getItem("token");
@@ -31,7 +32,7 @@ export default function ImportJobsPage() {
       if (!token) return;
 
       let apiRoute = "";
-      let bodyData: any = {
+      const bodyData: any = {
         keyword: jobType === "internship" ? "internship" : "",
         location: "United States",
         pages: 3,
@@ -52,23 +53,30 @@ export default function ImportJobsPage() {
         apiRoute = "/admin/import-sunnova-jobs";
       } else if (source === "simplyhired") {
         apiRoute = "/admin/import-simplyhired-jobs";
-        if (rssUrl.trim()) {
-          bodyData.rssUrl = rssUrl.trim();
-        }
+        bodyData.rssUrl = rssUrl.trim();
       } else if (source === "reddit") {
         apiRoute = "/admin/import-reddit-internships";
       } else if (source === "remotive") {
         apiRoute = "/admin/import-remotive-internships";
       } else if (source === "linkedin") {
-        apiRoute = "/admin/import-newsletter-jobs";
-        if (!rssUrl.trim()) {
-          setResult("❌ Please enter the LinkedIn newsletter RSS URL.");
-          setLoading(false);
-          return;
-        }
-        bodyData = { newsletterUrl: rssUrl.trim() };
+        apiRoute = "/admin/import-linkedin-newsletter";
+        bodyData.emailHtml = emailHtml.trim();
       } else {
         apiRoute = "/admin/import-entry-jobs";
+      }
+
+      // Validate LinkedIn newsletter emailHtml input
+      if (source === "linkedin" && !bodyData.emailHtml) {
+        setResult("❌ Please paste the LinkedIn newsletter email HTML content.");
+        setLoading(false);
+        return;
+      }
+
+      // Validate SimplyHired RSS URL input
+      if (source === "simplyhired" && !bodyData.rssUrl) {
+        setResult("❌ Please enter the SimplyHired RSS feed URL.");
+        setLoading(false);
+        return;
       }
 
       const res = await apiFetch(apiRoute, {
@@ -145,22 +153,27 @@ export default function ImportJobsPage() {
         <option value="linkedin">LinkedIn Newsletter</option>
       </select>
 
-      <label htmlFor="jobType" className="block mb-2 font-medium">
-        Select Job Type:
-      </label>
-      <select
-        id="jobType"
-        value={jobType}
-        onChange={(e) => setJobType(e.target.value)}
-        className="mb-6 w-full border border-gray-300 rounded px-3 py-2"
-      >
-        <option value="entry_level">Entry Level</option>
-        <option value="hourly">Hourly</option>
-        <option value="internship">Internship</option>
-      </select>
+      {/* Show job type only if not LinkedIn (LinkedIn newsletter jobs have fixed job_type) */}
+      {source !== "linkedin" && (
+        <>
+          <label htmlFor="jobType" className="block mb-2 font-medium">
+            Select Job Type:
+          </label>
+          <select
+            id="jobType"
+            value={jobType}
+            onChange={(e) => setJobType(e.target.value)}
+            className="mb-6 w-full border border-gray-300 rounded px-3 py-2"
+          >
+            <option value="entry_level">Entry Level</option>
+            <option value="hourly">Hourly</option>
+            <option value="internship">Internship</option>
+          </select>
+        </>
+      )}
 
-      {/* RSS URL input for SimplyHired and LinkedIn Newsletter */}
-      {(source === "simplyhired" || source === "linkedin") && (
+      {/* RSS URL input only for SimplyHired */}
+      {source === "simplyhired" && (
         <>
           <label htmlFor="rssUrl" className="block mb-2 font-medium">
             Enter RSS Feed URL:
@@ -176,25 +189,42 @@ export default function ImportJobsPage() {
         </>
       )}
 
+      {/* Textarea for pasting LinkedIn newsletter email HTML */}
+      {source === "linkedin" && (
+        <>
+          <label htmlFor="emailHtml" className="block mb-2 font-medium">
+            Paste LinkedIn Newsletter Email HTML:
+          </label>
+          <textarea
+            id="emailHtml"
+            value={emailHtml}
+            onChange={(e) => setEmailHtml(e.target.value)}
+            placeholder="Paste the full LinkedIn newsletter email HTML content here..."
+            className="mb-4 w-full border border-gray-300 rounded px-3 py-2 h-40"
+          />
+        </>
+      )}
+
       <button
         className="bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700 disabled:opacity-50"
         onClick={handleImport}
         disabled={
           loading ||
-          ((source === "simplyhired" || source === "linkedin") && !rssUrl.trim())
+          (source === "simplyhired" && !rssUrl.trim()) ||
+          (source === "linkedin" && !emailHtml.trim())
         }
       >
         {loading
           ? "Importing..."
           : `Import ${
-              jobType.charAt(0).toUpperCase() + jobType.slice(1)
+              source === "linkedin"
+                ? "LinkedIn Newsletter Jobs"
+                : jobType.charAt(0).toUpperCase() + jobType.slice(1)
             } Jobs from ${
               source === "reddit"
                 ? "Reddit internships"
                 : source === "remotive"
                 ? "Remotive internships"
-                : source === "linkedin"
-                ? "LinkedIn newsletter"
                 : source.charAt(0).toUpperCase() + source.slice(1)
             }`}
       </button>
