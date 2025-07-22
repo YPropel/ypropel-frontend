@@ -7,7 +7,9 @@ export default function ImportJobsPage() {
   const [source, setSource] = useState("adzuna"); // default source
   const [jobType, setJobType] = useState("entry_level"); // default job type
   const [rssUrl, setRssUrl] = useState(""); // SimplyHired only
-  const [emailHtml, setEmailHtml] = useState(""); // LinkedIn Newsletter only
+  const [emailHtml, setEmailHtml] = useState(""); // LinkedIn Newsletter HTML
+  const [seeAllJobsUrl, setSeeAllJobsUrl] = useState(""); // LinkedIn detailed URL
+  const [linkedinImportMode, setLinkedinImportMode] = useState<"newsletter" | "detailed">("newsletter");
   const [gmailEmails, setGmailEmails] = useState<any[]>([]); // Store fetched emails
 
   function getTokenOrRedirect() {
@@ -61,22 +63,38 @@ export default function ImportJobsPage() {
       } else if (source === "remotive") {
         apiRoute = "/admin/import-remotive-internships";
       } else if (source === "linkedin") {
-        apiRoute = "/admin/import-linkedin-newsletter";
-        bodyData.emailHtml = emailHtml.trim();
+        if (linkedinImportMode === "newsletter") {
+          apiRoute = "/admin/import-linkedin-newsletter";
+          bodyData.emailHtml = emailHtml.trim();
+        } else {
+          apiRoute = "/admin/import-linkedin-detailed-jobs";
+          bodyData.seeAllJobsUrl = seeAllJobsUrl.trim();
+          if (!bodyData.seeAllJobsUrl && emailHtml.trim()) {
+            // fallback: send emailHtml to extract "See all jobs" link on backend
+            bodyData.emailHtml = emailHtml.trim();
+          }
+        }
       } else if (source === "gmail") {
         apiRoute = "/admin/fetch-gmail-emails";
-        // No token passed here anymore, backend uses stored token.json
-        // Clear bodyData so it’s empty object
-        Object.keys(bodyData).forEach(key => delete bodyData[key]);
+        Object.keys(bodyData).forEach((key) => delete bodyData[key]);
       } else {
         apiRoute = "/admin/import-entry-jobs";
       }
 
       // Validate inputs for special sources
-      if (source === "linkedin" && !bodyData.emailHtml) {
-        setResult("❌ Please paste the LinkedIn newsletter email HTML content.");
-        setLoading(false);
-        return;
+      if (source === "linkedin") {
+        if (linkedinImportMode === "newsletter" && !bodyData.emailHtml) {
+          setResult("❌ Please paste the LinkedIn newsletter email HTML content.");
+          setLoading(false);
+          return;
+        }
+        if (linkedinImportMode === "detailed" && !bodyData.seeAllJobsUrl && !bodyData.emailHtml) {
+          setResult(
+            "❌ Please enter the LinkedIn 'See all jobs' URL or paste the newsletter email HTML."
+          );
+          setLoading(false);
+          return;
+        }
       }
 
       if (source === "simplyhired" && !bodyData.rssUrl) {
@@ -126,7 +144,9 @@ export default function ImportJobsPage() {
               : source === "remotive"
               ? "Remotive internships"
               : source === "linkedin"
-              ? "LinkedIn newsletter"
+              ? linkedinImportMode === "newsletter"
+                ? "LinkedIn newsletter"
+                : "LinkedIn detailed jobs"
               : source
           }.`
         );
@@ -159,7 +179,7 @@ export default function ImportJobsPage() {
         <option value="simplyhired">SimplyHired</option>
         <option value="reddit">Reddit r/internships</option>
         <option value="remotive">Remotive Internships</option>
-        <option value="linkedin">LinkedIn Newsletter</option>
+        <option value="linkedin">LinkedIn</option>
         <option value="gmail">Gmail Inbox</option>
       </select>
 
@@ -199,19 +219,68 @@ export default function ImportJobsPage() {
         </>
       )}
 
-      {/* Textarea for pasting LinkedIn newsletter email HTML */}
+      {/* LinkedIn import mode selection */}
       {source === "linkedin" && (
         <>
-          <label htmlFor="emailHtml" className="block mb-2 font-medium">
-            Paste LinkedIn Newsletter Email HTML:
-          </label>
-          <textarea
-            id="emailHtml"
-            value={emailHtml}
-            onChange={(e) => setEmailHtml(e.target.value)}
-            placeholder="Paste the full LinkedIn newsletter email HTML content here..."
-            className="mb-4 w-full border border-gray-300 rounded px-3 py-2 h-40"
-          />
+          <label className="block mb-2 font-medium">LinkedIn Import Mode:</label>
+          <div className="mb-4 flex gap-4">
+            <label>
+              <input
+                type="radio"
+                name="linkedinImportMode"
+                value="newsletter"
+                checked={linkedinImportMode === "newsletter"}
+                onChange={() => setLinkedinImportMode("newsletter")}
+              />
+              <span className="ml-2">Newsletter Email HTML</span>
+            </label>
+            <label>
+              <input
+                type="radio"
+                name="linkedinImportMode"
+                value="detailed"
+                checked={linkedinImportMode === "detailed"}
+                onChange={() => setLinkedinImportMode("detailed")}
+              />
+              <span className="ml-2">Detailed Jobs Page URL</span>
+            </label>
+          </div>
+
+          {/* Show textarea for newsletter mode */}
+          {linkedinImportMode === "newsletter" && (
+            <>
+              <label htmlFor="emailHtml" className="block mb-2 font-medium">
+                Paste LinkedIn Newsletter Email HTML:
+              </label>
+              <textarea
+                id="emailHtml"
+                value={emailHtml}
+                onChange={(e) => setEmailHtml(e.target.value)}
+                placeholder="Paste the full LinkedIn newsletter email HTML content here..."
+                className="mb-4 w-full border border-gray-300 rounded px-3 py-2 h-40"
+              />
+            </>
+          )}
+
+          {/* Show input for detailed jobs page URL */}
+          {linkedinImportMode === "detailed" && (
+            <>
+              <label htmlFor="seeAllJobsUrl" className="block mb-2 font-medium">
+                Enter LinkedIn 'See all jobs' Page URL:
+              </label>
+              <input
+                id="seeAllJobsUrl"
+                type="text"
+                value={seeAllJobsUrl}
+                onChange={(e) => setSeeAllJobsUrl(e.target.value)}
+                placeholder="https://www.linkedin.com/jobs/search/..."
+                className="mb-4 w-full border border-gray-300 rounded px-3 py-2"
+              />
+              <p className="text-sm text-gray-600">
+                OR paste newsletter HTML above to auto-extract the URL.
+              </p>
+            </>
+          )}
         </>
       )}
 
@@ -221,14 +290,18 @@ export default function ImportJobsPage() {
         disabled={
           loading ||
           (source === "simplyhired" && !rssUrl.trim()) ||
-          (source === "linkedin" && !emailHtml.trim())
+          (source === "linkedin" &&
+            ((linkedinImportMode === "newsletter" && !emailHtml.trim()) ||
+              (linkedinImportMode === "detailed" && !seeAllJobsUrl.trim() && !emailHtml.trim())))
         }
       >
         {loading
           ? "Importing..."
           : `Import ${
               source === "linkedin"
-                ? "LinkedIn Newsletter Jobs"
+                ? linkedinImportMode === "newsletter"
+                  ? "LinkedIn Newsletter Jobs"
+                  : "LinkedIn Detailed Jobs"
                 : jobType.charAt(0).toUpperCase() + jobType.slice(1)
             } Jobs from ${
               source === "reddit"
