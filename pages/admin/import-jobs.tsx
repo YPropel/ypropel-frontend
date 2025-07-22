@@ -8,7 +8,6 @@ export default function ImportJobsPage() {
   const [jobType, setJobType] = useState("entry_level"); // default job type
   const [rssUrl, setRssUrl] = useState(""); // SimplyHired only
   const [emailHtml, setEmailHtml] = useState(""); // LinkedIn Newsletter only
-  const [gmailToken, setGmailToken] = useState(""); // Gmail access token input
   const [gmailEmails, setGmailEmails] = useState<any[]>([]); // Store fetched emails
 
   function getTokenOrRedirect() {
@@ -66,10 +65,7 @@ export default function ImportJobsPage() {
         bodyData.emailHtml = emailHtml.trim();
       } else if (source === "gmail") {
         apiRoute = "/admin/fetch-gmail-emails";
-        // Pass gmailToken in body for backend usage if you want; or backend uses stored token.json
-        // For your current backend, token.json is used, so no body needed here:
-        // But to keep form consistent, let's send gmailToken anyway:
-        bodyData.accessToken = gmailToken.trim();
+        // No body data needed for gmail since backend uses saved tokens
       } else {
         apiRoute = "/admin/import-entry-jobs";
       }
@@ -87,19 +83,13 @@ export default function ImportJobsPage() {
         return;
       }
 
-      if (source === "gmail" && !bodyData.accessToken) {
-        setResult("❌ Please enter your Gmail OAuth access token.");
-        setLoading(false);
-        return;
-      }
-
       const res = await apiFetch(apiRoute, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify(bodyData),
+        body: JSON.stringify(source === "gmail" ? {} : bodyData),
       });
 
       if (res.status === 401 || res.status === 403) {
@@ -223,31 +213,13 @@ export default function ImportJobsPage() {
         </>
       )}
 
-      {/* Input for Gmail OAuth access token */}
-      {source === "gmail" && (
-        <>
-          <label htmlFor="gmailToken" className="block mb-2 font-medium">
-            Gmail OAuth Access Token:
-          </label>
-          <input
-            id="gmailToken"
-            type="text"
-            value={gmailToken}
-            onChange={(e) => setGmailToken(e.target.value)}
-            placeholder="Paste your Gmail OAuth access token here"
-            className="mb-4 w-full border border-gray-300 rounded px-3 py-2"
-          />
-        </>
-      )}
-
       <button
         className="bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700 disabled:opacity-50"
         onClick={handleImport}
         disabled={
           loading ||
           (source === "simplyhired" && !rssUrl.trim()) ||
-          (source === "linkedin" && !emailHtml.trim()) ||
-          (source === "gmail" && !gmailToken.trim())
+          (source === "linkedin" && !emailHtml.trim())
         }
       >
         {loading
