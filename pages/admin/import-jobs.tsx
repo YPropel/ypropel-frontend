@@ -6,8 +6,10 @@ export default function ImportJobsPage() {
   const [result, setResult] = useState<string | null>(null);
   const [source, setSource] = useState("adzuna"); // default source
   const [jobType, setJobType] = useState("entry_level"); // default job type
-  const [rssUrl, setRssUrl] = useState(""); // for SimplyHired only
-  const [emailHtml, setEmailHtml] = useState(""); // for LinkedIn Newsletter
+  const [rssUrl, setRssUrl] = useState(""); // SimplyHired only
+  const [emailHtml, setEmailHtml] = useState(""); // LinkedIn Newsletter only
+  const [gmailToken, setGmailToken] = useState(""); // Gmail access token input
+  const [gmailEmails, setGmailEmails] = useState<any[]>([]); // Store fetched emails
 
   function getTokenOrRedirect() {
     const token = localStorage.getItem("token");
@@ -26,6 +28,7 @@ export default function ImportJobsPage() {
   const handleImport = async () => {
     setLoading(true);
     setResult(null);
+    setGmailEmails([]);
 
     try {
       const token = getTokenOrRedirect();
@@ -61,20 +64,28 @@ export default function ImportJobsPage() {
       } else if (source === "linkedin") {
         apiRoute = "/admin/import-linkedin-newsletter";
         bodyData.emailHtml = emailHtml.trim();
+      } else if (source === "gmail") {
+        apiRoute = "/admin/fetch-gmail-emails";
+        bodyData.accessToken = gmailToken.trim();
       } else {
         apiRoute = "/admin/import-entry-jobs";
       }
 
-      // Validate LinkedIn newsletter emailHtml input
+      // Validate inputs for special sources
       if (source === "linkedin" && !bodyData.emailHtml) {
         setResult("❌ Please paste the LinkedIn newsletter email HTML content.");
         setLoading(false);
         return;
       }
 
-      // Validate SimplyHired RSS URL input
       if (source === "simplyhired" && !bodyData.rssUrl) {
         setResult("❌ Please enter the SimplyHired RSS feed URL.");
+        setLoading(false);
+        return;
+      }
+
+      if (source === "gmail" && !bodyData.accessToken) {
+        setResult("❌ Please enter your Gmail OAuth access token.");
         setLoading(false);
         return;
       }
@@ -107,7 +118,10 @@ export default function ImportJobsPage() {
 
       const data = await res.json();
 
-      if (data.success || data.inserted !== undefined || data.message) {
+      if (source === "gmail" && data.emails) {
+        setGmailEmails(data.emails);
+        setResult(`Fetched ${data.emails.length} emails from Gmail.`);
+      } else if (data.success || data.inserted !== undefined || data.message) {
         setResult(
           `Successfully imported ${
             data.inserted ?? "some"
@@ -151,10 +165,11 @@ export default function ImportJobsPage() {
         <option value="reddit">Reddit r/internships</option>
         <option value="remotive">Remotive Internships</option>
         <option value="linkedin">LinkedIn Newsletter</option>
+        <option value="gmail">Gmail Inbox</option>
       </select>
 
-      {/* Show job type only if not LinkedIn (LinkedIn newsletter jobs have fixed job_type) */}
-      {source !== "linkedin" && (
+      {/* Show job type only if not LinkedIn or Gmail */}
+      {source !== "linkedin" && source !== "gmail" && (
         <>
           <label htmlFor="jobType" className="block mb-2 font-medium">
             Select Job Type:
@@ -205,13 +220,31 @@ export default function ImportJobsPage() {
         </>
       )}
 
+      {/* Input for Gmail OAuth access token */}
+      {source === "gmail" && (
+        <>
+          <label htmlFor="gmailToken" className="block mb-2 font-medium">
+            Gmail OAuth Access Token:
+          </label>
+          <input
+            id="gmailToken"
+            type="text"
+            value={gmailToken}
+            onChange={(e) => setGmailToken(e.target.value)}
+            placeholder="Paste your Gmail OAuth access token here"
+            className="mb-4 w-full border border-gray-300 rounded px-3 py-2"
+          />
+        </>
+      )}
+
       <button
         className="bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700 disabled:opacity-50"
         onClick={handleImport}
         disabled={
           loading ||
           (source === "simplyhired" && !rssUrl.trim()) ||
-          (source === "linkedin" && !emailHtml.trim())
+          (source === "linkedin" && !emailHtml.trim()) ||
+          (source === "gmail" && !gmailToken.trim())
         }
       >
         {loading
@@ -219,6 +252,8 @@ export default function ImportJobsPage() {
           : `Import ${
               source === "linkedin"
                 ? "LinkedIn Newsletter Jobs"
+                : source === "gmail"
+                ? "Gmail Inbox Emails"
                 : jobType.charAt(0).toUpperCase() + jobType.slice(1)
             } Jobs from ${
               source === "reddit"
@@ -230,6 +265,22 @@ export default function ImportJobsPage() {
       </button>
 
       {result && <p className="mt-4 text-gray-800">{result}</p>}
+
+      {/* Show Gmail emails if fetched */}
+      {gmailEmails.length > 0 && (
+        <div className="mt-6">
+          <h2 className="text-xl font-semibold mb-2">Fetched Gmail Emails:</h2>
+          <ul className="list-disc pl-5 max-h-64 overflow-auto border border-gray-300 rounded p-3">
+            {gmailEmails.map((email) => (
+              <li key={email.id}>
+                <strong>Snippet:</strong> {email.snippet || "(no snippet)"}
+                <br />
+                <strong>Date:</strong> {new Date(Number(email.internalDate)).toLocaleString()}
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
     </div>
   );
 }
