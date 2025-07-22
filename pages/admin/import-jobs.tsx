@@ -66,6 +66,9 @@ export default function ImportJobsPage() {
         bodyData.emailHtml = emailHtml.trim();
       } else if (source === "gmail") {
         apiRoute = "/admin/fetch-gmail-emails";
+        // Pass gmailToken in body for backend usage if you want; or backend uses stored token.json
+        // For your current backend, token.json is used, so no body needed here:
+        // But to keep form consistent, let's send gmailToken anyway:
         bodyData.accessToken = gmailToken.trim();
       } else {
         apiRoute = "/admin/import-entry-jobs";
