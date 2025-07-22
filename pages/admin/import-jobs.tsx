@@ -7,9 +7,10 @@ export default function ImportJobsPage() {
   const [source, setSource] = useState("adzuna"); // default source
   const [jobType, setJobType] = useState("entry_level"); // default job type
   const [rssUrl, setRssUrl] = useState(""); // SimplyHired only
-  const [emailHtml, setEmailHtml] = useState(""); // LinkedIn Newsletter HTML
-  const [seeAllJobsUrl, setSeeAllJobsUrl] = useState(""); // LinkedIn detailed URL
+  const [emailHtml, setEmailHtml] = useState(""); // For LinkedIn and WayUp email HTML
+  const [seeAllJobsUrl, setSeeAllJobsUrl] = useState(""); // For LinkedIn and WayUp jobs URL
   const [linkedinImportMode, setLinkedinImportMode] = useState<"newsletter" | "detailed">("newsletter");
+  const [wayupImportMode, setWayupImportMode] = useState<"newsletter" | "detailed">("newsletter");
   const [gmailEmails, setGmailEmails] = useState<any[]>([]); // Store fetched emails
 
   function getTokenOrRedirect() {
@@ -70,9 +71,15 @@ export default function ImportJobsPage() {
           apiRoute = "/admin/import-linkedin-detailed-jobs";
           bodyData.seeAllJobsUrl = seeAllJobsUrl.trim();
           if (!bodyData.seeAllJobsUrl && emailHtml.trim()) {
-            // fallback: send emailHtml to extract "See all jobs" link on backend
             bodyData.emailHtml = emailHtml.trim();
           }
+        }
+      } else if (source === "wayup") {
+        apiRoute = "/admin/import-wayup-detailed-jobs";
+        if (wayupImportMode === "newsletter") {
+          bodyData.emailHtml = emailHtml.trim();
+        } else {
+          bodyData.seeAllJobsUrl = seeAllJobsUrl.trim();
         }
       } else if (source === "gmail") {
         apiRoute = "/admin/fetch-gmail-emails";
@@ -88,9 +95,26 @@ export default function ImportJobsPage() {
           setLoading(false);
           return;
         }
-        if (linkedinImportMode === "detailed" && !bodyData.seeAllJobsUrl && !bodyData.emailHtml) {
+        if (
+          linkedinImportMode === "detailed" &&
+          !bodyData.seeAllJobsUrl &&
+          !bodyData.emailHtml
+        ) {
           setResult(
             "❌ Please enter the LinkedIn 'See all jobs' URL or paste the newsletter email HTML."
+          );
+          setLoading(false);
+          return;
+        }
+      }
+
+      if (source === "wayup") {
+        if (
+          (wayupImportMode === "newsletter" && !bodyData.emailHtml) ||
+          (wayupImportMode === "detailed" && !bodyData.seeAllJobsUrl)
+        ) {
+          setResult(
+            "❌ Please provide the WayUp newsletter email HTML or the 'See all jobs' page URL depending on the import mode."
           );
           setLoading(false);
           return;
@@ -135,21 +159,7 @@ export default function ImportJobsPage() {
         setGmailEmails(data.emails);
         setResult(`Fetched ${data.emails.length} emails from Gmail.`);
       } else if (data.success || data.inserted !== undefined || data.message) {
-        setResult(
-          `Successfully imported ${
-            data.inserted ?? "some"
-          } new jobs from ${
-            source === "reddit"
-              ? "Reddit internships"
-              : source === "remotive"
-              ? "Remotive internships"
-              : source === "linkedin"
-              ? linkedinImportMode === "newsletter"
-                ? "LinkedIn newsletter"
-                : "LinkedIn detailed jobs"
-              : source
-          }.`
-        );
+        setResult(data.message ?? "Import completed.");
       } else {
         setResult("Import failed.");
       }
@@ -180,46 +190,32 @@ export default function ImportJobsPage() {
         <option value="reddit">Reddit r/internships</option>
         <option value="remotive">Remotive Internships</option>
         <option value="linkedin">LinkedIn</option>
+        <option value="wayup">WayUp</option>
         <option value="gmail">Gmail Inbox</option>
       </select>
 
-      {/* Show job type only if not LinkedIn or Gmail */}
-      {source !== "linkedin" && source !== "gmail" && (
-        <>
-          <label htmlFor="jobType" className="block mb-2 font-medium">
-            Select Job Type:
-          </label>
-          <select
-            id="jobType"
-            value={jobType}
-            onChange={(e) => setJobType(e.target.value)}
-            className="mb-6 w-full border border-gray-300 rounded px-3 py-2"
-          >
-            <option value="entry_level">Entry Level</option>
-            <option value="hourly">Hourly</option>
-            <option value="internship">Internship</option>
-          </select>
-        </>
-      )}
+      {/* Show job type only if not LinkedIn, WayUp, or Gmail */}
+      {source !== "linkedin" &&
+        source !== "gmail" &&
+        source !== "wayup" && (
+          <>
+            <label htmlFor="jobType" className="block mb-2 font-medium">
+              Select Job Type:
+            </label>
+            <select
+              id="jobType"
+              value={jobType}
+              onChange={(e) => setJobType(e.target.value)}
+              className="mb-6 w-full border border-gray-300 rounded px-3 py-2"
+            >
+              <option value="entry_level">Entry Level</option>
+              <option value="hourly">Hourly</option>
+              <option value="internship">Internship</option>
+            </select>
+          </>
+        )}
 
-      {/* RSS URL input only for SimplyHired */}
-      {source === "simplyhired" && (
-        <>
-          <label htmlFor="rssUrl" className="block mb-2 font-medium">
-            Enter RSS Feed URL:
-          </label>
-          <input
-            id="rssUrl"
-            type="text"
-            value={rssUrl}
-            onChange={(e) => setRssUrl(e.target.value)}
-            placeholder="https://example.com/jobs/rss"
-            className="mb-4 w-full border border-gray-300 rounded px-3 py-2"
-          />
-        </>
-      )}
-
-      {/* LinkedIn import mode selection */}
+      {/* LinkedIn import mode */}
       {source === "linkedin" && (
         <>
           <label className="block mb-2 font-medium">LinkedIn Import Mode:</label>
@@ -245,11 +241,12 @@ export default function ImportJobsPage() {
               <span className="ml-2">Detailed Jobs Page URL</span>
             </label>
           </div>
-
-          {/* Show textarea for newsletter mode */}
           {linkedinImportMode === "newsletter" && (
             <>
-              <label htmlFor="emailHtml" className="block mb-2 font-medium">
+              <label
+                htmlFor="emailHtml"
+                className="block mb-2 font-medium"
+              >
                 Paste LinkedIn Newsletter Email HTML:
               </label>
               <textarea
@@ -261,11 +258,12 @@ export default function ImportJobsPage() {
               />
             </>
           )}
-
-          {/* Show input for detailed jobs page URL */}
           {linkedinImportMode === "detailed" && (
             <>
-              <label htmlFor="seeAllJobsUrl" className="block mb-2 font-medium">
+              <label
+                htmlFor="seeAllJobsUrl"
+                className="block mb-2 font-medium"
+              >
                 Enter LinkedIn 'See all jobs' Page URL:
               </label>
               <input
@@ -284,6 +282,81 @@ export default function ImportJobsPage() {
         </>
       )}
 
+      {/* WayUp import mode */}
+      {source === "wayup" && (
+        <>
+          <label className="block mb-2 font-medium">WayUp Import Mode:</label>
+          <div className="mb-4 flex gap-4">
+            <label>
+              <input
+                type="radio"
+                name="wayupImportMode"
+                value="newsletter"
+                checked={wayupImportMode === "newsletter"}
+                onChange={() => setWayupImportMode("newsletter")}
+              />
+              <span className="ml-2">Newsletter Email HTML</span>
+            </label>
+            <label>
+              <input
+                type="radio"
+                name="wayupImportMode"
+                value="detailed"
+                checked={wayupImportMode === "detailed"}
+                onChange={() => setWayupImportMode("detailed")}
+              />
+              <span className="ml-2">Detailed Jobs Page URL</span>
+            </label>
+          </div>
+          {wayupImportMode === "newsletter" && (
+            <>
+              <label htmlFor="emailHtml" className="block mb-2 font-medium">
+                Paste WayUp Newsletter Email HTML:
+              </label>
+              <textarea
+                id="emailHtml"
+                value={emailHtml}
+                onChange={(e) => setEmailHtml(e.target.value)}
+                placeholder="Paste the full WayUp newsletter email HTML content here..."
+                className="mb-4 w-full border border-gray-300 rounded px-3 py-2 h-40"
+              />
+            </>
+          )}
+          {wayupImportMode === "detailed" && (
+            <>
+              <label htmlFor="seeAllJobsUrl" className="block mb-2 font-medium">
+                Enter WayUp 'See all jobs' Page URL:
+              </label>
+              <input
+                id="seeAllJobsUrl"
+                type="text"
+                value={seeAllJobsUrl}
+                onChange={(e) => setSeeAllJobsUrl(e.target.value)}
+                placeholder="https://www.wayup.com/jobs/..."
+                className="mb-4 w-full border border-gray-300 rounded px-3 py-2"
+              />
+            </>
+          )}
+        </>
+      )}
+
+      {/* SimplyHired RSS URL input */}
+      {source === "simplyhired" && (
+        <>
+          <label htmlFor="rssUrl" className="block mb-2 font-medium">
+            Enter RSS Feed URL:
+          </label>
+          <input
+            id="rssUrl"
+            type="text"
+            value={rssUrl}
+            onChange={(e) => setRssUrl(e.target.value)}
+            placeholder="https://example.com/jobs/rss"
+            className="mb-4 w-full border border-gray-300 rounded px-3 py-2"
+          />
+        </>
+      )}
+
       <button
         className="bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700 disabled:opacity-50"
         onClick={handleImport}
@@ -292,7 +365,12 @@ export default function ImportJobsPage() {
           (source === "simplyhired" && !rssUrl.trim()) ||
           (source === "linkedin" &&
             ((linkedinImportMode === "newsletter" && !emailHtml.trim()) ||
-              (linkedinImportMode === "detailed" && !seeAllJobsUrl.trim() && !emailHtml.trim())))
+              (linkedinImportMode === "detailed" &&
+                !seeAllJobsUrl.trim() &&
+                !emailHtml.trim()))) ||
+          (source === "wayup" &&
+            ((wayupImportMode === "newsletter" && !emailHtml.trim()) ||
+              (wayupImportMode === "detailed" && !seeAllJobsUrl.trim())))
         }
       >
         {loading
@@ -302,6 +380,10 @@ export default function ImportJobsPage() {
                 ? linkedinImportMode === "newsletter"
                   ? "LinkedIn Newsletter Jobs"
                   : "LinkedIn Detailed Jobs"
+                : source === "wayup"
+                ? wayupImportMode === "newsletter"
+                  ? "WayUp Newsletter Jobs"
+                  : "WayUp Detailed Jobs"
                 : jobType.charAt(0).toUpperCase() + jobType.slice(1)
             } Jobs from ${
               source === "reddit"
@@ -314,7 +396,7 @@ export default function ImportJobsPage() {
 
       {result && <p className="mt-4 text-gray-800">{result}</p>}
 
-      {/* Show Gmail emails if fetched */}
+      {/* Gmail emails display (optional) */}
       {gmailEmails.length > 0 && (
         <div className="mt-6">
           <h2 className="text-xl font-semibold mb-2">Fetched Gmail Emails:</h2>
@@ -323,7 +405,8 @@ export default function ImportJobsPage() {
               <li key={email.id}>
                 <strong>Snippet:</strong> {email.snippet || "(no snippet)"}
                 <br />
-                <strong>Date:</strong> {new Date(Number(email.internalDate)).toLocaleString()}
+                <strong>Date:</strong>{" "}
+                {new Date(Number(email.internalDate)).toLocaleString()}
               </li>
             ))}
           </ul>
