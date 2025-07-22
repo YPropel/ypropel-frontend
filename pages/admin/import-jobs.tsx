@@ -65,7 +65,9 @@ export default function ImportJobsPage() {
         bodyData.emailHtml = emailHtml.trim();
       } else if (source === "gmail") {
         apiRoute = "/admin/fetch-gmail-emails";
-        // No body data needed for gmail since backend uses saved tokens
+        // No token passed here anymore, backend uses stored token.json
+        // Clear bodyData so it’s empty object
+        Object.keys(bodyData).forEach(key => delete bodyData[key]);
       } else {
         apiRoute = "/admin/import-entry-jobs";
       }
@@ -89,7 +91,7 @@ export default function ImportJobsPage() {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify(source === "gmail" ? {} : bodyData),
+        body: JSON.stringify(bodyData),
       });
 
       if (res.status === 401 || res.status === 403) {
@@ -227,8 +229,6 @@ export default function ImportJobsPage() {
           : `Import ${
               source === "linkedin"
                 ? "LinkedIn Newsletter Jobs"
-                : source === "gmail"
-                ? "Gmail Inbox Emails"
                 : jobType.charAt(0).toUpperCase() + jobType.slice(1)
             } Jobs from ${
               source === "reddit"
