@@ -185,18 +185,19 @@ export default function PitchPoint() {
   }
 
   function getYouTubeEmbedUrl(url: string): string | null {
-    try {
-      const ytRegex =
-        /(?:youtube\.com\/(?:watch\?v=|embed\/)|youtu\.be\/)([a-zA-Z0-9_-]{11})/;
-      const match = url.match(ytRegex);
-      if (match && match[1]) {
-        return `https://www.youtube.com/embed/${match[1]}`;
-      }
-      return null;
-    } catch {
-      return null;
+  try {
+    // Match regular, short, embed, and shorts URLs
+    const ytRegex =
+      /(?:youtube\.com\/(?:watch\?v=|embed\/|shorts\/)|youtu\.be\/)([a-zA-Z0-9_-]{11})/;
+    const match = url.match(ytRegex);
+    if (match && match[1]) {
+      return `https://www.youtube.com/embed/${match[1]}`;
     }
+    return null;
+  } catch {
+    return null;
   }
+}
 
   function isEmbedUrl(url: string) {
     return url.includes("youtube.com/embed") || url.includes("youtu.be");
