@@ -27,7 +27,7 @@ const categories = [
   "Job Interview Tips",
   "School Tips",
   "General Advice",
-  "Fact"
+  "Fact",
 ];
 
 export default function PitchPoint() {
@@ -53,7 +53,6 @@ export default function PitchPoint() {
     isUploading: false,
   });
 
-  // Decode user ID from JWT token and fetch videos on load
   useEffect(() => {
     const storedToken = localStorage.getItem("token") || "";
     setToken(storedToken);
@@ -186,19 +185,18 @@ export default function PitchPoint() {
   }
 
   function getYouTubeEmbedUrl(url: string): string | null {
-  try {
-    const ytRegex =
-      /(?:youtube\.com\/(?:watch\?v=|embed\/)|youtu\.be\/)([a-zA-Z0-9_-]{11})/;
-    const match = url.match(ytRegex);
-    if (match && match[1]) {
-      return `https://www.youtube.com/embed/${match[1]}`;
+    try {
+      const ytRegex =
+        /(?:youtube\.com\/(?:watch\?v=|embed\/)|youtu\.be\/)([a-zA-Z0-9_-]{11})/;
+      const match = url.match(ytRegex);
+      if (match && match[1]) {
+        return `https://www.youtube.com/embed/${match[1]}`;
+      }
+      return null;
+    } catch {
+      return null;
     }
-    return null;
-  } catch {
-    return null;
   }
-}
-
 
   function isEmbedUrl(url: string) {
     return url.includes("youtube.com/embed") || url.includes("youtu.be");
@@ -290,13 +288,11 @@ export default function PitchPoint() {
     }
   }
 
-  // Filter videos by category client-side
   const filteredVideos =
     filterCategory === "All"
       ? videos
       : videos.filter((v) => v.category === filterCategory);
 
-      
   return (
     <AuthGuard>
       <div className="max-w-4xl mx-auto p-6 space-y-6">
@@ -312,10 +308,7 @@ export default function PitchPoint() {
 
         {/* Category Filter */}
         <div className="mb-4 flex items-center gap-2">
-          <label
-            htmlFor="categoryFilter"
-            className="font-semibold text-gray-700"
-          >
+          <label htmlFor="categoryFilter" className="font-semibold text-gray-700">
             Filter by Category:
           </label>
           <select
@@ -340,14 +333,10 @@ export default function PitchPoint() {
               onSubmit={handleAddVideo}
               className="bg-white rounded-lg shadow-lg max-w-lg w-full p-6 space-y-4 overflow-auto max-h-[90vh]"
             >
-              <h2 className="text-xl font-semibold text-blue-900 mb-4">
-                Add New Video
-              </h2>
+              <h2 className="text-xl font-semibold text-blue-900 mb-4">Add New Video</h2>
 
               <label className="block">
-                <span className="text-gray-700 font-semibold">
-                  Video Title *
-                </span>
+                <span className="text-gray-700 font-semibold">Video Title *</span>
                 <input
                   type="text"
                   name="title"
@@ -360,9 +349,7 @@ export default function PitchPoint() {
               </label>
 
               <label className="block">
-                <span className="text-gray-700 font-semibold">
-                  Description (optional)
-                </span>
+                <span className="text-gray-700 font-semibold">Description (optional)</span>
                 <textarea
                   name="description"
                   value={newVideo.description}
@@ -391,9 +378,7 @@ export default function PitchPoint() {
               </label>
 
               <label className="block">
-                <span className="text-gray-700 font-semibold">
-                  YouTube Embed URL (if any)
-                </span>
+                <span className="text-gray-700 font-semibold">YouTube Embed URL (if any)</span>
                 <input
                   type="url"
                   name="url"
@@ -410,9 +395,7 @@ export default function PitchPoint() {
               </label>
 
               <label className="block">
-                <span className="text-gray-700 font-semibold">
-                  Or Upload Video File
-                </span>
+                <span className="text-gray-700 font-semibold">Or Upload Video File</span>
                 <input
                   type="file"
                   accept="video/*"
@@ -425,9 +408,7 @@ export default function PitchPoint() {
                   }`}
                 />
                 {newVideo.isUploading && (
-                  <p className="text-green-600 font-semibold mt-2">
-                    Uploading video, please wait...
-                  </p>
+                  <p className="text-green-600 font-semibold mt-2">Uploading video, please wait...</p>
                 )}
               </label>
 
@@ -454,102 +435,123 @@ export default function PitchPoint() {
           </div>
         )}
 
-       {/* Videos List */}
-<div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-  {filteredVideos.length === 0 && (
-    <p className="text-center text-gray-500 col-span-2">
-      No videos available.
-    </p>
-  )}
-  {filteredVideos.map(
-    ({
-      id,
-      user_id,
-      title,
-      description,
-      category,
-      video_url,
-      likes,
-      follows,
-      shares,
-      likedByUser,
-      followedByUser,
-    }) => {
-      const embedUrl = getYouTubeEmbedUrl(video_url);
-
-      return (
-        <div
-          key={id}
-          className="bg-white rounded shadow p-4 flex flex-col items-center"
-        >
-          <div className="mb-1 text-sm text-blue-700 font-semibold">
-            {category || "Uncategorized"}
-          </div>
-          <h2 className="text-xl font-semibold text-blue-900 mb-2 text-center">
-            {title}
-          </h2>
-          {description && (
-            <p className="mb-3 text-center text-gray-700">{description}</p>
+        {/* Videos List */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+          {filteredVideos.length === 0 && (
+            <p className="text-center text-gray-500 col-span-2">No videos available.</p>
           )}
+          {filteredVideos.map(
+            ({
+              id,
+              user_id,
+              title,
+              description,
+              category,
+              video_url,
+              likes,
+              follows,
+              shares,
+              likedByUser,
+              followedByUser,
+            }) => {
+              const embedUrl = getYouTubeEmbedUrl(video_url);
 
-          <div className="w-full aspect-w-16 aspect-h-9 rounded overflow-hidden mb-4">
-            {embedUrl ? (
-              <iframe
-                src={embedUrl}
-                title={title}
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                allowFullScreen
-                className="w-full h-full"
-              />
-            ) : (
-              <video
-                src={video_url}
-                controls
-                className="w-full h-full object-cover"
-              />
-            )}
-          </div>
+              return (
+                <div
+                  key={id}
+                  className="bg-white rounded shadow p-4 flex flex-col items-center"
+                >
+                  <div className="mb-1 text-sm text-blue-700 font-semibold">
+                    {category || "Uncategorized"}
+                  </div>
+                  <h2 className="text-xl font-semibold text-blue-900 mb-2 text-center">
+                    {title}
+                  </h2>
+                  {description && (
+                    <p className="mb-3 text-center text-gray-700">{description}</p>
+                  )}
 
-          <div className="flex justify-center space-x-4 text-gray-700 w-full">
-            <button
-              onClick={() => toggleLike(id, likedByUser)}
-              className={`cursor-pointer px-4 py-1 rounded text-sm transition-colors ${
-                likedByUser
-                  ? "bg-green-700 text-white"
-                  : "bg-green-200 text-green-800 hover:bg-green-300"
-              }`}
-              aria-label={`Like video titled ${title}`}
-            >
-              👍 Like ({likes})
-            </button>
-            <button
-              onClick={() => toggleFollow(id, followedByUser)}
-              className={`cursor-pointer px-4 py-1 rounded text-sm transition-colors ${
-                followedByUser
-                  ? "bg-green-700 text-white"
-                  : "bg-green-200 text-green-800 hover:bg-green-300"
-              }`}
-              aria-label={`Follow video titled ${title}`}
-            >
-              ⭐ Follow ({follows})
-            </button>
+                  {/* Fixed 16:9 Aspect Ratio Container */}
+                  <div
+                    style={{
+                      position: "relative",
+                      width: "100%",
+                      paddingTop: "56.25%", // 16:9 ratio
+                      borderRadius: "0.375rem",
+                      overflow: "hidden",
+                      marginBottom: "1rem",
+                    }}
+                  >
+                    {embedUrl ? (
+                      <iframe
+                        src={embedUrl}
+                        title={title}
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                        allowFullScreen
+                        style={{
+                          position: "absolute",
+                          top: 0,
+                          left: 0,
+                          width: "100%",
+                          height: "100%",
+                          border: "none",
+                        }}
+                      />
+                    ) : (
+                      <video
+                        src={video_url}
+                        controls
+                        className="w-full h-full object-cover"
+                        style={{
+                          position: "absolute",
+                          top: 0,
+                          left: 0,
+                          width: "100%",
+                          height: "100%",
+                        }}
+                      />
+                    )}
+                  </div>
 
-            {user_id === currentUserId && (
-              <button
-                onClick={() => handleDeleteVideo(id)}
-                className="px-3 py-1 rounded bg-red-600 text-white hover:bg-red-700"
-                aria-label={`Delete video titled ${title}`}
-              >
-                Delete
-              </button>
-            )}
-          </div>
+                  <div className="flex justify-center space-x-4 text-gray-700 w-full">
+                    <button
+                      onClick={() => toggleLike(id, likedByUser)}
+                      className={`cursor-pointer px-4 py-1 rounded text-sm transition-colors ${
+                        likedByUser
+                          ? "bg-green-700 text-white"
+                          : "bg-green-200 text-green-800 hover:bg-green-300"
+                      }`}
+                      aria-label={`Like video titled ${title}`}
+                    >
+                      👍 Like ({likes})
+                    </button>
+                    <button
+                      onClick={() => toggleFollow(id, followedByUser)}
+                      className={`cursor-pointer px-4 py-1 rounded text-sm transition-colors ${
+                        followedByUser
+                          ? "bg-green-700 text-white"
+                          : "bg-green-200 text-green-800 hover:bg-green-300"
+                      }`}
+                      aria-label={`Follow video titled ${title}`}
+                    >
+                      ⭐ Follow ({follows})
+                    </button>
+
+                    {user_id === currentUserId && (
+                      <button
+                        onClick={() => handleDeleteVideo(id)}
+                        className="px-3 py-1 rounded bg-red-600 text-white hover:bg-red-700"
+                        aria-label={`Delete video titled ${title}`}
+                      >
+                        Delete
+                      </button>
+                    )}
+                  </div>
+                </div>
+              );
+            }
+          )}
         </div>
-      );
-    }
-  )}
-</div>
-
       </div>
     </AuthGuard>
   );
