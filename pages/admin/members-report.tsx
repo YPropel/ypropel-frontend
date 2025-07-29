@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { useRouter } from "next/router";
 
 type Member = {
   id: number;
@@ -7,15 +8,17 @@ type Member = {
 };
 
 export default function MembersReport() {
+  const router = useRouter();
+
   const [date, setDate] = useState(() => new Date().toISOString().slice(0, 10)); // YYYY-MM-DD
   const [totalMembers, setTotalMembers] = useState<number | null>(null);
   const [membersList, setMembersList] = useState<Member[]>([]);
   const [newMembersCount, setNewMembersCount] = useState<number | null>(null);
   const [visitorsMembers, setVisitorsMembers] = useState<number | null>(null);
   const [visitorsGuests, setVisitorsGuests] = useState<number | null>(null);
+  const [uniqueMemberVisits, setUniqueMemberVisits] = useState<number | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-   const [uniqueMemberVisits, setUniqueMemberVisits] = useState<number | null>(null);
 
   // Helper to get token and set headers
   function getAuthHeaders() {
@@ -73,7 +76,6 @@ export default function MembersReport() {
         setVisitorsMembers(visitorsData.visitorsFromMembers);
         setVisitorsGuests(visitorsData.visitorsFromGuests);
         setUniqueMemberVisits(visitorsData.uniqueMemberVisits);
-
       } catch (err: any) {
         setError(err.message || "Failed to fetch date-specific data");
       } finally {
@@ -86,6 +88,13 @@ export default function MembersReport() {
   return (
     <div className="max-w-5xl mx-auto p-6">
       <h1 className="text-3xl font-bold mb-6">Members & Visitors Report</h1>
+
+      <button
+        onClick={() => router.push("/admin/VisitsReportGraph")}
+        className="mb-6 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition"
+      >
+        View Visits Report Graph
+      </button>
 
       <div className="mb-6">
         <label htmlFor="date" className="block font-semibold mb-1">
@@ -105,47 +114,48 @@ export default function MembersReport() {
       {error && <p className="text-red-600">Error: {error}</p>}
 
       {!loading && !error && (
-  <>
-    <section className="mb-8">
-      <h2 className="text-xl font-semibold mb-2">Statistics for {date}</h2>
-     <ul className="list-disc list-inside">
-  <li>New Members Signed Up: {newMembersCount ?? "N/A"}</li>
-  <li>Visitors from Members: {visitorsMembers ?? "N/A"}</li>
-  <li>Visitors from Guests (non-members): {visitorsGuests ?? "N/A"}</li>
-  <li>Total Unique Member Visits: {uniqueMemberVisits ?? "N/A"}</li>
-</ul>
+        <>
+          <section className="mb-8">
+            <h2 className="text-xl font-semibold mb-2">Statistics for {date}</h2>
+            <ul className="list-disc list-inside">
+              <li>New Members Signed Up: {newMembersCount ?? "N/A"}</li>
+              <li>Visitors from Members: {visitorsMembers ?? "N/A"}</li>
+              <li>Visitors from Guests (non-members): {visitorsGuests ?? "N/A"}</li>
+              <li>Total Unique Member Visits: {uniqueMemberVisits ?? "N/A"}</li>
+            </ul>
+          </section>
 
-    </section>
-
-    <section>
-      <h2 className="text-xl font-semibold mb-2">Total Members: {totalMembers ?? "N/A"}</h2>
-      <table className="w-full border-collapse border border-gray-300">
-        <thead>
-          <tr>
-            <th className="border border-gray-300 p-2">Name</th>
-            <th className="border border-gray-300 p-2">Email</th>
-          </tr>
-        </thead>
-        <tbody>
-          {membersList.length === 0 ? (
-            <tr>
-              <td colSpan={2} className="text-center p-4">
-                No members found.
-              </td>
-            </tr>
-          ) : (
-            membersList.map((member) => (
-              <tr key={member.id} className="hover:bg-gray-100">
-                <td className="border border-gray-300 p-2">{member.name}</td>
-                <td className="border border-gray-300 p-2">{member.email}</td>
-              </tr>
-            ))
-          )}
-        </tbody>
-      </table>
-    </section>
-  </>
-)}
+          <section>
+            <h2 className="text-xl font-semibold mb-2">
+              Total Members: {totalMembers ?? "N/A"}
+            </h2>
+            <table className="w-full border-collapse border border-gray-300">
+              <thead>
+                <tr>
+                  <th className="border border-gray-300 p-2">Name</th>
+                  <th className="border border-gray-300 p-2">Email</th>
+                </tr>
+              </thead>
+              <tbody>
+                {membersList.length === 0 ? (
+                  <tr>
+                    <td colSpan={2} className="text-center p-4">
+                      No members found.
+                    </td>
+                  </tr>
+                ) : (
+                  membersList.map((member) => (
+                    <tr key={member.id} className="hover:bg-gray-100">
+                      <td className="border border-gray-300 p-2">{member.name}</td>
+                      <td className="border border-gray-300 p-2">{member.email}</td>
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </table>
+          </section>
+        </>
+      )}
     </div>
   );
 }
