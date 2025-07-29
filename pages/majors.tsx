@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import AuthGuard from "../components/AuthGuard";
-import { apiFetch } from "../apiClient"; // adjust path if needed
+import { apiFetch } from "../apiClient"; // keep your existing apiFetch as is
 
 type Major = {
   id: number;
@@ -18,7 +18,8 @@ export default function Majors() {
   useEffect(() => {
     async function fetchMajors() {
       try {
-        const data = await apiFetch("/api/majors?limit=100&offset=0");
+        const response = await apiFetch("/api/majors?limit=100&offset=0");
+        const data = await response.json(); // parse JSON here since apiFetch does not do it
 
         const mappedMajors: Major[] = data.majors.map((item: any) => ({
           id: item.id,
