@@ -173,19 +173,27 @@ app.use(async (req: Request, res: Response, next: NextFunction) => {
       return next();
     }
 
-    // Skip logging for admins
+    const userId = req.user?.userId || null;
+    const visitDate = new Date().toISOString().slice(0, 10); // YYYY-MM-DD
+    const pageUrl = req.originalUrl || req.url;
+
+    // Optional: skip logging for admin users
     if (req.user?.isAdmin) {
       return next();
     }
 
-    const userId = req.user?.userId || null;
-    const visitDate = new Date().toISOString().slice(0, 10); // YYYY-MM-DD
-
-    await query(
-      `INSERT INTO visitors (user_id, visit_date, page_url)
-       VALUES ($1, $2, $3)`,
-      [userId, visitDate, req.originalUrl || req.url]
+    // Check if visit already logged for this user, page, and date
+    const existsResult = await query(
+      `SELECT 1 FROM visitors WHERE user_id = $1 AND visit_date = $2 AND page_url = $3 LIMIT 1`,
+      [userId, visitDate, pageUrl]
     );
+
+    if (existsResult.rowCount === 0) {
+      await query(
+        `INSERT INTO visitors (user_id, visit_date, page_url) VALUES ($1, $2, $3)`,
+        [userId, visitDate, pageUrl]
+      );
+    }
 
     next();
   } catch (error) {
@@ -193,6 +201,7 @@ app.use(async (req: Request, res: Response, next: NextFunction) => {
     next();
   }
 });
+
 
 //----------------------------
 
