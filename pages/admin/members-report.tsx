@@ -15,6 +15,7 @@ export default function MembersReport() {
   const [visitorsGuests, setVisitorsGuests] = useState<number | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+   const [uniqueMemberVisits, setUniqueMemberVisits] = useState<number | null>(null);
 
   // Helper to get token and set headers
   function getAuthHeaders() {
@@ -71,6 +72,8 @@ export default function MembersReport() {
         setNewMembersCount(newMembersData.newMembersCount);
         setVisitorsMembers(visitorsData.visitorsFromMembers);
         setVisitorsGuests(visitorsData.visitorsFromGuests);
+        setUniqueMemberVisits(visitorsData.uniqueMemberVisits);
+
       } catch (err: any) {
         setError(err.message || "Failed to fetch date-specific data");
       } finally {
@@ -105,11 +108,13 @@ export default function MembersReport() {
   <>
     <section className="mb-8">
       <h2 className="text-xl font-semibold mb-2">Statistics for {date}</h2>
-      <ul className="list-disc list-inside">
-        <li>New Members Signed Up: {newMembersCount ?? "N/A"}</li>
-        <li>Visitors from Members: {visitorsMembers ?? "N/A"}</li>
-        <li>Visitors from Guests (non-members): {visitorsGuests ?? "N/A"}</li>
-      </ul>
+     <ul className="list-disc list-inside">
+  <li>New Members Signed Up: {newMembersCount ?? "N/A"}</li>
+  <li>Visitors from Members: {visitorsMembers ?? "N/A"}</li>
+  <li>Visitors from Guests (non-members): {visitorsGuests ?? "N/A"}</li>
+  <li>Total Unique Member Visits: {uniqueMemberVisits ?? "N/A"}</li>
+</ul>
+
     </section>
 
     <section>
