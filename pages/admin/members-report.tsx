@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { apiFetch } from "../../apiClient"; // Fixed import path (remove leading slash and extra dots)
+import { apiFetch } from "../../apiClient"; // Adjust path if needed
 
 type Member = {
   id: number;
@@ -89,19 +89,20 @@ export default function MembersReport() {
                 </tr>
               </thead>
               <tbody>
-                {membersList.length === 0 && (
+                {membersList.length === 0 ? (
                   <tr>
                     <td colSpan={2} className="text-center p-4">
                       No members found.
                     </td>
                   </tr>
+                ) : (
+                  membersList.map((member) => (
+                    <tr key={member.id} className="hover:bg-gray-100">
+                      <td className="border border-gray-300 p-2">{member.name}</td>
+                      <td className="border border-gray-300 p-2">{member.email}</td>
+                    </tr>
+                  ))
                 )}
-                {membersList.map((member) => (
-                  <tr key={member.id} className="hover:bg-gray-100">
-                    <td className="border border-gray-300 p-2">{member.name}</td>
-                    <td className="border border-gray-300 p-2">{member.email}</td>
-                  </tr>
-                ))}
               </tbody>
             </table>
           </section>
