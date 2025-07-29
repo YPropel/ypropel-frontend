@@ -7,11 +7,9 @@ type Member = {
 };
 
 export default function MembersReport() {
-  const [date, setDate] = useState(() => {
-    // Use today's date in YYYY-MM-DD format
-    const today = new Date();
-    return today.toISOString().slice(0, 10);
-  });
+  const today = new Date().toISOString().slice(0, 10);
+
+  const [date, setDate] = useState(today); // Default to today
   const [totalMembers, setTotalMembers] = useState<number | null>(null);
   const [membersList, setMembersList] = useState<Member[]>([]);
   const [newMembersCount, setNewMembersCount] = useState<number | null>(null);
@@ -78,7 +76,7 @@ export default function MembersReport() {
           id="date"
           type="date"
           value={date}
-          max={new Date().toISOString().slice(0, 10)}
+          max={today}
           onChange={(e) => setDate(e.target.value)}
           className="border p-2 rounded"
         />
@@ -93,8 +91,11 @@ export default function MembersReport() {
             <h2 className="text-xl font-semibold mb-2">
               Total Members: {totalMembers ?? "N/A"}
             </h2>
-            <h3 className="mb-4 font-semibold">Statistics for {date}</h3>
-            <ul className="list-disc list-inside mb-6">
+
+            <h2 className="text-xl font-semibold mb-4">
+              Statistics for {date}
+            </h2>
+            <ul className="list-disc list-inside mb-8">
               <li>New Members Signed Up: {newMembersCount ?? "N/A"}</li>
               <li>Visitors from Members: {visitorsMembers ?? "N/A"}</li>
               <li>Visitors from Guests (non-members): {visitorsGuests ?? "N/A"}</li>
