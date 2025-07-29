@@ -26,23 +26,25 @@ export default function VisitsReportGraph() {
         return d.toISOString().slice(0, 10);
       });
 
-      try {
-        const results = await Promise.all(
-          dates.map(date =>
-            apiFetch(`/reports/visitors?date=${date}`).then(res => ({
-              date,
-              visitorsFromMembers: res.visitorsFromMembers,
-              visitorsFromGuests: res.visitorsFromGuests,
-              uniqueMemberVisits: res.uniqueMemberVisits,
-            }))
-          )
-        );
-        setData(results);
-      } catch {
-        setError("Failed to load visits data");
-      } finally {
-        setLoading(false);
-      }
+    try {
+  const results = await Promise.all(
+    dates.map(async (date) => {
+      const res = await apiFetch(`/reports/visitors?date=${date}`);
+      const data = await res.json();
+      return {
+        date,
+        visitorsFromMembers: data.visitorsFromMembers,
+        visitorsFromGuests: data.visitorsFromGuests,
+        uniqueMemberVisits: data.uniqueMemberVisits,
+      };
+    })
+  );
+  setData(results);
+} catch {
+  setError("Failed to load visits data");
+} finally {
+  setLoading(false);
+}
     };
 
     fetchVisits();
