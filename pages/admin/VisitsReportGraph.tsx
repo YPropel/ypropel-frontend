@@ -13,7 +13,7 @@ import {
 type VisitData = {
   date: string;
   visitorsFromMembers: number;
-  visitorsFromGuests: number;
+  uniqueGuestVisits: number;      // updated field name
   uniqueMemberVisits: number;
 };
 
@@ -67,7 +67,7 @@ export default function VisitsReportGraph() {
             return {
               date,
               visitorsFromMembers: res.visitorsFromMembers,
-              visitorsFromGuests: res.visitorsFromGuests,
+              uniqueGuestVisits: res.uniqueGuestVisits,
               uniqueMemberVisits: res.uniqueMemberVisits,
             };
           })
@@ -110,9 +110,9 @@ export default function VisitsReportGraph() {
             name="Unique Member Visits"
           />
           <Bar
-            dataKey="visitorsFromGuests"
+            dataKey="uniqueGuestVisits"
             fill="#82ca9d"
-            name="Visitors from Guests"
+            name="Unique Guest Visits"
           />
         </BarChart>
       </ResponsiveContainer>
