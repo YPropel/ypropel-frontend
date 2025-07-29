@@ -23,7 +23,9 @@ export default function MembersReport() {
       setLoading(true);
       setError(null);
       try {
-        const data = await apiFetch("/reports/members");
+        const response = await apiFetch("/reports/members");
+        if (!response.ok) throw new Error("Failed to fetch members report");
+        const data = await response.json();
         setTotalMembers(data.totalMembers);
         setMembersList(data.members);
       } catch (err: any) {
@@ -41,8 +43,13 @@ export default function MembersReport() {
       setLoading(true);
       setError(null);
       try {
-        const newMembersData = await apiFetch(`/reports/members/new?date=${date}`);
-        const visitorsData = await apiFetch(`/reports/visitors?date=${date}`);
+        const newMembersRes = await apiFetch(`/reports/members/new?date=${date}`);
+        if (!newMembersRes.ok) throw new Error("Failed to fetch new members count");
+        const newMembersData = await newMembersRes.json();
+
+        const visitorsRes = await apiFetch(`/reports/visitors?date=${date}`);
+        if (!visitorsRes.ok) throw new Error("Failed to fetch visitors report");
+        const visitorsData = await visitorsRes.json();
 
         setNewMembersCount(newMembersData.newMembersCount);
         setVisitorsMembers(visitorsData.visitorsFromMembers);
@@ -80,9 +87,7 @@ export default function MembersReport() {
       {!loading && !error && (
         <>
           <section className="mb-8">
-            <h2 className="text-xl font-semibold mb-2">
-              Total Members: {totalMembers ?? "N/A"}
-            </h2>
+            <h2 className="text-xl font-semibold mb-2">Total Members: {totalMembers ?? "N/A"}</h2>
             <table className="w-full border-collapse border border-gray-300">
               <thead>
                 <tr>
