@@ -43,8 +43,8 @@ export default function MembersReport() {
       setError(null);
       try {
         const [newMembersRes, visitorsRes] = await Promise.all([
-          fetch(`/reports/members?date=${date}`),
-          fetch(`/visitors/report?date=${date}`),
+          fetch(`/reports/members/new?date=${date}`),
+          fetch(`/reports/visitors?date=${date}`),
         ]);
 
         if (!newMembersRes.ok) throw new Error("Failed to fetch new members count");
