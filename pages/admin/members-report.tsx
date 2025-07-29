@@ -19,43 +19,46 @@ export default function MembersReport() {
 
   // Fetch total members and members list once on mount
   useEffect(() => {
-    async function fetchMembers() {
-      setLoading(true);
-      setError(null);
-      try {
-        // apiFetch now returns parsed JSON
-        const data = await apiFetch("/reports/members");
-        setTotalMembers(data.totalMembers);
-        setMembersList(data.members);
-      } catch (err: any) {
-        setError(err.message || "Failed to fetch members report");
-      } finally {
-        setLoading(false);
-      }
+  async function fetchMembers() {
+    setLoading(true);
+    setError(null);
+    try {
+      const res = await apiFetch("/reports/members");
+      const data = await res.json();  // <--- parse JSON here
+      setTotalMembers(data.totalMembers);
+      setMembersList(data.members);
+    } catch (err: any) {
+      setError(err.message || "Failed to fetch members report");
+    } finally {
+      setLoading(false);
     }
-    fetchMembers();
-  }, []);
+  }
+  fetchMembers();
+}, []);
 
-  // Fetch new members count and visitors for selected date
-  useEffect(() => {
-    async function fetchDateData() {
-      setLoading(true);
-      setError(null);
-      try {
-        const newMembersData = await apiFetch(`/reports/members/new?date=${date}`);
-        const visitorsData = await apiFetch(`/reports/visitors?date=${date}`);
+useEffect(() => {
+  async function fetchDateData() {
+    setLoading(true);
+    setError(null);
+    try {
+      const newMembersRes = await apiFetch(`/reports/members/new?date=${date}`);
+      const visitorsRes = await apiFetch(`/reports/visitors?date=${date}`);
 
-        setNewMembersCount(newMembersData.newMembersCount);
-        setVisitorsMembers(visitorsData.visitorsFromMembers);
-        setVisitorsGuests(visitorsData.visitorsFromGuests);
-      } catch (err: any) {
-        setError(err.message || "Failed to fetch date-specific data");
-      } finally {
-        setLoading(false);
-      }
+      const newMembersData = await newMembersRes.json();  // parse JSON here
+      const visitorsData = await visitorsRes.json();      // parse JSON here
+
+      setNewMembersCount(newMembersData.newMembersCount);
+      setVisitorsMembers(visitorsData.visitorsFromMembers);
+      setVisitorsGuests(visitorsData.visitorsFromGuests);
+    } catch (err: any) {
+      setError(err.message || "Failed to fetch date-specific data");
+    } finally {
+      setLoading(false);
     }
-    fetchDateData();
-  }, [date]);
+  }
+  fetchDateData();
+}, [date]);
+
 
   return (
     <div className="max-w-5xl mx-auto p-6">
