@@ -102,45 +102,45 @@ export default function MembersReport() {
       {error && <p className="text-red-600">Error: {error}</p>}
 
       {!loading && !error && (
-        <>
-          <section className="mb-8">
-            <h2 className="text-xl font-semibold mb-2">Total Members: {totalMembers ?? "N/A"}</h2>
-            <table className="w-full border-collapse border border-gray-300">
-              <thead>
-                <tr>
-                  <th className="border border-gray-300 p-2">Name</th>
-                  <th className="border border-gray-300 p-2">Email</th>
-                </tr>
-              </thead>
-              <tbody>
-                {membersList.length === 0 ? (
-                  <tr>
-                    <td colSpan={2} className="text-center p-4">
-                      No members found.
-                    </td>
-                  </tr>
-                ) : (
-                  membersList.map((member) => (
-                    <tr key={member.id} className="hover:bg-gray-100">
-                      <td className="border border-gray-300 p-2">{member.name}</td>
-                      <td className="border border-gray-300 p-2">{member.email}</td>
-                    </tr>
-                  ))
-                )}
-              </tbody>
-            </table>
-          </section>
+  <>
+    <section className="mb-8">
+      <h2 className="text-xl font-semibold mb-2">Statistics for {date}</h2>
+      <ul className="list-disc list-inside">
+        <li>New Members Signed Up: {newMembersCount ?? "N/A"}</li>
+        <li>Visitors from Members: {visitorsMembers ?? "N/A"}</li>
+        <li>Visitors from Guests (non-members): {visitorsGuests ?? "N/A"}</li>
+      </ul>
+    </section>
 
-          <section>
-            <h2 className="text-xl font-semibold mb-2">Statistics for {date}</h2>
-            <ul className="list-disc list-inside">
-              <li>New Members Signed Up: {newMembersCount ?? "N/A"}</li>
-              <li>Visitors from Members: {visitorsMembers ?? "N/A"}</li>
-              <li>Visitors from Guests (non-members): {visitorsGuests ?? "N/A"}</li>
-            </ul>
-          </section>
-        </>
-      )}
+    <section>
+      <h2 className="text-xl font-semibold mb-2">Total Members: {totalMembers ?? "N/A"}</h2>
+      <table className="w-full border-collapse border border-gray-300">
+        <thead>
+          <tr>
+            <th className="border border-gray-300 p-2">Name</th>
+            <th className="border border-gray-300 p-2">Email</th>
+          </tr>
+        </thead>
+        <tbody>
+          {membersList.length === 0 ? (
+            <tr>
+              <td colSpan={2} className="text-center p-4">
+                No members found.
+              </td>
+            </tr>
+          ) : (
+            membersList.map((member) => (
+              <tr key={member.id} className="hover:bg-gray-100">
+                <td className="border border-gray-300 p-2">{member.name}</td>
+                <td className="border border-gray-300 p-2">{member.email}</td>
+              </tr>
+            ))
+          )}
+        </tbody>
+      </table>
+    </section>
+  </>
+)}
     </div>
   );
 }
