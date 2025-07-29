@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from "react";
-import { apiFetch } from "../../apiClient";
 
 type Member = {
   id: number;
@@ -17,13 +16,25 @@ export default function MembersReport() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  // Helper to get token and set headers
+  function getAuthHeaders() {
+    const token = localStorage.getItem("token");
+    return {
+      "Content-Type": "application/json",
+      Authorization: token ? `Bearer ${token}` : "",
+    };
+  }
+
   // Fetch total members and members list once on mount
   useEffect(() => {
     async function fetchMembers() {
       setLoading(true);
       setError(null);
       try {
-        const response = await apiFetch("/reports/members");
+        const response = await fetch(
+          `${process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:4000"}/reports/members`,
+          { headers: getAuthHeaders() }
+        );
         if (!response.ok) throw new Error("Failed to fetch members report");
         const data = await response.json();
         setTotalMembers(data.totalMembers);
@@ -43,11 +54,17 @@ export default function MembersReport() {
       setLoading(true);
       setError(null);
       try {
-        const newMembersRes = await apiFetch(`/reports/members/new?date=${date}`);
+        const newMembersRes = await fetch(
+          `${process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:4000"}/reports/members/new?date=${date}`,
+          { headers: getAuthHeaders() }
+        );
         if (!newMembersRes.ok) throw new Error("Failed to fetch new members count");
         const newMembersData = await newMembersRes.json();
 
-        const visitorsRes = await apiFetch(`/reports/visitors?date=${date}`);
+        const visitorsRes = await fetch(
+          `${process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:4000"}/reports/visitors?date=${date}`,
+          { headers: getAuthHeaders() }
+        );
         if (!visitorsRes.ok) throw new Error("Failed to fetch visitors report");
         const visitorsData = await visitorsRes.json();
 
