@@ -19,46 +19,42 @@ export default function MembersReport() {
 
   // Fetch total members and members list once on mount
   useEffect(() => {
-  async function fetchMembers() {
-    setLoading(true);
-    setError(null);
-    try {
-      const res = await apiFetch("/reports/members");
-      const data = await res.json();  // <--- parse JSON here
-      setTotalMembers(data.totalMembers);
-      setMembersList(data.members);
-    } catch (err: any) {
-      setError(err.message || "Failed to fetch members report");
-    } finally {
-      setLoading(false);
+    async function fetchMembers() {
+      setLoading(true);
+      setError(null);
+      try {
+        const data = await apiFetch("/reports/members");
+        setTotalMembers(data.totalMembers);
+        setMembersList(data.members);
+      } catch (err: any) {
+        setError(err.message || "Failed to fetch members report");
+      } finally {
+        setLoading(false);
+      }
     }
-  }
-  fetchMembers();
-}, []);
+    fetchMembers();
+  }, []);
 
-useEffect(() => {
-  async function fetchDateData() {
-    setLoading(true);
-    setError(null);
-    try {
-      const newMembersRes = await apiFetch(`/reports/members/new?date=${date}`);
-      const visitorsRes = await apiFetch(`/reports/visitors?date=${date}`);
+  // Fetch new members count and visitors for selected date
+  useEffect(() => {
+    async function fetchDateData() {
+      setLoading(true);
+      setError(null);
+      try {
+        const newMembersData = await apiFetch(`/reports/members/new?date=${date}`);
+        const visitorsData = await apiFetch(`/reports/visitors?date=${date}`);
 
-      const newMembersData = await newMembersRes.json();  // parse JSON here
-      const visitorsData = await visitorsRes.json();      // parse JSON here
-
-      setNewMembersCount(newMembersData.newMembersCount);
-      setVisitorsMembers(visitorsData.visitorsFromMembers);
-      setVisitorsGuests(visitorsData.visitorsFromGuests);
-    } catch (err: any) {
-      setError(err.message || "Failed to fetch date-specific data");
-    } finally {
-      setLoading(false);
+        setNewMembersCount(newMembersData.newMembersCount);
+        setVisitorsMembers(visitorsData.visitorsFromMembers);
+        setVisitorsGuests(visitorsData.visitorsFromGuests);
+      } catch (err: any) {
+        setError(err.message || "Failed to fetch date-specific data");
+      } finally {
+        setLoading(false);
+      }
     }
-  }
-  fetchDateData();
-}, [date]);
-
+    fetchDateData();
+  }, [date]);
 
   return (
     <div className="max-w-5xl mx-auto p-6">
@@ -93,20 +89,19 @@ useEffect(() => {
                 </tr>
               </thead>
               <tbody>
-                {membersList.length === 0 ? (
+                {membersList.length === 0 && (
                   <tr>
                     <td colSpan={2} className="text-center p-4">
                       No members found.
                     </td>
                   </tr>
-                ) : (
-                  membersList.map((member) => (
-                    <tr key={member.id} className="hover:bg-gray-100">
-                      <td className="border border-gray-300 p-2">{member.name}</td>
-                      <td className="border border-gray-300 p-2">{member.email}</td>
-                    </tr>
-                  ))
                 )}
+                {membersList.map((member) => (
+                  <tr key={member.id} className="hover:bg-gray-100">
+                    <td className="border border-gray-300 p-2">{member.name}</td>
+                    <td className="border border-gray-300 p-2">{member.email}</td>
+                  </tr>
+                ))}
               </tbody>
             </table>
           </section>
