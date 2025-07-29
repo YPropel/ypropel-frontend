@@ -85,12 +85,7 @@ export default function Majors() {
                     </ul>
                   </div>
                 )}
-                <a
-                  href="#"
-                  className="mt-4 inline-block text-blue-700 font-semibold hover:underline"
-                >
-                  Learn More
-                </a>
+             
               </div>
 
               {/* Image Right */}
