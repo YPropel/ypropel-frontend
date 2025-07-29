@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { useRouter } from "next/router";
 import {
   BarChart,
   Bar,
@@ -17,6 +18,8 @@ type VisitData = {
 };
 
 export default function VisitsReportGraph() {
+  const router = useRouter();
+
   const [data, setData] = useState<VisitData[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -85,6 +88,13 @@ export default function VisitsReportGraph() {
 
   return (
     <div className="p-6">
+      <button
+        className="mb-4 px-4 py-2 bg-gray-200 rounded hover:bg-gray-300"
+        onClick={() => router.push("/admin/members-report")}
+      >
+        ← Back to Members Report
+      </button>
+
       <h2 className="text-2xl font-bold mb-4">
         Unique Visits from Members and Guests (Last 7 Days)
       </h2>
