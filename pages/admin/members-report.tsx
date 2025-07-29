@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from "react";
-import { apiFetch } from "../../apiClient"; // Adjust path if needed
 
 type Member = {
   id: number;
@@ -23,11 +22,13 @@ export default function MembersReport() {
       setLoading(true);
       setError(null);
       try {
-        const data = await apiFetch("/reports/members");
+        const res = await fetch("/reports/members");
+        if (!res.ok) throw new Error("Failed to fetch members report");
+        const data = await res.json();
         setTotalMembers(data.totalMembers);
         setMembersList(data.members);
       } catch (err: any) {
-        setError(err.message || "Failed to fetch members report");
+        setError(err.message);
       } finally {
         setLoading(false);
       }
@@ -41,14 +42,22 @@ export default function MembersReport() {
       setLoading(true);
       setError(null);
       try {
-        const newMembersData = await apiFetch(`/reports/members/new?date=${date}`);
-        const visitorsData = await apiFetch(`/reports/visitors?date=${date}`);
+        const [newMembersRes, visitorsRes] = await Promise.all([
+          fetch(`/reports/members/new?date=${date}`),
+          fetch(`/reports/visitors?date=${date}`),
+        ]);
+
+        if (!newMembersRes.ok) throw new Error("Failed to fetch new members count");
+        if (!visitorsRes.ok) throw new Error("Failed to fetch visitors report");
+
+        const newMembersData = await newMembersRes.json();
+        const visitorsData = await visitorsRes.json();
 
         setNewMembersCount(newMembersData.newMembersCount);
         setVisitorsMembers(visitorsData.visitorsFromMembers);
         setVisitorsGuests(visitorsData.visitorsFromGuests);
       } catch (err: any) {
-        setError(err.message || "Failed to fetch date-specific data");
+        setError(err.message);
       } finally {
         setLoading(false);
       }
@@ -89,20 +98,19 @@ export default function MembersReport() {
                 </tr>
               </thead>
               <tbody>
-                {membersList.length === 0 ? (
+                {membersList.length === 0 && (
                   <tr>
                     <td colSpan={2} className="text-center p-4">
                       No members found.
                     </td>
                   </tr>
-                ) : (
-                  membersList.map((member) => (
-                    <tr key={member.id} className="hover:bg-gray-100">
-                      <td className="border border-gray-300 p-2">{member.name}</td>
-                      <td className="border border-gray-300 p-2">{member.email}</td>
-                    </tr>
-                  ))
                 )}
+                {membersList.map((member) => (
+                  <tr key={member.id} className="hover:bg-gray-100">
+                    <td className="border border-gray-300 p-2">{member.name}</td>
+                    <td className="border border-gray-300 p-2">{member.email}</td>
+                  </tr>
+                ))}
               </tbody>
             </table>
           </section>
