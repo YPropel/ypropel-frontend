@@ -17,6 +17,7 @@ export default function MembersReport() {
   const [visitorsMembers, setVisitorsMembers] = useState<number | null>(null);
   const [visitorsGuests, setVisitorsGuests] = useState<number | null>(null);
   const [uniqueMemberVisits, setUniqueMemberVisits] = useState<number | null>(null);
+  const [uniqueGuestVisits, setUniqueGuestVisits] = useState<number | null>(null); // Added
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -76,6 +77,7 @@ export default function MembersReport() {
         setVisitorsMembers(visitorsData.visitorsFromMembers);
         setVisitorsGuests(visitorsData.visitorsFromGuests);
         setUniqueMemberVisits(visitorsData.uniqueMemberVisits);
+        setUniqueGuestVisits(visitorsData.uniqueGuestVisits); // Added
       } catch (err: any) {
         setError(err.message || "Failed to fetch date-specific data");
       } finally {
@@ -122,6 +124,7 @@ export default function MembersReport() {
               <li>Visitors from Members: {visitorsMembers ?? "N/A"}</li>
               <li>Visitors from Guests (non-members): {visitorsGuests ?? "N/A"}</li>
               <li>Total Unique Member Visits: {uniqueMemberVisits ?? "N/A"}</li>
+              <li>Total Unique Guest Visits: {uniqueGuestVisits ?? "N/A"}</li> {/* Added */}
             </ul>
           </section>
 
