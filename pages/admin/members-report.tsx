@@ -22,7 +22,7 @@ export default function MembersReport() {
       setLoading(true);
       setError(null);
       try {
-        const res = await fetch("/members/report");
+        const res = await fetch("/reports/members");
         if (!res.ok) throw new Error("Failed to fetch members report");
         const data = await res.json();
         setTotalMembers(data.totalMembers);
@@ -43,7 +43,7 @@ export default function MembersReport() {
       setError(null);
       try {
         const [newMembersRes, visitorsRes] = await Promise.all([
-          fetch(`/members/report?date=${date}`),
+          fetch(`/reports/members?date=${date}`),
           fetch(`/visitors/report?date=${date}`),
         ]);
 
