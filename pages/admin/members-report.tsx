@@ -7,9 +7,7 @@ type Member = {
 };
 
 export default function MembersReport() {
-  const today = new Date().toISOString().slice(0, 10);
-
-  const [date, setDate] = useState(today); // Default to today
+  const [date, setDate] = useState(() => new Date().toISOString().slice(0, 10)); // YYYY-MM-DD
   const [totalMembers, setTotalMembers] = useState<number | null>(null);
   const [membersList, setMembersList] = useState<Member[]>([]);
   const [newMembersCount, setNewMembersCount] = useState<number | null>(null);
@@ -18,13 +16,25 @@ export default function MembersReport() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  // Helper to get token and set headers
+  function getAuthHeaders() {
+    const token = localStorage.getItem("token");
+    return {
+      "Content-Type": "application/json",
+      Authorization: token ? `Bearer ${token}` : "",
+    };
+  }
+
   // Fetch total members and members list once on mount
   useEffect(() => {
     async function fetchMembers() {
       setLoading(true);
       setError(null);
       try {
-        const response = await fetch("/reports/members");
+        const response = await fetch(
+          `${process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:4000"}/reports/members`,
+          { headers: getAuthHeaders() }
+        );
         if (!response.ok) throw new Error("Failed to fetch members report");
         const data = await response.json();
         setTotalMembers(data.totalMembers);
@@ -44,11 +54,17 @@ export default function MembersReport() {
       setLoading(true);
       setError(null);
       try {
-        const newMembersRes = await fetch(`/reports/members/new?date=${date}`);
+        const newMembersRes = await fetch(
+          `${process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:4000"}/reports/members/new?date=${date}`,
+          { headers: getAuthHeaders() }
+        );
         if (!newMembersRes.ok) throw new Error("Failed to fetch new members count");
         const newMembersData = await newMembersRes.json();
 
-        const visitorsRes = await fetch(`/reports/visitors?date=${date}`);
+        const visitorsRes = await fetch(
+          `${process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:4000"}/reports/visitors?date=${date}`,
+          { headers: getAuthHeaders() }
+        );
         if (!visitorsRes.ok) throw new Error("Failed to fetch visitors report");
         const visitorsData = await visitorsRes.json();
 
@@ -76,7 +92,7 @@ export default function MembersReport() {
           id="date"
           type="date"
           value={date}
-          max={today}
+          max={new Date().toISOString().slice(0, 10)}
           onChange={(e) => setDate(e.target.value)}
           className="border p-2 rounded"
         />
@@ -88,19 +104,7 @@ export default function MembersReport() {
       {!loading && !error && (
         <>
           <section className="mb-8">
-            <h2 className="text-xl font-semibold mb-2">
-              Total Members: {totalMembers ?? "N/A"}
-            </h2>
-
-            <h2 className="text-xl font-semibold mb-4">
-              Statistics for {date}
-            </h2>
-            <ul className="list-disc list-inside mb-8">
-              <li>New Members Signed Up: {newMembersCount ?? "N/A"}</li>
-              <li>Visitors from Members: {visitorsMembers ?? "N/A"}</li>
-              <li>Visitors from Guests (non-members): {visitorsGuests ?? "N/A"}</li>
-            </ul>
-
+            <h2 className="text-xl font-semibold mb-2">Total Members: {totalMembers ?? "N/A"}</h2>
             <table className="w-full border-collapse border border-gray-300">
               <thead>
                 <tr>
@@ -125,6 +129,15 @@ export default function MembersReport() {
                 )}
               </tbody>
             </table>
+          </section>
+
+          <section>
+            <h2 className="text-xl font-semibold mb-2">Statistics for {date}</h2>
+            <ul className="list-disc list-inside">
+              <li>New Members Signed Up: {newMembersCount ?? "N/A"}</li>
+              <li>Visitors from Members: {visitorsMembers ?? "N/A"}</li>
+              <li>Visitors from Guests (non-members): {visitorsGuests ?? "N/A"}</li>
+            </ul>
           </section>
         </>
       )}
