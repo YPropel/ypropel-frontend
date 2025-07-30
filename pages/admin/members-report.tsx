@@ -121,8 +121,8 @@ export default function MembersReport() {
             <h2 className="text-xl font-semibold mb-2">Statistics for {date}</h2>
             <ul className="list-disc list-inside">
               <li>New Members Signed Up: {newMembersCount ?? "N/A"}</li>
-              <li>Visitors from Members: {visitorsMembers ?? "N/A"}</li>
-              <li>Visitors from Guests (non-members): {visitorsGuests ?? "N/A"}</li>
+              <li>Visits - Members: {visitorsMembers ?? "N/A"}</li>
+              <li>Visits - Guests (non-members): {visitorsGuests ?? "N/A"}</li>
               <li>Total Unique Member Visits: {uniqueMemberVisits ?? "N/A"}</li>
               <li>Total Unique Guest Visits: {uniqueGuestVisits ?? "N/A"}</li> {/* Added */}
             </ul>
