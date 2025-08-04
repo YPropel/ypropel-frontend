@@ -42,8 +42,9 @@ const PostJob = () => {
     }
 
     try {
-      const response = await apiFetch("/jobs", {
-        method: "POST",
+      // Make sure the API endpoint and method are correct
+      const response = await apiFetch("/post-job", { // Change to "/post-job" if that's your backend route
+        method: "POST", // Ensure the request method is POST
         body: JSON.stringify({
           companyId,
           title,
