@@ -37,7 +37,8 @@ const CompanyDetailsPage = () => {
 
   const handleAddJob = () => {
     // Redirect to job posting page with companyId in the query string
-    router.push(`/post-job?companyId=${companyId}`);
+   router.push(`/company/${companyId}`);
+
   };
 
   if (error) {

@@ -44,6 +44,7 @@ const CreateCompany = () => {
 
       if (response.ok) {
         const companyData = await response.json(); // Assuming companyId is returned here
+       console.log(companyData); // Make sure this contains `id`
         const companyId = companyData.id; // Get the companyId from the response
 
         // Redirect to the company details page after creating the company profile
