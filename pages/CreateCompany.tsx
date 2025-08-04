@@ -19,6 +19,13 @@ const CreateCompany = () => {
       return;
     }
 
+    const userId = localStorage.getItem("userId"); // Get userId from local storage (ensure this is set on login)
+
+    if (!userId) {
+      setError("User is not logged in.");
+      return;
+    }
+
     try {
       const response = await apiFetch("/companies", {
         method: "POST",
@@ -28,6 +35,7 @@ const CreateCompany = () => {
           location,
           industry,
           logoUrl,
+          userId, // Send userId in the body of the request
         }),
         headers: {
           "Content-Type": "application/json",
