@@ -20,8 +20,6 @@ const CreateCompany = () => {
     }
 
     try {
-      const token = localStorage.getItem('token');
-
       const response = await apiFetch('/api/companies', {
         method: 'POST',
         body: JSON.stringify({
@@ -33,16 +31,14 @@ const CreateCompany = () => {
         }),
         headers: {
           'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
         },
       });
 
-      if (response.ok) {
+      if (response) {
         // Redirect to job posting page after creating the company profile
         router.push('/post-job');
       } else {
-        const errorData = await response.json();
-        setError(errorData.error || 'Failed to create company profile');
+        setError('Failed to create company profile');
       }
     } catch (error) {
       setError('Something went wrong. Please try again later.');
