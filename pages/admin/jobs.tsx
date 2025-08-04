@@ -331,7 +331,21 @@ export default function AdminJobsPage() {
             ))}
           </select>
         </div>
-
+          {/* Company Name */}
+            <div>
+              <label htmlFor="company" className="block font-semibold mb-1">
+                Company Name <span className="text-red-600">*</span>
+              </label>
+              <input
+                id="company"
+                name="company"
+                type="text"
+                value={formData.company || ""}
+                onChange={handleChange}
+                required
+                className="w-full border rounded px-3 py-2"
+              />
+            </div>
         {/* Category */}
         <div>
           <label htmlFor="category" className="block font-semibold mb-1">
