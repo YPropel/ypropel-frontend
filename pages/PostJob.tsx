@@ -12,7 +12,6 @@ const PostJob = () => {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [category, setCategory] = useState("");
-  const [company, setCompany] = useState("");
   const [location, setLocation] = useState("");
   const [requirements, setRequirements] = useState("");
   const [applyUrl, setApplyUrl] = useState("");
@@ -24,12 +23,11 @@ const PostJob = () => {
   const [expiresAt, setExpiresAt] = useState("");
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
-  const { companyId } = router.query; // Get companyId from the URL
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!title || !description || !category || !company || !location || !salary || !jobType || !applyUrl || !country || !state || !city) {
+    if (!title || !description || !category || !location || !salary || !jobType || !applyUrl || !country || !state || !city) {
       setError("All fields are required.");
       return;
     }
@@ -43,14 +41,12 @@ const PostJob = () => {
 
     try {
       // Make sure the API endpoint and method are correct
-      const response = await apiFetch("/post-job", { // Change to "/post-job" if that's your backend route
+      const response = await apiFetch("/companies/post-job", { // Change to "/companies/post-job" as per your backend route
         method: "POST", // Ensure the request method is POST
         body: JSON.stringify({
-          companyId,
           title,
           description,
           category,
-          company,
           location,
           requirements,
           applyUrl,
@@ -68,7 +64,7 @@ const PostJob = () => {
       });
 
       if (response.ok) {
-        router.push(`/jobs`); // Redirect to the Jobs page after successful posting
+        router.push(`/companies/jobs`); // Redirect to the Jobs page after successful posting
       } else {
         const errorData = await response.json();
         setError(errorData.error || "Failed to post job");
@@ -114,18 +110,6 @@ const PostJob = () => {
             className="w-full p-2 border border-gray-300"
             value={category}
             onChange={(e) => setCategory(e.target.value)}
-            required
-          />
-        </div>
-
-        {/* Company */}
-        <div>
-          <label className="block">Company</label>
-          <input
-            type="text"
-            className="w-full p-2 border border-gray-300"
-            value={company}
-            onChange={(e) => setCompany(e.target.value)}
             required
           />
         </div>
