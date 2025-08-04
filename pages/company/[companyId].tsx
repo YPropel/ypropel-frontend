@@ -1,12 +1,12 @@
 import React, { useEffect, useState } from "react";
 import { useRouter } from "next/router";
-import { apiFetch } from "../../apiClient"; // Update path to apiFetch if needed
+import { apiFetch } from "../../apiClient"; // Adjust the import based on your project structure
 
 const CompanyDetailsPage = () => {
   const [company, setCompany] = useState<any | null>(null);
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
-  const { companyId } = router.query; // Get the companyId from the URL query
+  const { companyId } = router.query; // Get companyId from the URL
 
   useEffect(() => {
     if (!companyId) return; // Don't fetch if companyId is not available yet
@@ -37,8 +37,7 @@ const CompanyDetailsPage = () => {
 
   const handleAddJob = () => {
     // Redirect to job posting page with companyId in the query string
-   router.push(`/company/${companyId}`);
-
+    router.push(`/post-job?companyId=${companyId}`);
   };
 
   if (error) {
@@ -66,7 +65,7 @@ const CompanyDetailsPage = () => {
           <strong>Industry:</strong> {company.industry}
         </div>
         <div>
-          {company.logoUrl && <img src={company.logoUrl} alt="Company Logo" />}
+          {company.logo_url && <img src={company.logo_url} alt="Company Logo" />}
         </div>
       </div>
 
