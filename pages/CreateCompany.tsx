@@ -20,7 +20,7 @@ const CreateCompany = () => {
     }
 
     try {
-      const response = await apiFetch("/api/companies", {
+      const response = await apiFetch("/companies", {
         method: "POST",
         body: JSON.stringify({
           name,
