@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useRouter } from "next/router";
 import { apiFetch } from "../apiClient"; // Adjust path if necessary
 
@@ -21,8 +21,40 @@ const PostJob = () => {
   const [state, setState] = useState("");
   const [city, setCity] = useState("");
   const [expiresAt, setExpiresAt] = useState("");
+  const [companyName, setCompanyName] = useState("");  // To store the company name
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
+
+  // Fetch the company name associated with the logged-in user
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      setError("User is not logged in.");
+      return;
+    }
+
+    const fetchCompanyName = async () => {
+      try {
+        const response = await apiFetch("/companies/get-company", { // Adjust route for getting company info
+          method: "GET",
+          headers: {
+            "Authorization": `Bearer ${token}`,
+          },
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          setCompanyName(data.name);  // Assuming the response contains company name
+        } else {
+          setError("Failed to fetch company information.");
+        }
+      } catch (error) {
+        setError("Something went wrong. Please try again later.");
+      }
+    };
+
+    fetchCompanyName();
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -32,7 +64,7 @@ const PostJob = () => {
       return;
     }
 
-    const token = localStorage.getItem("token"); // Retrieve the JWT token from localStorage
+    const token = localStorage.getItem("token");
 
     if (!token) {
       setError("User is not logged in.");
@@ -40,9 +72,8 @@ const PostJob = () => {
     }
 
     try {
-      // Make sure the API endpoint and method are correct
-      const response = await apiFetch("/companies/post-job", { // Change to "/companies/post-job" as per your backend route
-        method: "POST", // Ensure the request method is POST
+      const response = await apiFetch("/companies/post-job", {
+        method: "POST",
         body: JSON.stringify({
           title,
           description,
@@ -56,15 +87,16 @@ const PostJob = () => {
           state,
           city,
           expiresAt,
+          companyName,  // Sending the company name to the backend
         }),
         headers: {
           "Content-Type": "application/json",
-          "Authorization": `Bearer ${token}`, // Send the JWT token here
+          "Authorization": `Bearer ${token}`,
         },
       });
 
       if (response.ok) {
-        router.push(`/companies/jobs`); // Redirect to the Jobs page after successful posting
+        router.push(`/companies/jobs`);
       } else {
         const errorData = await response.json();
         setError(errorData.error || "Failed to post job");
