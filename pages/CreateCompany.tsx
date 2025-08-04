@@ -1,13 +1,13 @@
-import React, { useState } from 'react';
-import { useRouter } from 'next/router';
-import { apiFetch } from '../apiClient'; // Importing apiFetch
+import React, { useState } from "react";
+import { useRouter } from "next/router";
+import { apiFetch } from "../apiClient";
 
 const CreateCompany = () => {
-  const [name, setName] = useState('');
-  const [description, setDescription] = useState('');
-  const [location, setLocation] = useState('');
-  const [industry, setIndustry] = useState('');
-  const [logoUrl, setLogoUrl] = useState('');
+  const [name, setName] = useState("");
+  const [description, setDescription] = useState("");
+  const [location, setLocation] = useState("");
+  const [industry, setIndustry] = useState("");
+  const [logoUrl, setLogoUrl] = useState("");
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
 
@@ -15,13 +15,13 @@ const CreateCompany = () => {
     e.preventDefault();
 
     if (!name || !description || !location || !industry) {
-      setError('All fields are required.');
+      setError("All fields are required.");
       return;
     }
 
     try {
-      const response = await apiFetch('/companies', {
-        method: 'POST',
+      const response = await apiFetch("/api/companies", {
+        method: "POST",
         body: JSON.stringify({
           name,
           description,
@@ -30,18 +30,19 @@ const CreateCompany = () => {
           logoUrl,
         }),
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
       });
 
-      if (response) {
+      if (response.ok) {
         // Redirect to job posting page after creating the company profile
-        router.push('/post-job');
+        router.push("/post-job");
       } else {
-        setError('Failed to create company profile');
+        const errorData = await response.json();
+        setError(errorData.error || "Failed to create company profile");
       }
     } catch (error) {
-      setError('Something went wrong. Please try again later.');
+      setError("Something went wrong. Please try again later.");
     }
   };
 
