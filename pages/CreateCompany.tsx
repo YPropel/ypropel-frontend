@@ -43,8 +43,11 @@ const CreateCompany = () => {
       });
 
       if (response.ok) {
-        // Redirect to job posting page after creating the company profile
-        router.push("/post-job");
+        const companyData = await response.json(); // Assuming companyId is returned here
+        const companyId = companyData.id; // Get the companyId from the response
+
+        // Redirect to the company details page after creating the company profile
+        router.push(`/company/${companyId}`);
       } else {
         const errorData = await response.json();
         setError(errorData.error || "Failed to create company profile");
