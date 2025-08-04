@@ -24,9 +24,12 @@ const PostJob = () => {
   const [companyName, setCompanyName] = useState("");  // To store the company name
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
+  const { companyId } = router.query; // Get companyId from the URL
 
   // Fetch the company name associated with the logged-in user
   useEffect(() => {
+    if (!companyId) return; // Ensure companyId is available
+
     const token = localStorage.getItem("token");
     if (!token) {
       setError("User is not logged in.");
@@ -35,7 +38,7 @@ const PostJob = () => {
 
     const fetchCompanyName = async () => {
       try {
-        const response = await apiFetch("/companies/get-company", { // Adjust route for getting company info
+        const response = await apiFetch(`/companies/${companyId}`, {  // Correct route to get company info
           method: "GET",
           headers: {
             "Authorization": `Bearer ${token}`,
@@ -54,7 +57,7 @@ const PostJob = () => {
     };
 
     fetchCompanyName();
-  }, []);
+  }, [companyId]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
