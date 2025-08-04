@@ -34,9 +34,9 @@ const PostJob = () => {
       return;
     }
 
-    const userId = localStorage.getItem("userId"); // Ensure userId is stored after login
+    const token = localStorage.getItem("token"); // Retrieve the JWT token from localStorage
 
-    if (!userId) {
+    if (!token) {
       setError("User is not logged in.");
       return;
     }
@@ -63,6 +63,7 @@ const PostJob = () => {
         }),
         headers: {
           "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`, // Send the JWT token here
         },
       });
 
