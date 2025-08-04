@@ -303,6 +303,12 @@ function JobsPageContent() {
                     <p className="text-gray-700">
                       <strong>Country:</strong> {job.country || "—"}
                     </p>
+                    <p className="text-gray-700">
+                      <strong>City:</strong> {job.city || "—"}
+                    </p>
+                    <p className="text-gray-700">
+                      <strong>State:</strong> {job.state || "—"}
+                    </p>
 
                     <p className="text-gray-500 text-sm">
                       Posted on {new Date(job.posted_at).toLocaleDateString()}
