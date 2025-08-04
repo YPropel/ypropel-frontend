@@ -1,57 +1,78 @@
-import React, { useState } from 'react';
-import { useRouter } from 'next/router';
-import { apiFetch } from '../apiClient'; // Importing apiFetch
+import React, { useState } from "react";
+import { useRouter } from "next/router";
+import { apiFetch } from "../apiClient"; // Adjust path if necessary
+
+const JOB_TYPES = [
+  { label: "Internship", value: "internship" },
+  { label: "Entry Level", value: "entry_level" },
+  { label: "Hourly", value: "hourly" },
+];
 
 const PostJob = () => {
-  const [title, setTitle] = useState('');
-  const [description, setDescription] = useState('');
-  const [location, setLocation] = useState('');
-  const [salary, setSalary] = useState('');
-  const [jobType, setJobType] = useState('');
-  const [applyUrl, setApplyUrl] = useState('');
-  const [expiresAt, setExpiresAt] = useState('');
-  const [companyId, setCompanyId] = useState<number | null>(null);
+  const [title, setTitle] = useState("");
+  const [description, setDescription] = useState("");
+  const [category, setCategory] = useState("");
+  const [company, setCompany] = useState("");
+  const [location, setLocation] = useState("");
+  const [requirements, setRequirements] = useState("");
+  const [applyUrl, setApplyUrl] = useState("");
+  const [salary, setSalary] = useState("");
+  const [jobType, setJobType] = useState("entry_level");
+  const [country, setCountry] = useState("");
+  const [state, setState] = useState("");
+  const [city, setCity] = useState("");
+  const [expiresAt, setExpiresAt] = useState("");
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
+  const { companyId } = router.query; // Get companyId from the URL
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!title || !description || !location || !salary || !jobType || !applyUrl || !companyId) {
-      setError('All fields are required.');
+    if (!title || !description || !category || !company || !location || !salary || !jobType || !applyUrl || !country || !state || !city) {
+      setError("All fields are required.");
+      return;
+    }
+
+    const userId = localStorage.getItem("userId"); // Ensure userId is stored after login
+
+    if (!userId) {
+      setError("User is not logged in.");
       return;
     }
 
     try {
-      const token = localStorage.getItem('token');
-
-      const response = await apiFetch('/api/jobs', {
-        method: 'POST',
+      const response = await apiFetch("/jobs", {
+        method: "POST",
         body: JSON.stringify({
           companyId,
           title,
           description,
+          category,
+          company,
           location,
+          requirements,
+          applyUrl,
           salary,
           jobType,
-          applyUrl,
+          country,
+          state,
+          city,
           expiresAt,
         }),
         headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
         },
       });
 
       if (response.ok) {
-        // Redirect to job listing page after successful job posting
-        router.push('/jobs');
+        router.push(`/jobs`); // Redirect to the Jobs page after successful posting
       } else {
         const errorData = await response.json();
-        setError(errorData.error || 'Failed to post job');
+        setError(errorData.error || "Failed to post job");
       }
     } catch (error) {
-      setError('Something went wrong. Please try again later.');
+      setError("Something went wrong. Please try again later.");
     }
   };
 
@@ -60,6 +81,7 @@ const PostJob = () => {
       <h2 className="text-2xl font-bold">Post a Job</h2>
       {error && <p className="text-red-500">{error}</p>}
       <form onSubmit={handleSubmit} className="space-y-4">
+        {/* Title */}
         <div>
           <label className="block">Job Title</label>
           <input
@@ -71,8 +93,9 @@ const PostJob = () => {
           />
         </div>
 
+        {/* Description */}
         <div>
-          <label className="block">Job Description</label>
+          <label className="block">Description</label>
           <textarea
             className="w-full p-2 border border-gray-300"
             value={description}
@@ -81,6 +104,31 @@ const PostJob = () => {
           />
         </div>
 
+        {/* Category */}
+        <div>
+          <label className="block">Category</label>
+          <input
+            type="text"
+            className="w-full p-2 border border-gray-300"
+            value={category}
+            onChange={(e) => setCategory(e.target.value)}
+            required
+          />
+        </div>
+
+        {/* Company */}
+        <div>
+          <label className="block">Company</label>
+          <input
+            type="text"
+            className="w-full p-2 border border-gray-300"
+            value={company}
+            onChange={(e) => setCompany(e.target.value)}
+            required
+          />
+        </div>
+
+        {/* Location */}
         <div>
           <label className="block">Location</label>
           <input
@@ -92,30 +140,19 @@ const PostJob = () => {
           />
         </div>
 
+        {/* Requirements */}
         <div>
-          <label className="block">Salary</label>
-          <input
-            type="number"
+          <label className="block">Requirements</label>
+          <textarea
             className="w-full p-2 border border-gray-300"
-            value={salary}
-            onChange={(e) => setSalary(e.target.value)}
-            required
+            value={requirements}
+            onChange={(e) => setRequirements(e.target.value)}
           />
         </div>
 
+        {/* Apply URL */}
         <div>
-          <label className="block">Job Type</label>
-          <input
-            type="text"
-            className="w-full p-2 border border-gray-300"
-            value={jobType}
-            onChange={(e) => setJobType(e.target.value)}
-            required
-          />
-        </div>
-
-        <div>
-          <label className="block">Application URL</label>
+          <label className="block">Apply URL</label>
           <input
             type="url"
             className="w-full p-2 border border-gray-300"
@@ -125,6 +162,73 @@ const PostJob = () => {
           />
         </div>
 
+        {/* Salary */}
+        <div>
+          <label className="block">Salary</label>
+          <input
+            type="text"
+            className="w-full p-2 border border-gray-300"
+            value={salary}
+            onChange={(e) => setSalary(e.target.value)}
+            required
+          />
+        </div>
+
+        {/* Job Type */}
+        <div>
+          <label className="block">Job Type</label>
+          <select
+            className="w-full p-2 border border-gray-300"
+            value={jobType}
+            onChange={(e) => setJobType(e.target.value)}
+            required
+          >
+            <option value="">Select Job Type</option>
+            {JOB_TYPES.map(({ label, value }) => (
+              <option key={value} value={value}>
+                {label}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        {/* Country */}
+        <div>
+          <label className="block">Country</label>
+          <input
+            type="text"
+            className="w-full p-2 border border-gray-300"
+            value={country}
+            onChange={(e) => setCountry(e.target.value)}
+            required
+          />
+        </div>
+
+        {/* State */}
+        <div>
+          <label className="block">State</label>
+          <input
+            type="text"
+            className="w-full p-2 border border-gray-300"
+            value={state}
+            onChange={(e) => setState(e.target.value)}
+            required
+          />
+        </div>
+
+        {/* City */}
+        <div>
+          <label className="block">City</label>
+          <input
+            type="text"
+            className="w-full p-2 border border-gray-300"
+            value={city}
+            onChange={(e) => setCity(e.target.value)}
+            required
+          />
+        </div>
+
+        {/* Expiration Date */}
         <div>
           <label className="block">Expiration Date</label>
           <input
@@ -132,17 +236,6 @@ const PostJob = () => {
             className="w-full p-2 border border-gray-300"
             value={expiresAt}
             onChange={(e) => setExpiresAt(e.target.value)}
-          />
-        </div>
-
-        <div>
-          <label className="block">Company ID</label>
-          <input
-            type="number"
-            className="w-full p-2 border border-gray-300"
-            value={companyId || ''}
-            onChange={(e) => setCompanyId(Number(e.target.value))}
-            required
           />
         </div>
 
