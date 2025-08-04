@@ -28,7 +28,7 @@ const CompanyDetailsPage = () => {
           setError(errorData.error || "Failed to fetch company details");
         }
       } catch (error) {
-        setError("Something went wrong. Please try again later.");
+        setError("Something went wrong in fetching Co detials. Please try again later.");
       }
     };
 
