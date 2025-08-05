@@ -1,137 +1,73 @@
 import React, { useState, useEffect } from "react";
 import { useRouter } from "next/router";
-import { apiFetch } from "../apiClient"; 
+import { apiFetch } from "../apiClient";
 
-type Job = {
-  id: number;
-  title: string;
-  description?: string;
-  category?: string;
-  company?: string;
-  location?: string;
-  requirements?: string;
-  apply_url?: string;
-  salary?: string;
-  is_active?: boolean;
-  expires_at?: string;
-  job_type?: string;
-  country?: string;
-  state?: string;
-  city?: string;
-};
+// Predefined options for location
+const locationOptions = ["remote", "onsite", "hybrid"]; 
 
-type Category = {
-  id: number;
+// Types for country, state, and city
+type Country = {
+  id: string;  // Assuming id is a string, adjust if it's a number
   name: string;
 };
 
-const JOB_TYPES = [
-  { label: "Internship", value: "internship" },
-  { label: "Entry Level", value: "entry_level" },
-  { label: "Hourly", value: "hourly" },
-];
+type State = {
+  id: string;  // Assuming id is a string, adjust if it's a number
+  name: string;
+};
 
-export default function PostJobPage() {
-  // States to hold form data
-  const [jobs, setJobs] = useState<Job[]>([]);
-  const [loading, setLoading] = useState(false);
+type City = {
+  id: string;  // Assuming id is a string, adjust if it's a number
+  name: string;
+};
+
+const postjob = () => {
+  const [title, setTitle] = useState("");
+  const [description, setDescription] = useState("");
+  const [category, setCategory] = useState("");
+  const [location, setLocation] = useState("remote");  // Default to "remote"
+  const [requirements, setRequirements] = useState("");
+  const [applyUrl, setApplyUrl] = useState("");
+  const [salary, setSalary] = useState("");
+  const [jobType, setJobType] = useState("entry_level");
+  const [country, setCountry] = useState(""); // Will be filled with dropdown
+  const [state, setState] = useState(""); // Will be filled with dropdown
+  const [city, setCity] = useState(""); // Will be filled with dropdown
+  const [expiresAt, setExpiresAt] = useState("");
+  const [isActive, setIsActive] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [selectedJob, setSelectedJob] = useState<Job | undefined>(undefined);
 
-  const [categories, setCategories] = useState<Category[]>([]);
-  const [newCategoryName, setNewCategoryName] = useState("");
-  const [refreshFlag, setRefreshFlag] = useState(false);
-  const [showDeleteList, setShowDeleteList] = useState(false);
+  const router = useRouter();
+  const { companyId } = router.query;
 
-  const [countries, setCountries] = useState<string[]>([]);
-  const [states, setStates] = useState<{ name: string; abbreviation: string }[]>([]);
-  const [cities, setCities] = useState<string[]>([]);
-
-  const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
-
-  const [formData, setFormData] = useState<Partial<Job>>({
-    title: "",
-    description: "",
-    category: "",
-    company: "",
-    location: "",
-    requirements: "",
-    apply_url: "",
-    salary: "",
-    is_active: true,
-    expires_at: "",
-    job_type: "entry_level",
-    country: "",
-    state: "",
-    city: "",
-  });
-
-  const LOCATION_OPTIONS = ["Remote", "Onsite", "Hybrid"];
-
-  // Only fetch jobs if authorized
-  useEffect(() => {
-    if (!token) {
-      setError("Not authenticated");
-      return;
-    }
-
-    async function fetchJobs() {
-      setLoading(true);
-      setError(null);
-
-      try {
-        const res = await apiFetch("/admin/jobs", {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-
-        if (!res.ok) {
-          const data = await res.json();
-          throw new Error(data.error || "Failed to fetch jobs");
-        }
-
-        const data = await res.json();
-        setJobs(data);
-      } catch (err: any) {
-        setError(err.message || "Unexpected error");
-      } finally {
-        setLoading(false);
-      }
-    }
-
-    fetchJobs();
-  }, [token, refreshFlag]);
-
-  // Only fetch categories if authorized
-  useEffect(() => {
-    if (!token) return;
-
-    apiFetch("/admin/job-categories", {
-      headers: { Authorization: `Bearer ${token}` },
-    })
-      .then((res) => {
-        if (!res.ok) throw new Error(`Failed to fetch categories: ${res.statusText}`);
-        return res.json();
-      })
-      .then(setCategories)
-      .catch((err) => console.error("Category fetch error:", err));
-  }, [token, refreshFlag]);
+  const [countries, setCountries] = useState<Country[]>([]); // Update to match the API response
+  const [states, setStates] = useState<State[]>([]);
+  const [cities, setCities] = useState<City[]>([]);
 
   // Fetch countries once
   useEffect(() => {
     apiFetch("/countries")
       .then((res) => res.json())
-      .then(setCountries)
-      .catch(console.error);
+      .then((data) => {
+        console.log("Fetched Countries:", data); // Debug log
+        // Assuming the API returns an array of strings
+        setCountries(data.map((country: string) => ({ id: country, name: country }))); // Mapping strings to objects with id and name
+      })
+      .catch((err) => {
+        console.error("Failed to load countries:", err);
+        setError("Failed to load countries.");
+      });
   }, []);
 
   // Fetch states when country changes (only if USA)
   useEffect(() => {
-    if (!formData.country) return;
+    if (!country) return;
 
-    if (formData.country === "USA" || formData.country === "United States") {
+    if (country === "USA" || country === "United States") {
       apiFetch("/us-states")
         .then((res) => res.json())
         .then((data) => {
+          console.log("Fetched States:", data); // Debug log
           setStates(data);
         })
         .catch(() => setStates([]));
@@ -139,197 +75,139 @@ export default function PostJobPage() {
       setStates([]);
       setFormData((prev) => ({ ...prev, state: "", city: "" }));
     }
-  }, [formData.country]);
+  }, [country]);
 
   // Fetch cities when state changes
   useEffect(() => {
-    if (!formData.state || !(formData.country === "USA" || formData.country === "United States")) {
+    if (!state || !(country === "USA" || country === "United States")) {
       setCities([]);
       setFormData((prev) => ({ ...prev, city: "" }));
       return;
     }
 
-    apiFetch(`/us-cities?state=${encodeURIComponent(formData.state)}`)
+    apiFetch(`/us-cities?state=${encodeURIComponent(state)}`)
       .then((res) => res.json())
       .then(setCities)
       .catch(() => setCities([]));
-  }, [formData.state, formData.country]);
+  }, [state, country]);
 
-  function handleChange(
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
-  ) {
-    const { name, value, type } = e.target;
-    const val =
-      type === "checkbox" && "checked" in e.target ? (e.target as HTMLInputElement).checked : value;
-
-    setFormData((prev) => ({
-      ...prev,
-      [name]: val,
-    }));
-  }
-
-  async function handleSubmit(e: React.FormEvent) {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
+    if (!title || !description || !category || !location || !country || !state || !city) {
+      setError("All required fields must be filled.");
+      return;
+    }
+
+    const token = localStorage.getItem("token");
+
     if (!token) {
-      alert("Not authenticated");
-      return;
-    }
-
-    if (!formData.title?.trim()) {
-      alert("Title is required");
-      return;
-    }
-
-    if (!formData.job_type) {
-      alert("Job Type is required");
-      return;
-    }
-
-    if (!formData.category) {
-      alert("Category is required");
-      return;
-    }
-
-    if (!formData.apply_url || formData.apply_url.trim() === "") {
-      alert("Apply URL is required");
+      setError("User is not logged in.");
       return;
     }
 
     try {
-      const method = selectedJob ? "PUT" : "POST";
-      const url = selectedJob ? `/admin/jobs/${selectedJob.id}` : "/admin/jobs";
-
-      const res = await apiFetch(url, {
-        method,
+      const response = await apiFetch("/companies/post-job", {
+        method: "POST",
+        body: JSON.stringify({
+          title,
+          description,
+          category,
+          location,
+          requirements,
+          applyUrl,
+          salary,
+          jobType,
+          country,
+          state,
+          city,
+          expiresAt,
+          isActive,
+        }),
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
+          "Authorization": `Bearer ${token}`,
         },
-        body: JSON.stringify(formData),
       });
 
-      if (!res.ok) {
-        const data = await res.json();
-        throw new Error(data.error || "Failed to save job");
+      if (response.ok) {
+        router.push(`/companies/jobs?companyId=${companyId}`);
+      } else {
+        const errorData = await response.json();
+        setError(errorData.error || "Failed to post job");
       }
-
-      alert("Job saved successfully!");
-      setSelectedJob(undefined);
-      setRefreshFlag((f) => !f);
-    } catch (err: any) {
-      alert(err.message || "Error saving job");
+    } catch (error) {
+      setError("Something went wrong. Please try again later.");
     }
-  }
-
-  async function handleDelete(id: number) {
-    if (!confirm("Are you sure you want to delete this job?")) return;
-    if (!token) {
-      alert("Not authenticated");
-      return;
-    }
-
-    try {
-      const res = await apiFetch(`/admin/jobs/${id}`, {
-        method: "DELETE",
-        headers: { Authorization: `Bearer ${token}` },
-      });
-
-      if (!res.ok) {
-        const data = await res.json();
-        throw new Error(data.error || "Failed to delete job");
-      }
-
-      setRefreshFlag((f) => !f);
-      if (selectedJob?.id === id) setSelectedJob(undefined);
-    } catch (err: any) {
-      alert(err.message || "Error deleting job");
-    }
-  }
+  };
 
   return (
-    <div className="max-w-5xl mx-auto p-6">
-      <h1 className="text-3xl font-bold mb-6">Job Management</h1>
-
-      {error && <p className="text-red-600 mb-4">{error}</p>}
-
-      {/* Job Form */}
-      <h2 className="text-2xl font-semibold mb-4">{selectedJob ? "Edit Job Posting" : "Create New Job Posting"}</h2>
-
-      <form onSubmit={handleSubmit} className="space-y-4 max-w-xl mb-8">
-        {/* Job Type */}
+    <div className="container mx-auto p-6">
+      <h2 className="text-2xl font-bold">Post a Job</h2>
+      {error && <p className="text-red-500">{error}</p>}
+      <form onSubmit={handleSubmit} className="space-y-4">
+        {/* Job Title */}
         <div>
-          <label htmlFor="job_type" className="block font-semibold mb-1">
-            Job Type <span className="text-red-600">*</span>
-          </label>
-          <select
-            id="job_type"
-            name="job_type"
-            value={formData.job_type || ""}
-            onChange={handleChange}
-            required
-            className="w-full border rounded px-3 py-2"
-          >
-            <option value="">Select Job Type</option>
-            {JOB_TYPES.map(({ label, value }) => (
-              <option key={value} value={value}>
-                {label}
-              </option>
-            ))}
-          </select>
-        </div>
-        {/* Company Name */}
-        <div>
-          <label htmlFor="company" className="block font-semibold mb-1">
-            Company Name <span className="text-red-600">*</span>
-          </label>
+          <label className="block">Job Title</label>
           <input
-            id="company"
-            name="company"
             type="text"
-            value={formData.company || ""}
-            onChange={handleChange}
+            className="w-full p-2 border border-gray-300"
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
             required
-            className="w-full border rounded px-3 py-2"
+          />
+        </div>
+
+        {/* Description */}
+        <div>
+          <label className="block">Description</label>
+          <textarea
+            className="w-full p-2 border border-gray-300"
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+            required
           />
         </div>
 
         {/* Category */}
         <div>
-          <label htmlFor="category" className="block font-semibold mb-1">
-            Category <span className="text-red-600">*</span>
-          </label>
-          <select
-            id="category"
-            name="category"
-            value={formData.category || ""}
-            onChange={handleChange}
+          <label className="block">Category</label>
+          <input
+            type="text"
+            className="w-full p-2 border border-gray-300"
+            value={category}
+            onChange={(e) => setCategory(e.target.value)}
             required
-            className="w-full border rounded px-3 py-2"
+          />
+        </div>
+
+        {/* Location (Dropdown for remote, onsite, hybrid) */}
+        <div>
+          <label className="block">Location</label>
+          <select
+            className="w-full p-2 border border-gray-300"
+            value={location}
+            onChange={(e) => setLocation(e.target.value)}
+            required
           >
-            <option value="">Select Category</option>
-            {categories.map((cat) => (
-              <option key={cat.id} value={cat.name}>
-                {cat.name}
+            {locationOptions.map((option) => (
+              <option key={option} value={option}>
+                {option.charAt(0).toUpperCase() + option.slice(1)}
               </option>
             ))}
           </select>
         </div>
 
-        {/* Country */}
+        {/* Country (Dropdown) */}
         <div>
-          <label htmlFor="country" className="block font-semibold mb-1">
-            Country
-          </label>
+          <label className="block">Country</label>
           <select
-            id="country"
-            name="country"
-            value={formData.country || ""}
-            onChange={handleChange}
+            className="w-full p-2 border border-gray-300"
+            value={country}
+            onChange={(e) => setCountry(e.target.value)}
             required
-            className="w-full border rounded px-3 py-2"
           >
-            <option value="">Select Country</option>
+            <option value="">Select a country</option>
             {countries.map((country) => (
               <option key={country.id} value={country.id}>
                 {country.name}
@@ -338,21 +216,16 @@ export default function PostJobPage() {
           </select>
         </div>
 
-        {/* State */}
+        {/* State (Dropdown) */}
         <div>
-          <label htmlFor="state" className="block font-semibold mb-1">
-            State
-          </label>
+          <label className="block">State</label>
           <select
-            id="state"
-            name="state"
-            value={formData.state || ""}
-            onChange={handleChange}
-            disabled={!formData.country || formData.country !== "USA"}
+            className="w-full p-2 border border-gray-300"
+            value={state}
+            onChange={(e) => setState(e.target.value)}
             required
-            className="w-full border rounded px-3 py-2"
           >
-            <option value="">Select State</option>
+            <option value="">Select a state</option>
             {states.map((state) => (
               <option key={state.id} value={state.id}>
                 {state.name}
@@ -361,21 +234,16 @@ export default function PostJobPage() {
           </select>
         </div>
 
-        {/* City */}
+        {/* City (Dropdown) */}
         <div>
-          <label htmlFor="city" className="block font-semibold mb-1">
-            City
-          </label>
+          <label className="block">City</label>
           <select
-            id="city"
-            name="city"
-            value={formData.city || ""}
-            onChange={handleChange}
-            disabled={!formData.state || formData.state === ""}
+            className="w-full p-2 border border-gray-300"
+            value={city}
+            onChange={(e) => setCity(e.target.value)}
             required
-            className="w-full border rounded px-3 py-2"
           >
-            <option value="">Select City</option>
+            <option value="">Select a city</option>
             {cities.map((city) => (
               <option key={city.id} value={city.id}>
                 {city.name}
@@ -384,50 +252,81 @@ export default function PostJobPage() {
           </select>
         </div>
 
-        {/* Job Location */}
+        {/* Requirements */}
         <div>
-          <label htmlFor="location" className="block font-semibold mb-1">
-            Job Location
-          </label>
-          <select
-            id="location"
-            name="location"
-            value={formData.location || ""}
-            onChange={handleChange}
-            className="w-full border rounded px-3 py-2"
-          >
-            <option value="">Select Location</option>
-            {LOCATION_OPTIONS.map((loc) => (
-              <option key={loc} value={loc}>
-                {loc}
-              </option>
-            ))}
-          </select>
+          <label className="block">Requirements</label>
+          <textarea
+            className="w-full p-2 border border-gray-300"
+            value={requirements}
+            onChange={(e) => setRequirements(e.target.value)}
+          />
         </div>
 
         {/* Apply URL */}
         <div>
-          <label htmlFor="apply_url" className="block font-semibold mb-1">
-            Apply URL <span className="text-red-600">*</span>
-          </label>
+          <label className="block">Apply URL</label>
           <input
-            id="apply_url"
-            name="apply_url"
             type="url"
-            value={formData.apply_url || ""}
-            onChange={handleChange}
+            className="w-full p-2 border border-gray-300"
+            value={applyUrl}
+            onChange={(e) => setApplyUrl(e.target.value)}
             required
-            className="w-full border rounded px-3 py-2"
           />
         </div>
 
-        <button
-          type="submit"
-          className="bg-blue-600 text-white px-5 py-2 rounded hover:bg-blue-700"
-        >
-          {selectedJob ? "Update Job" : "Create Job"}
+        {/* Salary */}
+        <div>
+          <label className="block">Salary</label>
+          <input
+            type="text"
+            className="w-full p-2 border border-gray-300"
+            value={salary}
+            onChange={(e) => setSalary(e.target.value)}
+          />
+        </div>
+
+        {/* Job Type */}
+        <div>
+          <label className="block">Job Type</label>
+          <select
+            className="w-full p-2 border border-gray-300"
+            value={jobType}
+            onChange={(e) => setJobType(e.target.value)}
+            required
+          >
+            <option value="internship">Internship</option>
+            <option value="entry_level">Entry Level</option>
+            <option value="hourly">Hourly</option>
+          </select>
+        </div>
+
+        {/* Expiration Date */}
+        <div>
+          <label className="block">Expiration Date</label>
+          <input
+            type="date"
+            className="w-full p-2 border border-gray-300"
+            value={expiresAt}
+            onChange={(e) => setExpiresAt(e.target.value)}
+          />
+        </div>
+
+        {/* Active Status */}
+        <div>
+          <label className="block">Active</label>
+          <input
+            type="checkbox"
+            checked={isActive}
+            onChange={() => setIsActive(!isActive)}
+          />
+        </div>
+
+        <button type="submit" className="px-4 py-2 bg-blue-500 text-white">
+          Post Job
         </button>
       </form>
     </div>
   );
-}
+};
+
+export default postjob;
