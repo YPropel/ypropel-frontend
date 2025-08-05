@@ -85,12 +85,21 @@ const PostJob = () => {
       return;
     }
 
-    apiFetch(`/us-cities?state=${encodeURIComponent(state)}`)
+    apiFetch(`/us-cities?state=${encodeURIComponent(state)}`)  // Passing state abbreviation
       .then((res) => res.json())
       .then((data) => {
-        setCities(data); // Set cities from API response
+        console.log("Fetched Cities:", data); // Debugging the fetched cities
+        if (Array.isArray(data)) {
+          setCities(data); // Set cities from API response
+        } else {
+          setCities([]);
+          console.error("Invalid city data:", data);
+        }
       })
-      .catch(() => setCities([]));
+      .catch((err) => {
+        console.error("Failed to load cities:", err);
+        setCities([]); // Reset cities on error
+      });
   }, [state, country]);
 
   const handleSubmit = async (e: React.FormEvent) => {
