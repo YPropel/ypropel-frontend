@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from "react";
+import { useRouter } from "next/router";  // Use Next.js router
 import { apiFetch } from "../apiClient"; // Adjust path as needed
 
+// Define constants and types
 const JOB_TYPES = [
   { label: "Internship", value: "internship" },
   { label: "Entry Level", value: "entry_level" },
@@ -23,6 +25,9 @@ type City = {
 };
 
 const PostJob = () => {
+  const router = useRouter(); // Use Next.js router
+  const { companyId } = router.query; // Get companyId from URL using useRouter
+
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [category, setCategory] = useState("");
@@ -42,43 +47,6 @@ const PostJob = () => {
   const [countries, setCountries] = useState<Country[]>([]);
   const [states, setStates] = useState<State[]>([]);
   const [cities, setCities] = useState<City[]>([]);
-
-  const companyId = localStorage.getItem("companyId"); // Get companyId from localStorage
-
-  // Check if companyId exists in localStorage
-  useEffect(() => {
-    if (!companyId) {
-      setError("Company ID is required.");
-      return;
-    }
-
-    const fetchJobs = async () => {
-      const token = localStorage.getItem("token");
-
-      if (!token) {
-        setError("User is not logged in.");
-        return;
-      }
-
-      const response = await apiFetch(`/companies/${companyId}/jobs`, {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": `Bearer ${token}`,
-        },
-      });
-
-      if (response.ok) {
-        const jobData = await response.json();
-        setJobs(jobData); // Update jobs state
-      } else {
-        const errorData = await response.json();
-        setError(errorData.error || "Failed to fetch jobs.");
-      }
-    };
-
-    fetchJobs();
-  }, [companyId]); // Re-run effect when companyId changes
 
   // Fetch countries once
   useEffect(() => {
@@ -138,6 +106,41 @@ const PostJob = () => {
       })
       .catch(() => setCities([]));
   }, [state, country]);
+
+  // Fetch jobs for the logged-in user's company using companyId from the URL
+  useEffect(() => {
+    if (!companyId) {
+      setError("Company ID is required.");
+      return;
+    }
+
+    const fetchJobs = async () => {
+      const token = localStorage.getItem("token");
+
+      if (!token) {
+        setError("User is not logged in.");
+        return;
+      }
+
+      const response = await apiFetch(`/companies/${companyId}/jobs`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`,
+        },
+      });
+
+      if (response.ok) {
+        const jobData = await response.json();
+        setJobs(jobData);
+      } else {
+        const errorData = await response.json();
+        setError(errorData.error || "Failed to fetch jobs.");
+      }
+    };
+
+    fetchJobs();
+  }, [companyId]); // Re-run the effect when companyId changes
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
