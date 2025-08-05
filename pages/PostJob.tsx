@@ -170,6 +170,7 @@ const PostJob = () => {
 } catch (error) {
   setError("Something went wrong. Please try again later.");
 }
+  };
 
   return (
     <div className="container mx-auto p-6">
