@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useRouter } from "next/router";
-import { apiFetch } from "../apiClient"; // Adjust path if needed
+import { apiFetch } from "../apiClient";
 
 const JOB_TYPES = [
   { label: "Internship", value: "internship" },
