@@ -51,7 +51,11 @@ const PostJob = () => {
     apiFetch("/countries")
       .then((res) => res.json())
       .then((data) => {
-        setCountries(data);
+        if (Array.isArray(data)) {
+          setCountries(data.map((country) => ({ name: country }))); // Adjust if format is different
+        } else {
+          console.error("Fetched countries is not an array:", data);
+        }
       })
       .catch((err) => {
         console.error("Failed to load countries:", err);
@@ -67,7 +71,11 @@ const PostJob = () => {
       apiFetch("/us-states")
         .then((res) => res.json())
         .then((data) => {
-          setStates(data);
+          if (Array.isArray(data)) {
+            setStates(data); // Use the fetched states
+          } else {
+            console.error("Fetched states is not an array:", data);
+          }
         })
         .catch(() => setStates([]));
     } else {
@@ -88,7 +96,11 @@ const PostJob = () => {
     apiFetch(`/us-cities?state=${encodeURIComponent(state)}`)
       .then((res) => res.json())
       .then((data) => {
-        setCities(data);
+        if (Array.isArray(data)) {
+          setCities(data); // Use the fetched cities
+        } else {
+          console.error("Fetched cities is not an array:", data);
+        }
       })
       .catch(() => setCities([]));
   }, [state, country]);
