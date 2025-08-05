@@ -118,6 +118,8 @@ const PostJob = () => {
       setError("User is not logged in.");
       return;
     }
+  // Capitalize the location value before sending it to the backend
+    const formattedLocation = location.charAt(0).toUpperCase() + location.slice(1).toLowerCase();
 
     // Log the form data before sending it to the backend
     console.log({
