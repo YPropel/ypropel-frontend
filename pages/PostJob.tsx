@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from "react";
-import { useRouter } from "next/router";
 import { apiFetch } from "../apiClient"; // Adjust path as needed
 
 const JOB_TYPES = [
@@ -27,20 +26,18 @@ const PostJob = () => {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [category, setCategory] = useState("");
-  const [location, setLocation] = useState("remote"); // Location in lowercase by default
+  const [location, setLocation] = useState("remote");
   const [requirements, setRequirements] = useState("");
   const [applyUrl, setApplyUrl] = useState("");
   const [salary, setSalary] = useState("");
   const [jobType, setJobType] = useState("entry_level");
-  const [country, setCountry] = useState(""); // Country dropdown
-  const [state, setState] = useState(""); // State abbreviation
-  const [city, setCity] = useState(""); // City dropdown
+  const [country, setCountry] = useState("");
+  const [state, setState] = useState("");
+  const [city, setCity] = useState("");
   const [expiresAt, setExpiresAt] = useState("");
   const [isActive, setIsActive] = useState(true);
   const [error, setError] = useState<string | null>(null);
-
-  const router = useRouter();
-
+  const [jobs, setJobs] = useState<any[]>([]); // Store jobs
   const [countries, setCountries] = useState<Country[]>([]);
   const [states, setStates] = useState<State[]>([]);
   const [cities, setCities] = useState<City[]>([]);
@@ -51,7 +48,7 @@ const PostJob = () => {
       .then((res) => res.json())
       .then((data) => {
         if (Array.isArray(data)) {
-          setCountries(data.map((country) => ({ name: country }))); // Adjust if format is different
+          setCountries(data.map((country) => ({ name: country })));
         } else {
           console.error("Fetched countries is not an array:", data);
         }
@@ -62,47 +59,29 @@ const PostJob = () => {
       });
   }, []);
 
-  // Fetch states when country changes (only if USA)
+  // Fetch jobs
   useEffect(() => {
-    if (!country) return;
+    const fetchJobs = async () => {
+      const token = localStorage.getItem("token");
+      const response = await apiFetch("/companies/jobs", {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`,
+        },
+      });
 
-    if (country === "USA" || country === "United States") {
-      apiFetch("/us-states")
-        .then((res) => res.json())
-        .then((data) => {
-          if (Array.isArray(data)) {
-            setStates(data); // Use the fetched states
-          } else {
-            console.error("Fetched states is not an array:", data);
-          }
-        })
-        .catch(() => setStates([]));
-    } else {
-      setStates([]);
-      setState(""); // Reset state when country is not USA
-      setCity(""); // Reset city when country is not USA
-    }
-  }, [country]);
+      if (response.ok) {
+        const jobData = await response.json();
+        setJobs(jobData);
+      } else {
+        const errorData = await response.json();
+        setError(errorData.error || "Failed to fetch jobs.");
+      }
+    };
 
-  // Fetch cities when state changes
-  useEffect(() => {
-    if (!state || !(country === "USA" || country === "United States")) {
-      setCities([]);
-      setCity(""); // Reset city when state is empty
-      return;
-    }
-
-    apiFetch(`/us-cities?state=${encodeURIComponent(state)}`)
-      .then((res) => res.json())
-      .then((data) => {
-        if (Array.isArray(data)) {
-          setCities(data.map((city) => ({ name: city }))); // Map cities to city objects
-        } else {
-          console.error("Fetched cities is not an array:", data);
-        }
-      })
-      .catch(() => setCities([]));
-  }, [state, country]);
+    fetchJobs();
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -119,25 +98,7 @@ const PostJob = () => {
       return;
     }
 
-    // **Capitalizing the location value before sending to the backend**
     const formattedLocation = location.charAt(0).toUpperCase() + location.slice(1).toLowerCase();
-
-    // Log the form data before sending it to the backend
-    console.log({
-      title,
-      description,
-      category,
-      location: formattedLocation, // Ensure location is capitalized here
-      requirements,
-      applyUrl,
-      salary,
-      jobType,
-      country,
-      state,
-      city,
-      expiresAt,
-      isActive,
-    });
 
     try {
       const response = await apiFetch("/companies/post-job", {
@@ -146,7 +107,7 @@ const PostJob = () => {
           title,
           description,
           category,
-          location: formattedLocation,  // Pass the formatted location here
+          location: formattedLocation,
           requirements,
           applyUrl,
           salary,
@@ -165,11 +126,48 @@ const PostJob = () => {
 
       if (response.ok) {
         const responseData = await response.json();
-       // router.push(`/companies/jobs?companyId=${responseData.companyId}`);
-       router.push(`/companies/jobs`);
+        // Refresh job list after posting a new job
+        setJobs((prevJobs) => [...prevJobs, responseData]);
+        // Clear form fields
+        setTitle("");
+        setDescription("");
+        setCategory("");
+        setLocation("remote");
+        setRequirements("");
+        setApplyUrl("");
+        setSalary("");
+        setJobType("entry_level");
+        setCountry("");
+        setState("");
+        setCity("");
+        setExpiresAt("");
+        setIsActive(true);
       } else {
         const errorData = await response.json();
         setError(errorData.error || "Failed to post job");
+      }
+    } catch (error) {
+      setError("Something went wrong. Please try again later.");
+    }
+  };
+
+  const handleDelete = async (jobId: string) => {
+    const token = localStorage.getItem("token");
+
+    try {
+      const response = await apiFetch(`/companies/jobs/${jobId}`, {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`,
+        },
+      });
+
+      if (response.ok) {
+        setJobs(jobs.filter((job) => job.id !== jobId)); // Remove deleted job from the state
+      } else {
+        const errorData = await response.json();
+        setError(errorData.error || "Failed to delete job");
       }
     } catch (error) {
       setError("Something went wrong. Please try again later.");
@@ -360,6 +358,28 @@ const PostJob = () => {
           Post Job
         </button>
       </form>
+
+      <div className="mt-8">
+        <h2 className="text-2xl font-bold">Posted Jobs</h2>
+        {jobs.length > 0 ? (
+          <ul>
+            {jobs.map((job) => (
+              <li key={job.id} className="py-2">
+                <h3 className="text-lg font-semibold">{job.title}</h3>
+                <p>{job.description}</p>
+                <button
+                  onClick={() => handleDelete(job.id)}
+                  className="bg-red-500 text-white py-1 px-3 rounded mt-2"
+                >
+                  Delete Job
+                </button>
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <p>No jobs available for this company.</p>
+        )}
+      </div>
     </div>
   );
 };
