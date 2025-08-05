@@ -1,23 +1,28 @@
 import React, { useEffect, useState } from "react";
 import { useRouter } from "next/router";
-import { apiFetch } from "../apiClient"; // Assuming apiFetch is set up to handle API requests
+import { apiFetch } from "../apiClient"; // Adjust path if needed
 
-// Predefined options for job location
-const locationOptions = ["remote", "onsite", "hybrid"]; 
+const JOB_TYPES = [
+  { label: "Internship", value: "internship" },
+  { label: "Entry Level", value: "entry_level" },
+  { label: "Hourly", value: "hourly" },
+];
 
-// Types for country, state, and city
+const LOCATION_OPTIONS = ["Remote", "Onsite", "Hybrid"];
+
 type Country = {
-  id: string;  // Assuming id is a string, adjust if it's a number
+  id: string;
   name: string;
 };
 
 type State = {
-  id: string;  // Assuming id is a string, adjust if it's a number
+  id: string;
   name: string;
+  abbreviation: string;
 };
 
 type City = {
-  id: string;  // Assuming id is a string, adjust if it's a number
+  id: string;
   name: string;
 };
 
@@ -25,14 +30,14 @@ const PostJob = () => {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [category, setCategory] = useState("");
-  const [location, setLocation] = useState("remote");  // Default to "remote"
+  const [location, setLocation] = useState("remote");
   const [requirements, setRequirements] = useState("");
   const [applyUrl, setApplyUrl] = useState("");
   const [salary, setSalary] = useState("");
   const [jobType, setJobType] = useState("entry_level");
-  const [country, setCountry] = useState(""); // Will be filled with dropdown
-  const [state, setState] = useState(""); // Will be filled with dropdown
-  const [city, setCity] = useState(""); // Will be filled with dropdown
+  const [country, setCountry] = useState(""); // Country dropdown
+  const [state, setState] = useState(""); // State abbreviation
+  const [city, setCity] = useState(""); // City dropdown
   const [expiresAt, setExpiresAt] = useState("");
   const [isActive, setIsActive] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -40,7 +45,7 @@ const PostJob = () => {
   const router = useRouter();
   const { companyId } = router.query;
 
-  const [countries, setCountries] = useState<Country[]>([]); // Update to match the API response
+  const [countries, setCountries] = useState<Country[]>([]);
   const [states, setStates] = useState<State[]>([]);
   const [cities, setCities] = useState<City[]>([]);
 
@@ -49,10 +54,8 @@ const PostJob = () => {
     apiFetch("/countries")
       .then((res) => res.json())
       .then((data) => {
-        console.log("Fetched Countries:", data); // Debug log
-        // Ensure the data is an array before mapping
         if (Array.isArray(data)) {
-          setCountries(data.map((country: string) => ({ id: country, name: country }))); // Adjust if the format is different
+          setCountries(data.map((country) => ({ id: country, name: country }))); // Adjust if format is different
         } else {
           console.error("Fetched countries is not an array:", data);
         }
@@ -71,7 +74,6 @@ const PostJob = () => {
       apiFetch("/us-states")
         .then((res) => res.json())
         .then((data) => {
-          console.log("Fetched States:", data); // Debug log
           if (Array.isArray(data)) {
             setStates(data);
           } else {
@@ -81,8 +83,8 @@ const PostJob = () => {
         .catch(() => setStates([]));
     } else {
       setStates([]);
-      setState("");  // Reset state when country is not USA
-      setCity("");  // Reset city when country is not USA
+      setState(""); // Reset state when country is not USA
+      setCity(""); // Reset city when country is not USA
     }
   }, [country]);
 
@@ -97,7 +99,6 @@ const PostJob = () => {
     apiFetch(`/us-cities?state=${encodeURIComponent(state)}`)
       .then((res) => res.json())
       .then((data) => {
-        console.log("Fetched Cities:", data); // Debug log
         if (Array.isArray(data)) {
           setCities(data);
         } else {
@@ -206,7 +207,7 @@ const PostJob = () => {
             onChange={(e) => setLocation(e.target.value)}
             required
           >
-            {locationOptions.map((option) => (
+            {LOCATION_OPTIONS.map((option) => (
               <option key={option} value={option}>
                 {option.charAt(0).toUpperCase() + option.slice(1)}
               </option>
@@ -243,7 +244,7 @@ const PostJob = () => {
           >
             <option value="">Select a state</option>
             {states.map((state) => (
-              <option key={state.id} value={state.id}>
+              <option key={state.abbreviation} value={state.abbreviation}>
                 {state.name}
               </option>
             ))}
