@@ -48,11 +48,8 @@ const PostJob = () => {
   useEffect(() => {
     apiFetch("/countries")
       .then((res) => res.json())
-      .then(setCountries)
-      .catch((err) => {
-        setError("Failed to load countries.");
-        console.error(err);
-      });
+      .then((data) => setCountries(data)) // Assuming API returns an array of country objects
+      .catch(console.error);
   }, []);
 
   // Fetch states when country changes (only if USA)
@@ -62,7 +59,7 @@ const PostJob = () => {
     if (country === "USA" || country === "United States") {
       apiFetch("/us-states")
         .then((res) => res.json())
-        .then((data) => setStates(data))
+        .then((data) => setStates(data)) // Assuming the response contains an array of state objects
         .catch(() => setStates([]));
     } else {
       setStates([]);
