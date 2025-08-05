@@ -104,27 +104,35 @@ const PostJob = () => {
 
   // Fetch jobs for the logged-in user's company
   useEffect(() => {
-    const fetchJobs = async () => {
-      const token = localStorage.getItem("token");
-      const response = await apiFetch("/companies/jobs", {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": `Bearer ${token}`,
-        },
-      });
+  const fetchJobs = async () => {
+    const token = localStorage.getItem("token");
+    const companyId = localStorage.getItem("companyId"); // Assuming companyId is stored
 
-      if (response.ok) {
-        const jobData = await response.json();
-        setJobs(jobData);
-      } else {
-        const errorData = await response.json();
-        setError(errorData.error || "Failed to fetch jobs.");
-      }
-    };
+    if (!companyId) {
+      setError("Company ID is required.");
+      return;
+    }
 
-    fetchJobs();
-  }, []);
+    const response = await apiFetch(`/companies/jobs?companyId=${companyId}`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${token}`,
+      },
+    });
+
+    if (response.ok) {
+      const jobData = await response.json();
+      setJobs(jobData);
+    } else {
+      const errorData = await response.json();
+      setError(errorData.error || "Failed to fetch jobs.");
+    }
+  };
+
+  fetchJobs();
+}, []);
+
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
