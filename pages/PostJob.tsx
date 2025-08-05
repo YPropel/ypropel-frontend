@@ -123,7 +123,7 @@ const PostJob = () => {
         setError(errorData.error || "Failed to fetch jobs.");
       }
     };
-
+console.log("Fetched jobs:", jobData);
     fetchJobs();
   }, []);
 
