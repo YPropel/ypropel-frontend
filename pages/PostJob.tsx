@@ -1,12 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useRouter } from "next/router";
-import { apiFetch } from "../apiClient"; // Adjust path if necessary
-
-const JOB_TYPES = [
-  { label: "Internship", value: "internship" },
-  { label: "Entry Level", value: "entry_level" },
-  { label: "Hourly", value: "hourly" },
-];
+import { apiFetch } from "../apiClient";
 
 const PostJob = () => {
   const [title, setTitle] = useState("");
@@ -21,42 +15,14 @@ const PostJob = () => {
   const [state, setState] = useState("");
   const [city, setCity] = useState("");
   const [expiresAt, setExpiresAt] = useState("");
+  const [isActive, setIsActive] = useState(true);  // Assuming job is active by default
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
-  const { companyId } = router.query; // Get companyId from the URL
-
-  const [companyName, setCompanyName] = useState("");  // To store the company name
+  const { companyId } = router.query;  // Extract companyId from the URL
 
   useEffect(() => {
-    if (!companyId) return; // Ensure companyId is available
-
-    const token = localStorage.getItem("token");
-    if (!token) {
-      setError("User is not logged in.");
-      return;
-    }
-
-    const fetchCompanyName = async () => {
-      try {
-        const response = await apiFetch(`/companies/${companyId}`, {
-          method: "GET",
-          headers: {
-            "Authorization": `Bearer ${token}`,
-          },
-        });
-
-        if (response.ok) {
-          const data = await response.json();
-          setCompanyName(data.name);  // Assuming the response contains company name
-        } else {
-          setError("Failed to fetch company information.");
-        }
-      } catch (error) {
-        setError("Something went wrong. Please try again later.");
-      }
-    };
-
-    fetchCompanyName();
+    if (!companyId) return;
+    console.log("Company ID:", companyId);  // Log companyId to verify
   }, [companyId]);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -90,6 +56,7 @@ const PostJob = () => {
           state,
           city,
           expiresAt,
+          isActive,
         }),
         headers: {
           "Content-Type": "application/json",
@@ -98,7 +65,7 @@ const PostJob = () => {
       });
 
       if (response.ok) {
-        router.push(`/companies/jobs`);
+        router.push(`/companies/jobs?companyId=${companyId}`);
       } else {
         const errorData = await response.json();
         setError(errorData.error || "Failed to post job");
@@ -113,8 +80,7 @@ const PostJob = () => {
       <h2 className="text-2xl font-bold">Post a Job</h2>
       {error && <p className="text-red-500">{error}</p>}
       <form onSubmit={handleSubmit} className="space-y-4">
-        {/* Form fields for job posting */}
-        {/* Example for title */}
+        {/* Job Title */}
         <div>
           <label className="block">Job Title</label>
           <input
@@ -125,7 +91,147 @@ const PostJob = () => {
             required
           />
         </div>
-        {/* Repeat for other fields like description, category, etc. */}
+
+        {/* Description */}
+        <div>
+          <label className="block">Description</label>
+          <textarea
+            className="w-full p-2 border border-gray-300"
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+            required
+          />
+        </div>
+
+        {/* Category */}
+        <div>
+          <label className="block">Category</label>
+          <input
+            type="text"
+            className="w-full p-2 border border-gray-300"
+            value={category}
+            onChange={(e) => setCategory(e.target.value)}
+            required
+          />
+        </div>
+
+        {/* Location */}
+        <div>
+          <label className="block">Location</label>
+          <input
+            type="text"
+            className="w-full p-2 border border-gray-300"
+            value={location}
+            onChange={(e) => setLocation(e.target.value)}
+            required
+          />
+        </div>
+
+        {/* Requirements */}
+        <div>
+          <label className="block">Requirements</label>
+          <textarea
+            className="w-full p-2 border border-gray-300"
+            value={requirements}
+            onChange={(e) => setRequirements(e.target.value)}
+          />
+        </div>
+
+        {/* Apply URL */}
+        <div>
+          <label className="block">Apply URL</label>
+          <input
+            type="url"
+            className="w-full p-2 border border-gray-300"
+            value={applyUrl}
+            onChange={(e) => setApplyUrl(e.target.value)}
+            required
+          />
+        </div>
+
+        {/* Salary */}
+        <div>
+          <label className="block">Salary</label>
+          <input
+            type="text"
+            className="w-full p-2 border border-gray-300"
+            value={salary}
+            onChange={(e) => setSalary(e.target.value)}
+            required
+          />
+        </div>
+
+        {/* Job Type */}
+        <div>
+          <label className="block">Job Type</label>
+          <select
+            className="w-full p-2 border border-gray-300"
+            value={jobType}
+            onChange={(e) => setJobType(e.target.value)}
+            required
+          >
+            <option value="internship">Internship</option>
+            <option value="entry_level">Entry Level</option>
+            <option value="hourly">Hourly</option>
+          </select>
+        </div>
+
+        {/* Country */}
+        <div>
+          <label className="block">Country</label>
+          <input
+            type="text"
+            className="w-full p-2 border border-gray-300"
+            value={country}
+            onChange={(e) => setCountry(e.target.value)}
+            required
+          />
+        </div>
+
+        {/* State */}
+        <div>
+          <label className="block">State</label>
+          <input
+            type="text"
+            className="w-full p-2 border border-gray-300"
+            value={state}
+            onChange={(e) => setState(e.target.value)}
+            required
+          />
+        </div>
+
+        {/* City */}
+        <div>
+          <label className="block">City</label>
+          <input
+            type="text"
+            className="w-full p-2 border border-gray-300"
+            value={city}
+            onChange={(e) => setCity(e.target.value)}
+            required
+          />
+        </div>
+
+        {/* Expiration Date */}
+        <div>
+          <label className="block">Expiration Date</label>
+          <input
+            type="date"
+            className="w-full p-2 border border-gray-300"
+            value={expiresAt}
+            onChange={(e) => setExpiresAt(e.target.value)}
+          />
+        </div>
+
+        {/* Active Status */}
+        <div>
+          <label className="block">Active</label>
+          <input
+            type="checkbox"
+            checked={isActive}
+            onChange={() => setIsActive(!isActive)}
+          />
+        </div>
 
         <button type="submit" className="px-4 py-2 bg-blue-500 text-white">
           Post Job
