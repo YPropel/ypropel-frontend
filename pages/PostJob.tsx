@@ -198,7 +198,7 @@ const PostJob = () => {
         setRequirements("");
         setApplyUrl("");
         setSalary("");
-       // setJobType("entry_level");
+       setJobType("entry_level");
         setCountry("");
         setState("");
         setCity("");
@@ -421,28 +421,39 @@ const PostJob = () => {
         </button>
       </form>
 
-      {/* Display Jobs */}
-      <div className="mt-8">
-        <h2 className="text-2xl font-bold">Posted Jobs</h2>
-        {jobs.length > 0 ? (
-          <ul>
-            {jobs.map((job) => (
-              <li key={job.id} className="py-2">
-                <h3 className="text-lg font-semibold">{job.title}</h3>
-                <p>{job.description}</p>
-                <button
-                  onClick={() => handleDelete(job.id)}
-                  className="bg-red-500 text-white py-1 px-3 rounded mt-2"
-                >
-                  Delete Job
-                </button>
-              </li>
-            ))}
-          </ul>
-        ) : (
-          <p>No jobs available for this company.</p>
-        )}
-      </div>
+{/* Display Jobs */}
+<div className="mt-8">
+  <h2 className="text-2xl font-bold">Posted Jobs</h2>
+  {jobs.length > 0 ? (
+    <ul>
+      {jobs.map((job) => (
+        <li key={job.id} className="py-2">
+          <h3 className="text-lg font-semibold">{job.title}</h3>
+          <p><strong>Description:</strong> {job.description}</p>
+          <p><strong>Category:</strong> {job.category}</p>
+          <p><strong>Location:</strong> {job.location}</p>
+          <p><strong>Job Type:</strong> {job.jobType}</p>
+          <p><strong>Salary:</strong> {job.salary}</p>
+          <p><strong>Requirements:</strong> {job.requirements}</p>
+          <p><strong>Apply URL:</strong> <a href={job.applyUrl} target="_blank" rel="noopener noreferrer">{job.applyUrl}</a></p>
+          <p><strong>Expiration Date:</strong> {job.expiresAt}</p>
+          <p><strong>Active:</strong> {job.isActive ? "Yes" : "No"}</p>
+
+          {/* Delete Button */}
+          <button
+            onClick={() => handleDelete(job.id)}
+            className="bg-red-500 text-white py-1 px-3 rounded mt-2"
+          >
+            Delete Job
+          </button>
+        </li>
+      ))}
+    </ul>
+  ) : (
+    <p>No jobs available for this company.</p>
+  )}
+</div>
+
     </div>
   );
 };
