@@ -26,14 +26,14 @@ const PostJob = () => {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [category, setCategory] = useState("");
-  const [location, setLocation] = useState("remote");
+  const [location, setLocation] = useState("remote"); // Location in lowercase by default
   const [requirements, setRequirements] = useState("");
   const [applyUrl, setApplyUrl] = useState("");
   const [salary, setSalary] = useState("");
   const [jobType, setJobType] = useState("entry_level");
-  const [country, setCountry] = useState("");
-  const [state, setState] = useState("");
-  const [city, setCity] = useState("");
+  const [country, setCountry] = useState(""); // Country dropdown
+  const [state, setState] = useState(""); // State abbreviation
+  const [city, setCity] = useState(""); // City dropdown
   const [expiresAt, setExpiresAt] = useState("");
   const [isActive, setIsActive] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -69,7 +69,7 @@ const PostJob = () => {
         .then((res) => res.json())
         .then((data) => {
           if (Array.isArray(data)) {
-            setStates(data);
+            setStates(data); // Use the fetched states
           } else {
             console.error("Fetched states is not an array:", data);
           }
@@ -94,7 +94,7 @@ const PostJob = () => {
       .then((res) => res.json())
       .then((data) => {
         if (Array.isArray(data)) {
-          setCities(data.map((city) => ({ name: city })));
+          setCities(data.map((city) => ({ name: city }))); // Map cities to city objects
         } else {
           console.error("Fetched cities is not an array:", data);
         }
@@ -114,15 +114,11 @@ const PostJob = () => {
         },
       });
 
-      console.log("Response Status:", response.status);
-
       if (response.ok) {
         const jobData = await response.json();
-        console.log("Jobs Data Fetched:", jobData); // Log the fetched job data
         setJobs(jobData);
       } else {
         const errorData = await response.json();
-        console.log("Error data:", errorData);
         setError(errorData.error || "Failed to fetch jobs.");
       }
     };
