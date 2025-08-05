@@ -47,6 +47,10 @@ const CreateCompany = () => {
        console.log(companyData); // Make sure this contains `id`
         const companyId = companyData.id; // Get the companyId from the response
 
+        // Save companyId to localStorage
+        localStorage.setItem("companyId", companyId.toString());
+
+
         // Redirect to the company details page after creating the company profile
         router.push(`/company/${companyId}`);
       } else {
