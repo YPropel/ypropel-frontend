@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useRouter } from "next/router"; // Import useRouter from Next.js
+import { useRouter } from "next/router";  // Use Next.js router
 import { apiFetch } from "../apiClient"; // Adjust path as needed
 
 // Define constants and types
