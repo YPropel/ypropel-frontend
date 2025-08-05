@@ -138,39 +138,38 @@ const PostJob = () => {
     });
 
     try {
-      const response = await apiFetch("/companies/post-job", {
-        method: "POST",
-        body: JSON.stringify({
-          title,
-          description,
-          category,
-          location,
-          requirements,
-          applyUrl,
-          salary,
-          jobType,
-          country,
-          state,
-          city,
-          expiresAt,
-          isActive,
-        }),
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": `Bearer ${token}`,
-        },
-      });
+  const response = await apiFetch("/companies/post-job", {
+    method: "POST",
+    body: JSON.stringify({
+      title,
+      description,
+      category,
+      location,
+      requirements,
+      applyUrl,
+      salary,
+      jobType,
+      country,
+      state,
+      city,
+      expiresAt,
+      isActive,
+    }),
+    headers: {
+      "Content-Type": "application/json",
+      "Authorization": `Bearer ${token}`,
+    },
+  });
 
-      if (response.ok) {
-        router.push(`/companies/jobs?companyId=${companyId}`);
-      } else {
-        const errorData = await response.json();
-        setError(errorData.error || "Failed to post job");
-      }
-    } catch (error) {
-      setError("Something went wrong. Please try again later.");
-    }
-  };
+  if (response.ok) {
+    router.push(`/companies/jobs?companyId=${companyId}`);
+  } else {
+    const errorData = await response.json();
+    setError(errorData.error || "Failed to post job");
+  }
+} catch (error) {
+  setError("Something went wrong. Please try again later.");
+}
 
   return (
     <div className="container mx-auto p-6">
