@@ -1,7 +1,6 @@
-import React, { useEffect, useState } from "react";
+import React, { useState, useEffect } from "react";
 import { apiFetch } from "../apiClient"; // Adjust path as needed
 
-// Define constants and types
 const JOB_TYPES = [
   { label: "Internship", value: "internship" },
   { label: "Entry Level", value: "entry_level" },
@@ -24,17 +23,18 @@ type City = {
 };
 
 const PostJob = () => {
+  const [companyId, setCompanyId] = useState<string | null>(null);
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [category, setCategory] = useState("");
-  const [location, setLocation] = useState("remote"); // Location in lowercase by default
+  const [location, setLocation] = useState("remote");
   const [requirements, setRequirements] = useState("");
   const [applyUrl, setApplyUrl] = useState("");
   const [salary, setSalary] = useState("");
   const [jobType, setJobType] = useState("entry_level");
-  const [country, setCountry] = useState(""); // Country dropdown
-  const [state, setState] = useState(""); // State abbreviation
-  const [city, setCity] = useState(""); // City dropdown
+  const [country, setCountry] = useState("");
+  const [state, setState] = useState("");
+  const [city, setCity] = useState("");
   const [expiresAt, setExpiresAt] = useState("");
   const [isActive, setIsActive] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -44,14 +44,19 @@ const PostJob = () => {
   const [states, setStates] = useState<State[]>([]);
   const [cities, setCities] = useState<City[]>([]);
 
-  const companyId = localStorage.getItem("companyId"); // Get companyId from localStorage
-
-  // Check if companyId exists in localStorage
+  // Fetch companyId from localStorage after the component mounts
   useEffect(() => {
-    if (!companyId) {
+    const storedCompanyId = localStorage.getItem("companyId");
+    if (storedCompanyId) {
+      setCompanyId(storedCompanyId); // Set companyId in state
+    } else {
       setError("Company ID is required.");
-      return;
     }
+  }, []); // This will only run once when the component mounts
+
+  // Fetch jobs based on companyId after companyId is set
+  useEffect(() => {
+    if (!companyId) return;
 
     const fetchJobs = async () => {
       const token = localStorage.getItem("token");
