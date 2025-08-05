@@ -145,6 +145,8 @@ const PostJob = () => {
       .catch(() => setCities([]));
   }, [state, country]);
 //----------HAndle submit
+console.log("Received Job Type: ", jobType);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
