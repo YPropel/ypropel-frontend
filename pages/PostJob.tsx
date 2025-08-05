@@ -165,7 +165,8 @@ const PostJob = () => {
 
       if (response.ok) {
         const responseData = await response.json();
-        router.push(`/companies/jobs?companyId=${responseData.companyId}`);
+       // router.push(`/companies/jobs?companyId=${responseData.companyId}`);
+       router.push(`/companies/jobs`);
       } else {
         const errorData = await response.json();
         setError(errorData.error || "Failed to post job");
