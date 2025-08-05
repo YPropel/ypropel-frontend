@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from "react";
+import { useParams } from "react-router-dom";  // Import useParams to get companyId from the URL
 import { apiFetch } from "../apiClient"; // Adjust path as needed
 
+// Define constants and types
 const JOB_TYPES = [
   { label: "Internship", value: "internship" },
   { label: "Entry Level", value: "entry_level" },
@@ -23,6 +25,7 @@ type City = {
 };
 
 const PostJob = () => {
+  const { companyId } = useParams<{ companyId: string }>(); // Use useParams to get companyId from URL
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [category, setCategory] = useState("");
@@ -102,37 +105,40 @@ const PostJob = () => {
       .catch(() => setCities([]));
   }, [state, country]);
 
-  // Fetch jobs for the logged-in user's company
+  // Fetch jobs for the logged-in user's company using companyId from the URL
   useEffect(() => {
-  const fetchJobs = async () => {
-    const token = localStorage.getItem("token");
-    const companyId = localStorage.getItem("companyId"); // Assuming companyId is stored
-
     if (!companyId) {
       setError("Company ID is required.");
       return;
     }
 
-    const response = await apiFetch(`/companies/jobs?companyId=${companyId}`, {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-        "Authorization": `Bearer ${token}`,
-      },
-    });
+    const fetchJobs = async () => {
+      const token = localStorage.getItem("token");
 
-    if (response.ok) {
-      const jobData = await response.json();
-      setJobs(jobData);
-    } else {
-      const errorData = await response.json();
-      setError(errorData.error || "Failed to fetch jobs.");
-    }
-  };
+      if (!token) {
+        setError("User is not logged in.");
+        return;
+      }
 
-  fetchJobs();
-}, []);
+      const response = await apiFetch(`/companies/${companyId}/jobs`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`,
+        },
+      });
 
+      if (response.ok) {
+        const jobData = await response.json();
+        setJobs(jobData);
+      } else {
+        const errorData = await response.json();
+        setError(errorData.error || "Failed to fetch jobs.");
+      }
+    };
+
+    fetchJobs();
+  }, [companyId]); // Re-run the effect when companyId changes
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
