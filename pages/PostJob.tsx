@@ -2,11 +2,13 @@ import React, { useState, useEffect } from "react";
 import { useRouter } from "next/router";
 import { apiFetch } from "../apiClient";
 
+const locationOptions = ["remote", "onsite", "hybrid"]; // Predefined options for location
+
 const PostJob = () => {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [category, setCategory] = useState("");
-  const [location, setLocation] = useState("");
+  const [location, setLocation] = useState("remote");  // Default to "remote"
   const [requirements, setRequirements] = useState("");
   const [applyUrl, setApplyUrl] = useState("");
   const [salary, setSalary] = useState("");
@@ -15,21 +17,58 @@ const PostJob = () => {
   const [state, setState] = useState("");
   const [city, setCity] = useState("");
   const [expiresAt, setExpiresAt] = useState("");
-  const [isActive, setIsActive] = useState(true);  // Assuming job is active by default
+  const [isActive, setIsActive] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const router = useRouter();
-  const { companyId } = router.query;  // Extract companyId from the URL
 
+  const router = useRouter();
+  const { companyId } = router.query;
+
+  const [countries, setCountries] = useState([]);
+  const [states, setStates] = useState([]);
+  const [cities, setCities] = useState([]);
+
+  // Fetch countries once
   useEffect(() => {
-    if (!companyId) return;
-    console.log("Company ID:", companyId);  // Log companyId to verify
-  }, [companyId]);
+    apiFetch("/countries")
+      .then((res) => res.json())
+      .then(setCountries)
+      .catch((err) => {
+        setError("Failed to load countries.");
+        console.error(err);
+      });
+  }, []);
+
+  // Fetch states when country changes (only if USA)
+  useEffect(() => {
+    if (!country) return;
+
+    if (country === "USA" || country === "United States") {
+      apiFetch("/us-states")
+        .then((res) => res.json())
+        .then((data) => setStates(data))
+        .catch(() => setStates([]));
+    } else {
+      setStates([]);
+      setCity("");  // Reset city when country is not USA
+      setState("");  // Reset state when country is not USA
+    }
+  }, [country]);
+
+  // Fetch cities when state changes
+  useEffect(() => {
+    if (!state || !(country === "USA" || country === "United States")) return;
+
+    apiFetch(`/us-cities?state=${encodeURIComponent(state)}`)
+      .then((res) => res.json())
+      .then(setCities)
+      .catch(() => setCities([]));
+  }, [state, country]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!title || !description || !category || !location || !salary || !jobType || !applyUrl || !country || !state || !city) {
-      setError("All fields are required.");
+    if (!title || !description || !category || !location || !country || !state || !city) {
+      setError("All required fields must be filled.");
       return;
     }
 
@@ -115,16 +154,75 @@ const PostJob = () => {
           />
         </div>
 
-        {/* Location */}
+        {/* Location (Dropdown for remote, onsite, hybrid) */}
         <div>
           <label className="block">Location</label>
-          <input
-            type="text"
+          <select
             className="w-full p-2 border border-gray-300"
             value={location}
             onChange={(e) => setLocation(e.target.value)}
             required
-          />
+          >
+            {locationOptions.map((option) => (
+              <option key={option} value={option}>
+                {option.charAt(0).toUpperCase() + option.slice(1)}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        {/* Country (Dropdown) */}
+        <div>
+          <label className="block">Country</label>
+          <select
+            className="w-full p-2 border border-gray-300"
+            value={country}
+            onChange={(e) => setCountry(e.target.value)}
+            required
+          >
+            <option value="">Select a country</option>
+            {countries.map((country) => (
+              <option key={country.id} value={country.id}>
+                {country.name}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        {/* State (Dropdown) */}
+        <div>
+          <label className="block">State</label>
+          <select
+            className="w-full p-2 border border-gray-300"
+            value={state}
+            onChange={(e) => setState(e.target.value)}
+            required
+          >
+            <option value="">Select a state</option>
+            {states.map((state) => (
+              <option key={state.id} value={state.id}>
+                {state.name}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        {/* City (Dropdown) */}
+        <div>
+          <label className="block">City</label>
+          <select
+            className="w-full p-2 border border-gray-300"
+            value={city}
+            onChange={(e) => setCity(e.target.value)}
+            required
+          >
+            <option value="">Select a city</option>
+            {cities.map((city) => (
+              <option key={city.id} value={city.id}>
+                {city.name}
+              </option>
+            ))}
+          </select>
         </div>
 
         {/* Requirements */}
@@ -157,7 +255,6 @@ const PostJob = () => {
             className="w-full p-2 border border-gray-300"
             value={salary}
             onChange={(e) => setSalary(e.target.value)}
-            required
           />
         </div>
 
@@ -174,42 +271,6 @@ const PostJob = () => {
             <option value="entry_level">Entry Level</option>
             <option value="hourly">Hourly</option>
           </select>
-        </div>
-
-        {/* Country */}
-        <div>
-          <label className="block">Country</label>
-          <input
-            type="text"
-            className="w-full p-2 border border-gray-300"
-            value={country}
-            onChange={(e) => setCountry(e.target.value)}
-            required
-          />
-        </div>
-
-        {/* State */}
-        <div>
-          <label className="block">State</label>
-          <input
-            type="text"
-            className="w-full p-2 border border-gray-300"
-            value={state}
-            onChange={(e) => setState(e.target.value)}
-            required
-          />
-        </div>
-
-        {/* City */}
-        <div>
-          <label className="block">City</label>
-          <input
-            type="text"
-            className="w-full p-2 border border-gray-300"
-            value={city}
-            onChange={(e) => setCity(e.target.value)}
-            required
-          />
         </div>
 
         {/* Expiration Date */}
