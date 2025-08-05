@@ -21,7 +21,7 @@ type City = {
   name: string;
 };
 
-const postjob = () => {
+const PostJob = () => {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [category, setCategory] = useState("");
@@ -73,7 +73,8 @@ const postjob = () => {
         .catch(() => setStates([]));
     } else {
       setStates([]);
-      setFormData((prev) => ({ ...prev, state: "", city: "" }));
+      setState("");  // Reset state when country is not USA
+      setCity("");  // Reset city when country is not USA
     }
   }, [country]);
 
@@ -81,7 +82,7 @@ const postjob = () => {
   useEffect(() => {
     if (!state || !(country === "USA" || country === "United States")) {
       setCities([]);
-      setFormData((prev) => ({ ...prev, city: "" }));
+      setCity(""); // Reset city when state is empty
       return;
     }
 
@@ -329,4 +330,4 @@ const postjob = () => {
   );
 };
 
-export default postjob;
+export default PostJob;
