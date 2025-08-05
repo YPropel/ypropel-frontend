@@ -31,9 +31,9 @@ const PostJob = () => {
   const [applyUrl, setApplyUrl] = useState("");
   const [salary, setSalary] = useState("");
   const [jobType, setJobType] = useState("entry_level");
-  const [country, setCountry] = useState("");
-  const [state, setState] = useState("");
-  const [city, setCity] = useState("");
+  const [country, setCountry] = useState(""); // Country dropdown
+  const [state, setState] = useState(""); // State abbreviation
+  const [city, setCity] = useState(""); // City dropdown
   const [expiresAt, setExpiresAt] = useState("");
   const [isActive, setIsActive] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -59,6 +59,48 @@ const PostJob = () => {
         setError("Failed to load countries.");
       });
   }, []);
+
+  // Fetch states when country changes (only if USA)
+  useEffect(() => {
+    if (!country) return;
+
+    if (country === "USA" || country === "United States") {
+      apiFetch("/us-states")
+        .then((res) => res.json())
+        .then((data) => {
+          if (Array.isArray(data)) {
+            setStates(data); // Use the fetched states
+          } else {
+            console.error("Fetched states is not an array:", data);
+          }
+        })
+        .catch(() => setStates([]));
+    } else {
+      setStates([]);
+      setState(""); // Reset state when country is not USA
+      setCity(""); // Reset city when country is not USA
+    }
+  }, [country]);
+
+  // Fetch cities when state changes
+  useEffect(() => {
+    if (!state || !(country === "USA" || country === "United States")) {
+      setCities([]);
+      setCity(""); // Reset city when state is empty
+      return;
+    }
+
+    apiFetch(`/us-cities?state=${encodeURIComponent(state)}`)
+      .then((res) => res.json())
+      .then((data) => {
+        if (Array.isArray(data)) {
+          setCities(data.map((city) => ({ name: city }))); // Map cities to city objects
+        } else {
+          console.error("Fetched cities is not an array:", data);
+        }
+      })
+      .catch(() => setCities([]));
+  }, [state, country]);
 
   // Fetch jobs for the logged-in user's company
   useEffect(() => {
