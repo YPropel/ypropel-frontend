@@ -28,7 +28,7 @@ const CompanyDetailsPage = () => {
           setError(errorData.error || "Failed to fetch company details");
         }
       } catch (error) {
-        setError("Something went wrong in fetching Co detials. Please try again later.");
+        setError("Something went wrong in fetching company details. Please try again later.");
       }
     };
 
@@ -36,8 +36,10 @@ const CompanyDetailsPage = () => {
   }, [companyId]);
 
   const handleAddJob = () => {
-    // Redirect to job posting page with companyId in the query string
-    router.push(`/post-job?companyId=${companyId}`);
+    if (!companyId) return;
+
+    // Redirect to PostJob page with companyId in the query string
+    router.push(`/PostJob?companyId=${companyId}`); // Corrected URL (capital "P" in PostJob)
   };
 
   if (error) {
