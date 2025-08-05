@@ -164,27 +164,27 @@ const PostJob = () => {
 
     try {
       const response = await apiFetch("/companies/post-job", {
-            method: "POST",
-            body: JSON.stringify({
-              title,
-              description,
-              category,
-              location,
-              requirements,
-              applyUrl,
-              salary,
-              jobType,  // Ensure this is being correctly sent
-              country,
-              state,
-              city,
-              expiresAt,
-              isActive,
-            }),
-            headers: {
-              "Content-Type": "application/json",
-              "Authorization": `Bearer ${token}`,
-            },
-          });
+          method: "POST",
+          body: JSON.stringify({
+            title,
+            description,
+            category,
+            location,
+            requirements,
+            applyUrl,
+            salary,
+            jobType,  // Ensure this is being correctly sent
+            country,
+            state,
+            city,
+            expiresAt,
+            isActive,
+          }),
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${token}`,
+          },
+        });
 
 
       if (response.ok) {
