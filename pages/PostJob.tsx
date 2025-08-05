@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useRouter } from "next/router";
-import { apiFetch } from "../apiClient"; // Adjust the import path as needed
+import { apiFetch } from "../apiClient"; // Adjust path as needed
 
 const JOB_TYPES = [
   { label: "Internship", value: "internship" },
@@ -259,8 +259,8 @@ const PostJob = () => {
           >
             <option value="">Select a city</option>
             {cities.map((city) => (
-              <option key={city} value={city}>
-                {city}
+              <option key={city.name} value={city.name}>
+                {city.name}
               </option>
             ))}
           </select>
