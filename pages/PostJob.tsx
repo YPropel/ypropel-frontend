@@ -1,6 +1,27 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useRouter } from "next/router";
 import { apiFetch } from "../apiClient"; // Adjust path as needed
+
+const JOB_TYPES = [
+  { label: "Internship", value: "internship" },
+  { label: "Entry Level", value: "entry_level" },
+  { label: "Hourly", value: "hourly" },
+];
+
+const LOCATION_OPTIONS = ["Remote", "Onsite", "Hybrid"];
+
+type Country = {
+  name: string;
+};
+
+type State = {
+  name: string;
+  abbreviation: string;
+};
+
+type City = {
+  name: string;
+};
 
 const PostJob = () => {
   const [title, setTitle] = useState("");
@@ -19,7 +40,69 @@ const PostJob = () => {
   const [error, setError] = useState<string | null>(null);
 
   const router = useRouter();
-  const { companyId } = router.query; // We don't need to pass companyId in the request anymore
+
+  const [countries, setCountries] = useState<Country[]>([]);
+  const [states, setStates] = useState<State[]>([]);
+  const [cities, setCities] = useState<City[]>([]);
+
+  // Fetch countries once
+  useEffect(() => {
+    apiFetch("/countries")
+      .then((res) => res.json())
+      .then((data) => {
+        if (Array.isArray(data)) {
+          setCountries(data.map((country) => ({ name: country }))); // Adjust if format is different
+        } else {
+          console.error("Fetched countries is not an array:", data);
+        }
+      })
+      .catch((err) => {
+        console.error("Failed to load countries:", err);
+        setError("Failed to load countries.");
+      });
+  }, []);
+
+  // Fetch states when country changes (only if USA)
+  useEffect(() => {
+    if (!country) return;
+
+    if (country === "USA" || country === "United States") {
+      apiFetch("/us-states")
+        .then((res) => res.json())
+        .then((data) => {
+          if (Array.isArray(data)) {
+            setStates(data); // Use the fetched states
+          } else {
+            console.error("Fetched states is not an array:", data);
+          }
+        })
+        .catch(() => setStates([]));
+    } else {
+      setStates([]);
+      setState(""); // Reset state when country is not USA
+      setCity(""); // Reset city when country is not USA
+    }
+  }, [country]);
+
+  // Fetch cities when state changes
+  useEffect(() => {
+    if (!state || !(country === "USA" || country === "United States")) {
+      setCities([]);
+      setCity(""); // Reset city when state is empty
+      return;
+    }
+
+    apiFetch(`/us-cities?state=${encodeURIComponent(state)}`)
+      .then((res) => res.json())
+      .then((data) => {
+        if (Array.isArray(data)) {
+          setCities(data.map((city) => ({ name: city }))); // Map cities to city objects
+        } else {
+          console.error("Fetched cities is not an array:", data);
+        }
+      })
+      .catch(() => setCities([]));
+  }, [state, country]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -35,6 +118,23 @@ const PostJob = () => {
       setError("User is not logged in.");
       return;
     }
+
+    // Log the form data before sending it to the backend
+    console.log({
+      title,
+      description,
+      category,
+      location,
+      requirements,
+      applyUrl,
+      salary,
+      jobType,
+      country,
+      state,
+      city,
+      expiresAt,
+      isActive,
+    });
 
     try {
       const response = await apiFetch("/companies/post-job", {
@@ -122,7 +222,7 @@ const PostJob = () => {
             onChange={(e) => setLocation(e.target.value)}
             required
           >
-            {["Remote", "Onsite", "Hybrid"].map((option) => (
+            {LOCATION_OPTIONS.map((option) => (
               <option key={option} value={option}>
                 {option.charAt(0).toUpperCase() + option.slice(1)}
               </option>
@@ -140,7 +240,11 @@ const PostJob = () => {
             required
           >
             <option value="">Select a country</option>
-            {/* Add your countries here */}
+            {countries.map((country) => (
+              <option key={country.name} value={country.name}>
+                {country.name}
+              </option>
+            ))}
           </select>
         </div>
 
@@ -154,7 +258,11 @@ const PostJob = () => {
             required
           >
             <option value="">Select a state</option>
-            {/* Add your states here */}
+            {states.map((state) => (
+              <option key={state.abbreviation} value={state.abbreviation}>
+                {state.name}
+              </option>
+            ))}
           </select>
         </div>
 
@@ -168,12 +276,83 @@ const PostJob = () => {
             required
           >
             <option value="">Select a city</option>
-            {/* Add your cities here */}
+            {cities.map((city) => (
+              <option key={city.name} value={city.name}>
+                {city.name}
+              </option>
+            ))}
           </select>
         </div>
 
-        {/* Other fields */}
-        {/* You can add other form fields here similar to the above */}
+        {/* Requirements */}
+        <div>
+          <label className="block">Requirements</label>
+          <textarea
+            className="w-full p-2 border border-gray-300"
+            value={requirements}
+            onChange={(e) => setRequirements(e.target.value)}
+          />
+        </div>
+
+        {/* Apply URL */}
+        <div>
+          <label className="block">Apply URL</label>
+          <input
+            type="url"
+            className="w-full p-2 border border-gray-300"
+            value={applyUrl}
+            onChange={(e) => setApplyUrl(e.target.value)}
+            required
+          />
+        </div>
+
+        {/* Salary */}
+        <div>
+          <label className="block">Salary</label>
+          <input
+            type="text"
+            className="w-full p-2 border border-gray-300"
+            value={salary}
+            onChange={(e) => setSalary(e.target.value)}
+          />
+        </div>
+
+        {/* Job Type */}
+        <div>
+          <label className="block">Job Type</label>
+          <select
+            className="w-full p-2 border border-gray-300"
+            value={jobType}
+            onChange={(e) => setJobType(e.target.value)}
+            required
+          >
+            <option value="internship">Internship</option>
+            <option value="entry_level">Entry Level</option>
+            <option value="hourly">Hourly</option>
+          </select>
+        </div>
+
+        {/* Expiration Date */}
+        <div>
+          <label className="block">Expiration Date</label>
+          <input
+            type="date"
+            className="w-full p-2 border border-gray-300"
+            value={expiresAt}
+            onChange={(e) => setExpiresAt(e.target.value)}
+          />
+        </div>
+
+        {/* Active Status */}
+        <div>
+          <label className="block">Active</label>
+          <input
+            type="checkbox"
+            checked={isActive}
+            onChange={() => setIsActive(!isActive)}
+          />
+        </div>
+
         <button type="submit" className="px-4 py-2 bg-blue-500 text-white">
           Post Job
         </button>
