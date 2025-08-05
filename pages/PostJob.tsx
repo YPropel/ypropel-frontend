@@ -147,7 +147,21 @@ const PostJob = () => {
 //----------HAndle
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
+console.log("Posting Job with values: ", {
+  title,
+  description,
+  category,
+  location,
+  requirements,
+  applyUrl,        // Check if this is populated
+  salary,
+  jobType,         // Check if this is populated
+  country,
+  state,
+  city,
+  expiresAt,
+  isActive,
+});
     if (!title || !description || !category || !location || !country || !state || !city) {
       setError("All required fields must be filled.");
       return;
