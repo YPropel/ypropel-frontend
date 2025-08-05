@@ -162,7 +162,7 @@ console.log("Posting Job with values: ", {
   expiresAt,
   isActive,
 });
-    if (!title || !description || !category || !location || !country || !state || !city) {
+    if (!title || !description || !category || !location || !country || !state || !city || !applyUrl || !jobType) {
       setError("All required fields must be filled.");
       return;
     }
