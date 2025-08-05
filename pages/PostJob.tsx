@@ -38,6 +38,7 @@ const PostJob = () => {
   const [isActive, setIsActive] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [jobs, setJobs] = useState<any[]>([]); // Store jobs
+
   const [countries, setCountries] = useState<Country[]>([]);
   const [states, setStates] = useState<State[]>([]);
   const [cities, setCities] = useState<City[]>([]);
@@ -59,7 +60,7 @@ const PostJob = () => {
       });
   }, []);
 
-  // Fetch jobs
+  // Fetch jobs for the logged-in user's company
   useEffect(() => {
     const fetchJobs = async () => {
       const token = localStorage.getItem("token");
@@ -126,8 +127,7 @@ const PostJob = () => {
 
       if (response.ok) {
         const responseData = await response.json();
-        // Refresh job list after posting a new job
-        setJobs((prevJobs) => [...prevJobs, responseData]);
+        setJobs((prevJobs) => [...prevJobs, responseData]); // Add the newly created job to the list
         // Clear form fields
         setTitle("");
         setDescription("");
@@ -359,6 +359,7 @@ const PostJob = () => {
         </button>
       </form>
 
+      {/* Display Jobs */}
       <div className="mt-8">
         <h2 className="text-2xl font-bold">Posted Jobs</h2>
         {jobs.length > 0 ? (
