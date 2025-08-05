@@ -1,8 +1,8 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useRouter } from "next/router";
-import { apiFetch } from "../apiClient";
+import { apiFetch } from "../apiClient"; // Assuming apiFetch is set up to handle API requests
 
-// Predefined options for location
+// Predefined options for job location
 const locationOptions = ["remote", "onsite", "hybrid"]; 
 
 // Types for country, state, and city
@@ -50,8 +50,12 @@ const PostJob = () => {
       .then((res) => res.json())
       .then((data) => {
         console.log("Fetched Countries:", data); // Debug log
-        // Assuming the API returns an array of strings
-        setCountries(data.map((country: string) => ({ id: country, name: country }))); // Mapping strings to objects with id and name
+        // Ensure the data is an array before mapping
+        if (Array.isArray(data)) {
+          setCountries(data.map((country: string) => ({ id: country, name: country }))); // Adjust if the format is different
+        } else {
+          console.error("Fetched countries is not an array:", data);
+        }
       })
       .catch((err) => {
         console.error("Failed to load countries:", err);
@@ -68,7 +72,11 @@ const PostJob = () => {
         .then((res) => res.json())
         .then((data) => {
           console.log("Fetched States:", data); // Debug log
-          setStates(data);
+          if (Array.isArray(data)) {
+            setStates(data);
+          } else {
+            console.error("Fetched states is not an array:", data);
+          }
         })
         .catch(() => setStates([]));
     } else {
@@ -88,7 +96,14 @@ const PostJob = () => {
 
     apiFetch(`/us-cities?state=${encodeURIComponent(state)}`)
       .then((res) => res.json())
-      .then(setCities)
+      .then((data) => {
+        console.log("Fetched Cities:", data); // Debug log
+        if (Array.isArray(data)) {
+          setCities(data);
+        } else {
+          console.error("Fetched cities is not an array:", data);
+        }
+      })
       .catch(() => setCities([]));
   }, [state, country]);
 
