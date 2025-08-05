@@ -97,7 +97,7 @@ const PostJob = () => {
       .then((res) => res.json())
       .then((data) => {
         if (Array.isArray(data)) {
-          setCities(data); // Use the fetched cities
+          setCities(data.map((city) => ({ name: city }))); // Map cities to city objects
         } else {
           console.error("Fetched cities is not an array:", data);
         }
