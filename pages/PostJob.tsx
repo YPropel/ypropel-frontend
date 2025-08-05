@@ -27,7 +27,7 @@ const PostJob = () => {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [category, setCategory] = useState("");
-  const [location, setLocation] = useState("remote");
+  const [location, setLocation] = useState("remote"); // Location in lowercase by default
   const [requirements, setRequirements] = useState("");
   const [applyUrl, setApplyUrl] = useState("");
   const [salary, setSalary] = useState("");
@@ -118,7 +118,8 @@ const PostJob = () => {
       setError("User is not logged in.");
       return;
     }
-  // Capitalize the location value before sending it to the backend
+
+    // **Capitalizing the location value before sending to the backend**
     const formattedLocation = location.charAt(0).toUpperCase() + location.slice(1).toLowerCase();
 
     // Log the form data before sending it to the backend
@@ -126,7 +127,7 @@ const PostJob = () => {
       title,
       description,
       category,
-      location,
+      location: formattedLocation, // Ensure location is capitalized here
       requirements,
       applyUrl,
       salary,
@@ -145,7 +146,7 @@ const PostJob = () => {
           title,
           description,
           category,
-          location,
+          location: formattedLocation,  // Pass the formatted location here
           requirements,
           applyUrl,
           salary,
@@ -164,7 +165,6 @@ const PostJob = () => {
 
       if (response.ok) {
         const responseData = await response.json();
-        // Redirect to jobs page with companyId received from the backend
         router.push(`/companies/jobs?companyId=${responseData.companyId}`);
       } else {
         const errorData = await response.json();
