@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useRouter } from "next/router";
-import { apiFetch } from "../apiClient";
+import { apiFetch } from "../apiClient"; // Adjust the import path as needed
 
 const JOB_TYPES = [
   { label: "Internship", value: "internship" },
@@ -11,18 +11,15 @@ const JOB_TYPES = [
 const LOCATION_OPTIONS = ["Remote", "Onsite", "Hybrid"];
 
 type Country = {
-  id: string;
   name: string;
 };
 
 type State = {
-  id: string;
   name: string;
   abbreviation: string;
 };
 
 type City = {
-  id: string;
   name: string;
 };
 
@@ -54,11 +51,7 @@ const PostJob = () => {
     apiFetch("/countries")
       .then((res) => res.json())
       .then((data) => {
-        if (Array.isArray(data)) {
-          setCountries(data.map((country) => ({ id: country, name: country }))); // Adjust if format is different
-        } else {
-          console.error("Fetched countries is not an array:", data);
-        }
+        setCountries(data);
       })
       .catch((err) => {
         console.error("Failed to load countries:", err);
@@ -74,11 +67,7 @@ const PostJob = () => {
       apiFetch("/us-states")
         .then((res) => res.json())
         .then((data) => {
-          if (Array.isArray(data)) {
-            setStates(data);
-          } else {
-            console.error("Fetched states is not an array:", data);
-          }
+          setStates(data);
         })
         .catch(() => setStates([]));
     } else {
@@ -99,11 +88,7 @@ const PostJob = () => {
     apiFetch(`/us-cities?state=${encodeURIComponent(state)}`)
       .then((res) => res.json())
       .then((data) => {
-        if (Array.isArray(data)) {
-          setCities(data);
-        } else {
-          console.error("Fetched cities is not an array:", data);
-        }
+        setCities(data);
       })
       .catch(() => setCities([]));
   }, [state, country]);
@@ -226,7 +211,7 @@ const PostJob = () => {
           >
             <option value="">Select a country</option>
             {countries.map((country) => (
-              <option key={country.id} value={country.id}>
+              <option key={country.name} value={country.name}>
                 {country.name}
               </option>
             ))}
@@ -262,7 +247,7 @@ const PostJob = () => {
           >
             <option value="">Select a city</option>
             {cities.map((city) => (
-              <option key={city.id} value={city.id}>
+              <option key={city.name} value={city.name}>
                 {city.name}
               </option>
             ))}
