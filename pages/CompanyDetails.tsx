@@ -39,7 +39,7 @@ const CompanyDetailsPage = () => {
     if (!companyId) return;
 
     // Redirect to PostJob page with the companyId as a query parameter
-    router.push(`/PostJob?companyId=${companyId}`);
+    router.push(`/postjob?companyId=${companyId}`);
   };
 
   if (error) {
