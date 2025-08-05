@@ -170,6 +170,7 @@ const PostJob = () => {
       if (response.ok) {
         const responseData = await response.json();
         setJobs((prevJobs) => [...prevJobs, responseData]); // Add the newly created job to the list
+
         // Clear form fields
         setTitle("");
         setDescription("");
