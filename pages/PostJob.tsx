@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";  // Import useParams to get companyId from the URL
+import { useRouter } from "next/router";  // Import useRouter from Next.js
 import { apiFetch } from "../apiClient"; // Adjust path as needed
 
 // Define constants and types
@@ -25,7 +25,9 @@ type City = {
 };
 
 const PostJob = () => {
-  const { companyId } = useParams<{ companyId: string }>(); // Use useParams to get companyId from URL
+  const router = useRouter();  // Use Next.js router
+  const { companyId } = router.query;  // Get companyId from URL using useRouter
+
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [category, setCategory] = useState("");
