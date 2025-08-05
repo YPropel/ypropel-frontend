@@ -51,7 +51,7 @@ const PostJob = () => {
     apiFetch("/countries")
       .then((res) => res.json())
       .then((data) => {
-        setCountries(data.map((country: string) => ({ name: country }))); // Correct way to map data
+        setCountries(data.map((country: string) => ({ name: country }))); // Adjust if format is different
       })
       .catch((err) => {
         console.error("Failed to load countries:", err);
