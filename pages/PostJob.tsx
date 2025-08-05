@@ -198,7 +198,7 @@ const PostJob = () => {
         setRequirements("");
         setApplyUrl("");
         setSalary("");
-        setJobType("entry_level");
+       // setJobType("entry_level");
         setCountry("");
         setState("");
         setCity("");
