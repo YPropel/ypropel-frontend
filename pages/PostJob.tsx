@@ -116,14 +116,13 @@ const PostJob = () => {
 
       if (response.ok) {
         const jobData = await response.json();
-        console.log("Fetched jobs:", jobData);
         setJobs(jobData);
       } else {
         const errorData = await response.json();
         setError(errorData.error || "Failed to fetch jobs.");
       }
     };
-console.log("Fetched jobs:", jobData);
+
     fetchJobs();
   }, []);
 
