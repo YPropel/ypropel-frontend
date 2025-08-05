@@ -2,7 +2,24 @@ import React, { useState, useEffect } from "react";
 import { useRouter } from "next/router";
 import { apiFetch } from "../apiClient";
 
-const locationOptions = ["remote", "onsite", "hybrid"]; // Predefined options for location
+// Predefined options for location
+const locationOptions = ["remote", "onsite", "hybrid"]; 
+
+// Types for country, state, and city
+type Country = {
+  id: string;  // Assuming id is a string, adjust if it's a number
+  name: string;
+};
+
+type State = {
+  id: string;  // Assuming id is a string, adjust if it's a number
+  name: string;
+};
+
+type City = {
+  id: string;  // Assuming id is a string, adjust if it's a number
+  name: string;
+};
 
 const PostJob = () => {
   const [title, setTitle] = useState("");
@@ -13,9 +30,9 @@ const PostJob = () => {
   const [applyUrl, setApplyUrl] = useState("");
   const [salary, setSalary] = useState("");
   const [jobType, setJobType] = useState("entry_level");
-  const [country, setCountry] = useState("");
-  const [state, setState] = useState("");
-  const [city, setCity] = useState("");
+  const [country, setCountry] = useState(""); // Will be filled with dropdown
+  const [state, setState] = useState(""); // Will be filled with dropdown
+  const [city, setCity] = useState(""); // Will be filled with dropdown
   const [expiresAt, setExpiresAt] = useState("");
   const [isActive, setIsActive] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -23,9 +40,9 @@ const PostJob = () => {
   const router = useRouter();
   const { companyId } = router.query;
 
-  const [countries, setCountries] = useState([]);
-  const [states, setStates] = useState([]);
-  const [cities, setCities] = useState([]);
+  const [countries, setCountries] = useState<Country[]>([]);
+  const [states, setStates] = useState<State[]>([]);
+  const [cities, setCities] = useState<City[]>([]);
 
   // Fetch countries once
   useEffect(() => {
