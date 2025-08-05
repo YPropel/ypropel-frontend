@@ -39,7 +39,7 @@ const PostJob = () => {
     const fetchCompanyName = async () => {
       try {
         const response = await apiFetch(`/companies/${companyId}`, {
-         
+          method: "GET",
           headers: {
             "Authorization": `Bearer ${token}`,
           },
