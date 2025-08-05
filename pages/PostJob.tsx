@@ -144,9 +144,7 @@ const PostJob = () => {
       })
       .catch(() => setCities([]));
   }, [state, country]);
-//----------HAndle submit
-console.log("Received Job Type: ", jobType);
-
+//----------HAndle
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -166,28 +164,27 @@ console.log("Received Job Type: ", jobType);
 
     try {
       const response = await apiFetch("/companies/post-job", {
-          method: "POST",
-          body: JSON.stringify({
-            title,
-            description,
-            category,
-            location,
-            requirements,
-            applyUrl,
-            salary,
-            jobType,  // Ensure this is being correctly sent
-            country,
-            state,
-            city,
-            expiresAt,
-            isActive,
-          }),
-          headers: {
-            "Content-Type": "application/json",
-            "Authorization": `Bearer ${token}`,
-          },
-        });
-
+        method: "POST",
+        body: JSON.stringify({
+          title,
+          description,
+          category,
+          location: formattedLocation,
+          requirements,
+          applyUrl,
+          salary,
+          jobType,
+          country,
+          state,
+          city,
+          expiresAt,
+          isActive,
+        }),
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`,
+        },
+      });
 
       if (response.ok) {
         const responseData = await response.json();
