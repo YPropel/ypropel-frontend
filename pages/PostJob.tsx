@@ -51,7 +51,11 @@ const PostJob = () => {
     apiFetch("/countries")
       .then((res) => res.json())
       .then((data) => {
-        setCountries(data.map((country: string) => ({ name: country }))); // Adjust if format is different
+        if (Array.isArray(data)) {
+          setCountries(data.map((country) => ({ name: country }))); // Adjust if format is different
+        } else {
+          console.error("Fetched countries is not an array:", data);
+        }
       })
       .catch((err) => {
         console.error("Failed to load countries:", err);
@@ -67,7 +71,11 @@ const PostJob = () => {
       apiFetch("/us-states")
         .then((res) => res.json())
         .then((data) => {
-          setStates(data); // Directly set states
+          if (Array.isArray(data)) {
+            setStates(data); // Use the fetched states
+          } else {
+            console.error("Fetched states is not an array:", data);
+          }
         })
         .catch(() => setStates([]));
     } else {
@@ -85,21 +93,16 @@ const PostJob = () => {
       return;
     }
 
-    apiFetch(`/us-cities?state=${encodeURIComponent(state)}`)  // Passing state abbreviation
+    apiFetch(`/us-cities?state=${encodeURIComponent(state)}`)
       .then((res) => res.json())
       .then((data) => {
-        console.log("Fetched Cities:", data); // Debugging the fetched cities
         if (Array.isArray(data)) {
-          setCities(data); // Set cities from API response
+          setCities(data); // Use the fetched cities
         } else {
-          setCities([]);
-          console.error("Invalid city data:", data);
+          console.error("Fetched cities is not an array:", data);
         }
       })
-      .catch((err) => {
-        console.error("Failed to load cities:", err);
-        setCities([]); // Reset cities on error
-      });
+      .catch(() => setCities([]));
   }, [state, country]);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -256,8 +259,8 @@ const PostJob = () => {
           >
             <option value="">Select a city</option>
             {cities.map((city) => (
-              <option key={city.name} value={city.name}>
-                {city.name}
+              <option key={city} value={city}>
+                {city}
               </option>
             ))}
           </select>
