@@ -120,6 +120,23 @@ const PostJob = () => {
       return;
     }
 
+    // Log the form data before sending it to the backend
+    console.log({
+      title,
+      description,
+      category,
+      location,
+      requirements,
+      applyUrl,
+      salary,
+      jobType,
+      country,
+      state,
+      city,
+      expiresAt,
+      isActive,
+    });
+
     try {
       const response = await apiFetch("/companies/post-job", {
         method: "POST",
