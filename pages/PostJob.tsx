@@ -116,6 +116,7 @@ const PostJob = () => {
 
       if (response.ok) {
         const jobData = await response.json();
+        console.log("Fetched jobs:", jobData);
         setJobs(jobData);
       } else {
         const errorData = await response.json();
@@ -407,12 +408,12 @@ const PostJob = () => {
         <h2 className="text-2xl font-bold">Posted Jobs</h2>
         {jobs.length > 0 ? (
           <ul>
-            {jobs.map((jobData) => (
-              <li key={jobData.id} className="py-2">
-                <h3 className="text-lg font-semibold">{jobData.title}</h3>
-                <p>{jobData.description}</p>
+            {jobs.map((job) => (
+              <li key={job.id} className="py-2">
+                <h3 className="text-lg font-semibold">{job.title}</h3>
+                <p>{job.description}</p>
                 <button
-                  onClick={() => handleDelete(jobData.id)}
+                  onClick={() => handleDelete(job.id)}
                   className="bg-red-500 text-white py-1 px-3 rounded mt-2"
                 >
                   Delete Job
