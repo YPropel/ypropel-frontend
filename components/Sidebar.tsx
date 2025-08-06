@@ -50,7 +50,7 @@ const sidebarMenu = [
     title: "Business",
     items: [
       { label: "Companies", href: "/companies", icon: <FaBuilding /> },
-      { label: "Create Your Company", href: "/CreateCompany", icon: <FaPlusCircle /> },
+      { label: "Create Your Company Profile", href: "/CreateCompany", icon: <FaPlusCircle /> },
     ],
   },
   {
