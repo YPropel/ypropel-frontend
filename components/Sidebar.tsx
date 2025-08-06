@@ -44,6 +44,7 @@ const sidebarMenu = [
       { label: "Jobs Fair", href: "/job-fairs", icon: <FaCalendarAlt /> },
       { label: "Articles", href: "/articles", icon: <FaArticles /> },
       { label: "Freelance", href: "/freelance", icon: <FaTools /> },
+       { label: "Members Directory", href: "/members", icon: <FaUsers /> },
     ],
   },
   {
@@ -56,7 +57,6 @@ const sidebarMenu = [
   {
     title: "Your Account",
     items: [
-      { label: "Members Directory", href: "/members", icon: <FaUsers /> },
       { label: "View-Edit Profile", href: "/profile", icon: <FaUser /> },
     ],
   },
