@@ -100,17 +100,31 @@ const CompanyDetailsPage = () => {
         <div>
           <strong>Industry:</strong> {company.industry}
         </div>
+       {/* Display Logo */}
         <div>
-          {company.logo_url && <img src={company.logo_url} alt="Company Logo" />}
+          {company.logo_url && (
+            <div>
+              <strong>Logo:</strong>
+              <img
+                src={company.logo_url}
+                alt="Company Logo"
+                className="mt-4"
+                style={{ maxWidth: "200px", height: "auto" }}
+              />
+            </div>
+          )}
         </div>
       </div>
-
+<div>
       <button
         onClick={handleAddJob}
         className="mt-4 px-4 py-2 bg-blue-500 text-white"
       >
         Add Job
       </button>
+
+      </div>
+      <div>
        {/* Add the Delete Company Button */}
         <button
           onClick={handleDeleteCompany}
@@ -118,6 +132,7 @@ const CompanyDetailsPage = () => {
         >
           Delete Company
         </button>
+        </div>
     </div>
   );
 };
