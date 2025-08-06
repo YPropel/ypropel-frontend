@@ -49,7 +49,7 @@ const CompaniesPage = () => {
             <h2 className="text-xl font-semibold">{company.name}</h2>
             <p><strong>Industry:</strong> {company.industry}</p>
             <p><strong>Location:</strong> {company.location}</p>
-            <p className="text-sm mt-2">{company.description}</p>
+            
             <button
               onClick={() => router.push(`/company/${company.id}`)}
               className="mt-4 px-4 py-2 bg-blue-500 text-white rounded"
