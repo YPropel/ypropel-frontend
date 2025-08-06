@@ -1,4 +1,4 @@
-import { apiFetch } from "../apiClient";
+import { apiFetch } from "../apiClient"; // Adjust path as needed
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import {
@@ -44,18 +44,25 @@ const sidebarMenu = [
       { label: "Jobs Fair", href: "/job-fairs", icon: <FaCalendarAlt /> },
       { label: "Articles", href: "/articles", icon: <FaArticles /> },
       { label: "Freelance", href: "/freelance", icon: <FaTools /> },
-
-      // Business Section (Inserted here)
+    ],
+  },
+  {
+    title: "Business",
+    items: [
       { label: "Companies", href: "/companies", icon: <FaBuilding /> },
       { label: "Create Your Company", href: "/CreateCompany", icon: <FaPlusCircle /> },
-
+    ],
+  },
+  {
+    title: "Your Account",
+    items: [
       { label: "Members Directory", href: "/members", icon: <FaUsers /> },
       { label: "View-Edit Profile", href: "/profile", icon: <FaUser /> },
     ],
   },
 ];
 
-const navyColor = "#001F54";
+const navyColor = "#001F54"; // Navy hex color
 
 export default function Sidebar() {
   const [profile, setProfile] = useState<UserProfile | null>(null);
@@ -165,7 +172,6 @@ export default function Sidebar() {
               (e.target as HTMLImageElement).src = "/images/default-profile.png";
             }}
           />
-
           <h3 className="mt-2 font-semibold text-sm" style={{ color: navyColor }}>
             {profile.name}
           </h3>
@@ -201,17 +207,27 @@ export default function Sidebar() {
         </div>
       ))}
 
-      {/* About Us and Terms */}
+      {/* About Us */}
       <div className="border border-gray-300 rounded p-3 text-gray-600 text-xs max-w-[90%] mx-auto mb-2">
-        <Link href="/about" className="hover:underline">About Us</Link>
-      </div>
-      <div className="border border-gray-300 rounded p-3 text-gray-600 text-xs max-w-[90%] mx-auto mb-6">
-        <Link href="/terms" className="hover:underline">Terms of Use</Link>
+        <Link href="/about" className="hover:underline">
+          About Us
+        </Link>
       </div>
 
-      {/* Contact Us */}
+      {/* Terms */}
+      <div className="border border-gray-300 rounded p-3 text-gray-600 text-xs max-w-[90%] mx-auto mb-6">
+        <Link href="/terms" className="hover:underline">
+          Terms of Use
+        </Link>
+      </div>
+
+      {/* Contact */}
       <div className="border border-gray-300 rounded p-3 text-gray-600 text-xs max-w-[90%] mx-auto">
-        Contact Us at <a href="mailto:ypropel@ypropel.com" className="underline hover:text-blue-700">ypropel@ypropel.com</a>.
+        Contact Us at{" "}
+        <a href="mailto:ypropel@ypropel.com" className="underline hover:text-blue-700">
+          ypropel@ypropel.com
+        </a>
+        .
       </div>
     </aside>
   );
