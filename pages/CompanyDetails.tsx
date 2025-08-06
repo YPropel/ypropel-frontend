@@ -58,7 +58,8 @@ const CompanyDetailsPage = () => {
       if (response.ok) {
         alert("Company deleted successfully");
         // Redirect to dashboard or another page after deletion
-        router.push("/dashboard"); // You can change this to any page
+         // ✅ Redirect to create-company page
+      router.push("/CreateCompany");
       } else {
         const errorData = await response.json();
         setError(errorData.error || "Failed to delete company");
@@ -112,6 +113,7 @@ const CompanyDetailsPage = () => {
           Add Job
         </button>
         </div>
+
       <div className="mt-4 space-x-4"></div>
         <button
           onClick={handleDeleteCompany}
