@@ -90,7 +90,7 @@ const CompanyDetailsPage = () => {
 
   return (
     <div className="container mx-auto p-6">
-      <h2 className="text-2xl font-bold">Company Profile</h2>
+      
       <div className="space-y-4">
         <div>
           <strong>Company Name:</strong> {company.name}
