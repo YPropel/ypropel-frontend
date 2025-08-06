@@ -112,12 +112,13 @@ const CompanyDetailsPage = () => {
           Add Job
         </button>
 
-        <button
-          onClick={handleDeleteCompany}
-          className="px-4 py-2 bg-red-500 text-white"
-        >
-          Delete Company
-        </button>
+       console.log("Rendering Delete Button"); // Log to check if this part of the code runs
+<button
+  onClick={handleDeleteCompany}
+  className="px-4 py-2 bg-red-500 text-white"
+>
+  Delete Company
+</button>
       </div>
     </div>
   );

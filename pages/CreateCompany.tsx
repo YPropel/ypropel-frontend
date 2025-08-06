@@ -54,13 +54,18 @@ const CreateCompany = () => {
         // Redirect to the company details page after creating the company profile
         router.push(`/company/${companyId}`);
       } else {
-        const errorData = await response.json();
+      const errorData = await response.json();
+      if (errorData.error === "You already have a company profile.") {
+        // If user already has a company, show the error and stay on the same page
+        setError(errorData.error);
+      } else {
         setError(errorData.error || "Failed to create company profile");
       }
-    } catch (error) {
-      setError("Something went wrong. Please try again later.");
     }
-  };
+  } catch (error) {
+    setError("Something went wrong. Please try again later.");
+  }
+};
 
   return (
     <div className="container mx-auto p-6">
