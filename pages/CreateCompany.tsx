@@ -30,83 +30,56 @@ const CreateCompany = () => {
 
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  e.preventDefault();
 
-    if (!name || !description || !location || !industry) {
-      setError("All fields are required.");
-      return;
-    }
+  if (!name || !description || !location || !industry) {
+    setError("All fields are required.");
+    return;
+  }
 
-    const userId = localStorage.getItem("userId"); // Get userId from local storage (ensure this is set on login)
+  const userId = localStorage.getItem("userId");
+  if (!userId) {
+    setError("User is not logged in.");
+    return;
+  }
 
-    if (!userId) {
-      setError("User is not logged in.");
-      return;
-    }
+  try {
+    const formData = new FormData();
+    formData.append("name", name);
+    formData.append("description", description);
+    formData.append("location", location);
+    formData.append("industry", industry);
+    formData.append("userId", userId);
 
-
-     //------ Handle logo upload if file is provided
-    let logoUrlToSend = logoUrl;
     if (logo) {
-      // Upload logo to a service like Cloudinary (you can replace this with your service)
-      try {
-        const formData = new FormData();
-        formData.append("file", logo);
-        formData.append("upload_preset", "your_upload_preset"); // Set your Cloudinary upload preset
-
-        const cloudinaryResponse = await fetch("https://api.cloudinary.com/v1_1/your_cloud_name/image/upload", {
-          method: "POST",
-          body: formData,
-        });
-
-        const data = await cloudinaryResponse.json();
-        logoUrlToSend = data.secure_url; // Get the secure URL from Cloudinary
-      } catch (error) {
-        setError("Logo upload failed. Please try again.");
-        return;
-      }
+      formData.append("logo", logo); // key must match backend: .single("logo")
     }
-    //-----Handel Logo end--
-    try {
-      const response = await apiFetch("/companies", {
-        method: "POST",
-        body: JSON.stringify({
-          name,
-          description,
-          location,
-          industry,
-          //logoUrl,
-          logoUrl: logoUrlToSend, // Send the logo URL to the backend
-          userId, // Send userId in the body of the request
-        }),
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
 
-      if (response.ok) {
-        const companyData = await response.json(); // Assuming companyId is returned here
-        const companyId = companyData.id; // Get the companyId from the response
+    const response = await apiFetch("/companies", {
+      method: "POST",
+      body: formData,
+      // DO NOT set Content-Type manually for FormData
+    });
 
-        // Save companyId to localStorage
-        localStorage.setItem("companyId", companyId.toString());
-
-        // Redirect to the company details page after creating the company profile
-        router.push(`/company/${companyId}`);
+    if (response.ok) {
+      const companyData = await response.json();
+      const companyId = companyData.id;
+      localStorage.setItem("companyId", companyId.toString());
+      router.push(`/company/${companyId}`);
+    } else {
+      const errorData = await response.json();
+      if (errorData.error === "You already have a company profile.") {
+        setError(errorData.error);
+        setCompanyExists(true);
       } else {
-        const errorData = await response.json();
-        if (errorData.error === "You already have a company profile.") {
-          // If user already has a company, show the error and stay on the same page
-          setError(errorData.error);
-          setCompanyExists(true); // Set state to indicate the user already has a company
-        } else {
-          setError(errorData.error || "Failed to create company profile");
-        }
+        setError(errorData.error || "Failed to create company profile");
       }
-    } catch (error) {
-      setError("Something went wrong. Please try again later.");
     }
-  };
+  } catch (error) {
+    setError("Something went wrong. Please try again later.");
+  }
+};
+
 
   // Function to navigate to the existing company profile page
   const navigateToProfile = () => {
