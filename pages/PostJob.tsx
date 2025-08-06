@@ -35,14 +35,17 @@ const PostJob = () => {
   const [country, setCountry] = useState("");
   const [state, setState] = useState("");
   const [city, setCity] = useState("");
-  const [expiresAt, setExpiresAt] = useState("");
-  const [isActive, setIsActive] = useState(true);
+ // const [expiresAt, setExpiresAt] = useState("");
+  // const [isActive, setIsActive] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [jobs, setJobs] = useState<any[]>([]); // Store jobs
 
   const [countries, setCountries] = useState<Country[]>([]);
   const [states, setStates] = useState<State[]>([]);
   const [cities, setCities] = useState<City[]>([]);
+
+  const [planType, setPlanType] = useState("");
+
 
   // Fetch companyId from localStorage after the component mounts
   useEffect(() => {
@@ -161,8 +164,8 @@ console.log("Posting Job with values: ", {
   country,
   state,
   city,
-  expiresAt,
-  isActive,
+  planType,
+
 });
     if (!title || !description || !category || !location || !country || !state || !city || !applyUrl || !jobType) {
       setError("All required fields must be filled.");
@@ -193,8 +196,7 @@ console.log("Posting Job with values: ", {
           country,
           state,
           city,
-          expiresAt,
-          isActive,
+          planType,
         }),
         headers: {
           "Content-Type": "application/json",
@@ -231,8 +233,8 @@ console.log("Posting Job with values: ", {
         setCountry("");
         setState("");
         setCity("");
-        setExpiresAt("");
-        setIsActive(true);
+       // setExpiresAt("");
+       // setIsActive(true);
       } else {
         const errorData = await response.json();
         setError(errorData.error || "Failed to post job");
@@ -423,27 +425,21 @@ console.log("Posting Job with values: ", {
             <option value="hourly">Hourly</option>
           </select>
         </div>
-
-        {/* Expiration Date */}
-        <div>
-          <label className="block">Expiration Date</label>
-          <input
-            type="date"
-            className="w-full p-2 border border-gray-300"
-            value={expiresAt}
-            onChange={(e) => setExpiresAt(e.target.value)}
-          />
-        </div>
-
-        {/* Active Status */}
-        <div>
-          <label className="block">Active</label>
-          <input
-            type="checkbox"
-            checked={isActive}
-            onChange={() => setIsActive(!isActive)}
-          />
-        </div>
+            {/* Plan Type */}
+            <div>
+              <label className="block">Job Plan</label>
+              <select
+                className="w-full p-2 border border-gray-300"
+                value={planType}
+                onChange={(e) => setPlanType(e.target.value)}
+                required
+              >
+                <option value="">Select a Plan</option>
+                <option value="free">Free Basic Post</option>
+                <option value="pay_per_post">Pay-Per-Post ($75)</option>
+                <option value="subscription">Monthly Subscription ($300)</option>
+              </select>
+            </div>
 
         <button type="submit" className="px-4 py-2 bg-blue-500 text-white">
           Post Job
