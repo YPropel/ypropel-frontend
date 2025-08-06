@@ -96,7 +96,7 @@ const CompanyDetailsPage = () => {
           <strong>Company Name:</strong> {company.name}
         </div>
         <div>
-          <strong>Description:</strong> {company.description}
+          <strong>About:</strong> {company.description}
         </div>
         <div>
           <strong>Location:</strong> {company.location}
@@ -108,7 +108,7 @@ const CompanyDetailsPage = () => {
         <div>
           {company.logo_url && (
             <div>
-              <strong>Logo:</strong>
+             
               <img
                 src={company.logo_url}
                 alt="Company Logo"
