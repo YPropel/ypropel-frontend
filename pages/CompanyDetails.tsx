@@ -35,6 +35,39 @@ const CompanyDetailsPage = () => {
     fetchCompanyDetails();
   }, [companyId]);
 
+  // Handle Delete Company
+  const handleDeleteCompany = async () => {
+    const token = localStorage.getItem("token");
+    const userId = localStorage.getItem("userId");
+
+    if (!token || !userId) {
+      setError("User is not logged in.");
+      return;
+    }
+
+    try {
+      const response = await apiFetch("/companies/delete", {
+        method: "DELETE",
+        body: JSON.stringify({ companyId, userId }), // Send companyId and userId for validation
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`,
+        },
+      });
+
+      if (response.ok) {
+        alert("Company deleted successfully");
+        // Redirect to dashboard or another page after deletion
+        router.push("/dashboard"); // You can change this to any page
+      } else {
+        const errorData = await response.json();
+        setError(errorData.error || "Failed to delete company");
+      }
+    } catch (error) {
+      setError("Something went wrong. Please try again later.");
+    }
+  };
+
   const handleAddJob = () => {
     if (!companyId) return;
 
@@ -71,12 +104,21 @@ const CompanyDetailsPage = () => {
         </div>
       </div>
 
-      <button
-        onClick={handleAddJob}
-        className="mt-4 px-4 py-2 bg-blue-500 text-white"
-      >
-        Add Job
-      </button>
+      <div className="mt-4 space-x-4">
+        <button
+          onClick={handleAddJob}
+          className="px-4 py-2 bg-blue-500 text-white"
+        >
+          Add Job
+        </button>
+
+        <button
+          onClick={handleDeleteCompany}
+          className="px-4 py-2 bg-red-500 text-white"
+        >
+          Delete Company
+        </button>
+      </div>
     </div>
   );
 };
