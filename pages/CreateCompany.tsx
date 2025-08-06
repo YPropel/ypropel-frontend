@@ -7,10 +7,27 @@ const CreateCompany = () => {
   const [description, setDescription] = useState("");
   const [location, setLocation] = useState("");
   const [industry, setIndustry] = useState("");
-  const [logoUrl, setLogoUrl] = useState("");
+  const [logo, setLogo] = useState<File | null>(null); // State to hold the logo file
+  const [logoUrl, setLogoUrl] = useState(""); // State to hold the uploaded logo URL
   const [error, setError] = useState<string | null>(null);
   const [companyExists, setCompanyExists] = useState(false); // State to track if the user has a company
   const router = useRouter();
+
+
+   const handleLogoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files ? e.target.files[0] : null;
+    if (file) {
+      setLogo(file);
+
+      // Preview the image before uploading
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setLogoUrl(reader.result as string); // Set the logoUrl for preview
+      };
+      reader.readAsDataURL(file); // Convert file to base64 string for preview
+    }
+  };
+
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -27,6 +44,29 @@ const CreateCompany = () => {
       return;
     }
 
+
+     //------ Handle logo upload if file is provided
+    let logoUrlToSend = logoUrl;
+    if (logo) {
+      // Upload logo to a service like Cloudinary (you can replace this with your service)
+      try {
+        const formData = new FormData();
+        formData.append("file", logo);
+        formData.append("upload_preset", "your_upload_preset"); // Set your Cloudinary upload preset
+
+        const cloudinaryResponse = await fetch("https://api.cloudinary.com/v1_1/your_cloud_name/image/upload", {
+          method: "POST",
+          body: formData,
+        });
+
+        const data = await cloudinaryResponse.json();
+        logoUrlToSend = data.secure_url; // Get the secure URL from Cloudinary
+      } catch (error) {
+        setError("Logo upload failed. Please try again.");
+        return;
+      }
+    }
+    //-----Handel Logo end--
     try {
       const response = await apiFetch("/companies", {
         method: "POST",
@@ -35,7 +75,8 @@ const CreateCompany = () => {
           description,
           location,
           industry,
-          logoUrl,
+          //logoUrl,
+          logoUrl: logoUrlToSend, // Send the logo URL to the backend
           userId, // Send userId in the body of the request
         }),
         headers: {
@@ -140,15 +181,23 @@ const CreateCompany = () => {
           />
         </div>
 
+        {/* Logo Upload Input */}
         <div>
-          <label className="block">Logo URL (optional)</label>
+          <label className="block">Logo</label>
           <input
-            type="text"
+            type="file"
             className="w-full p-2 border border-gray-300"
-            value={logoUrl}
-            onChange={(e) => setLogoUrl(e.target.value)}
+            onChange={handleLogoChange}
+            accept="image/*" // Only allow image files
           />
+          {logoUrl && (
+            <div className="mt-2">
+              <strong>Preview:</strong>
+              <img src={logoUrl} alt="Logo Preview" className="mt-2" style={{ maxWidth: "200px" }} />
+            </div>
+          )}
         </div>
+
 
         <button type="submit" className="px-4 py-2 bg-blue-500 text-white">
           Create Profile
