@@ -451,18 +451,19 @@ console.log("Posting Job with values: ", {
   <h2 className="text-2xl font-bold">Posted Jobs</h2>
   {jobs.length > 0 ? (
     <ul>
-      {jobs.map((job) => (
-        <li key={job.id} className="py-2">
-          <h3 className="text-lg font-semibold">{job.title}</h3>
-          <p><strong>Description:</strong> {job.description}</p>
-          <p><strong>Category:</strong> {job.category}</p>
-          <p><strong>Location:</strong> {job.location}</p>
-          <p><strong>Job Type:</strong> {job.jobType}</p>
-          <p><strong>Salary:</strong> {job.salary}</p>
-          <p><strong>Requirements:</strong> {job.requirements}</p>
-          <p><strong>Apply URL:</strong> <a href={job.applyUrl} target="_blank" rel="noopener noreferrer">{job.applyUrl}</a></p>
-          <p><strong>Expiration Date:</strong> {job.expiresAt}</p>
-          <p><strong>Active:</strong> {job.isActive ? "Yes" : "No"}</p>
+     {jobs.map((job) => (
+  <li key={job.id} className="py-2">
+    <h3 className="text-lg font-semibold">{job.title}</h3>
+    <p><strong>Description:</strong> {job.description}</p>
+    <p><strong>Category:</strong> {job.category}</p>
+    <p><strong>Location:</strong> {job.location}</p>
+    <p><strong>Job Type:</strong> {job.job_type}</p>
+    <p><strong>Salary:</strong> {job.salary}</p>
+    <p><strong>Requirements:</strong> {job.requirements}</p>
+    <p><strong>Apply URL:</strong> <a href={job.apply_url} target="_blank" rel="noopener noreferrer">{job.apply_url}</a></p>
+    <p><strong>Expiration Date:</strong> {job.expires_at}</p>
+    <p><strong>Active:</strong> {job.is_active ? "Yes" : "No"}</p>
+
 
           {/* Delete Button */}
           <button
