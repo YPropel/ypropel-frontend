@@ -7,9 +7,13 @@ const CompanyDetailsPage = () => {
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
   const { companyId } = router.query; // Get companyId from the URL
+  const [loggedInUserId, setLoggedInUserId] = useState<string | null>(null);
+
 
   useEffect(() => {
     if (!companyId) return; // Don't fetch if companyId is not available yet
+      const userId = localStorage.getItem("userId");
+      setLoggedInUserId(userId);
 
     const fetchCompanyDetails = async () => {
       try {
@@ -115,21 +119,24 @@ const CompanyDetailsPage = () => {
           )}
         </div>
       </div>
-        <div className="mt-6 flex space-x-4">
-          <button
-            onClick={handleAddJob}
-            className="px-4 py-2 bg-blue-500 text-white"
-          >
-            Add Job
-          </button>
+       {String(company.user_id) === String(loggedInUserId) && (
+          <div className="mt-6 flex space-x-4">
+            <button
+              onClick={handleAddJob}
+              className="px-4 py-2 bg-blue-500 text-white"
+            >
+              Add Job
+            </button>
 
-          <button
-            onClick={handleDeleteCompany}
-            className="px-4 py-2 bg-red-500 text-white"
-          >
-            Delete Company
-          </button>
-        </div>
+            <button
+              onClick={handleDeleteCompany}
+              className="px-4 py-2 bg-red-500 text-white"
+            >
+              Delete Company
+            </button>
+          </div>
+        )}
+
 
             </div>
           );
