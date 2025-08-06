@@ -9,6 +9,7 @@ const CreateCompany = () => {
   const [industry, setIndustry] = useState("");
   const [logoUrl, setLogoUrl] = useState("");
   const [error, setError] = useState<string | null>(null);
+  const [companyExists, setCompanyExists] = useState(false); // State to track if the user has a company
   const router = useRouter();
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -44,33 +45,57 @@ const CreateCompany = () => {
 
       if (response.ok) {
         const companyData = await response.json(); // Assuming companyId is returned here
-       console.log(companyData); // Make sure this contains `id`
         const companyId = companyData.id; // Get the companyId from the response
 
         // Save companyId to localStorage
         localStorage.setItem("companyId", companyId.toString());
 
-
         // Redirect to the company details page after creating the company profile
         router.push(`/company/${companyId}`);
       } else {
-      const errorData = await response.json();
-      if (errorData.error === "You already have a company profile.") {
-        // If user already has a company, show the error and stay on the same page
-        setError(errorData.error);
-      } else {
-        setError(errorData.error || "Failed to create company profile");
+        const errorData = await response.json();
+        if (errorData.error === "You already have a company profile.") {
+          // If user already has a company, show the error and stay on the same page
+          setError(errorData.error);
+          setCompanyExists(true); // Set state to indicate the user already has a company
+        } else {
+          setError(errorData.error || "Failed to create company profile");
+        }
       }
+    } catch (error) {
+      setError("Something went wrong. Please try again later.");
     }
-  } catch (error) {
-    setError("Something went wrong. Please try again later.");
-  }
-};
+  };
+
+  // Function to navigate to the existing company profile page
+  const navigateToProfile = () => {
+    const companyId = localStorage.getItem("companyId");
+    if (companyId) {
+      router.push(`/company/${companyId}`);
+    } else {
+      setError("Company ID not found.");
+    }
+  };
 
   return (
     <div className="container mx-auto p-6">
       <h2 className="text-2xl font-bold">Create Your Company Profile</h2>
+
       {error && <p className="text-red-500">{error}</p>}
+
+      {/* If the user already has a company, display a message and a button */}
+      {companyExists && (
+        <div className="mt-4">
+          <p>You already have a company profile.</p>
+          <button
+            onClick={navigateToProfile}
+            className="mt-2 px-4 py-2 bg-blue-500 text-white"
+          >
+            View Your Company Profile
+          </button>
+        </div>
+      )}
+
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
           <label className="block">Company Name</label>
