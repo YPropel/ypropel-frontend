@@ -81,6 +81,12 @@ export default function MiniCoursesPage() {
     }
   }
 
+  // Function to handle redirecting to subscription page
+  function handleUpgrade() {
+    // Redirect to the subscription page (Stripe Checkout)
+    window.location.href = "/subscribe"; // Assuming you already created this page
+  }
+
   function closeModal() {
     setSelectedCourse(null);
     setDetailError(null);
@@ -100,7 +106,7 @@ export default function MiniCoursesPage() {
             <div>
               This is a premium feature costing <strong>$4.00/month</strong>.{" "}
               <button
-                onClick={() => (window.location.href = "/subscribe")}
+                onClick={handleUpgrade}
                 className="underline text-blue-600 hover:text-blue-800"
               >
                 Upgrade now
