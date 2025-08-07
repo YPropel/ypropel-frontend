@@ -1,33 +1,52 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
 import { apiFetch } from "../../apiClient";
 
 const PaymentSuccess = () => {
   const router = useRouter();
+  const [status, setStatus] = useState<"loading" | "success" | "error">("loading");
 
   useEffect(() => {
     const postJobAfterPayment = async () => {
-      const jobData = sessionStorage.getItem("pendingJobPost");
-      const token = localStorage.getItem("token");
+      let jobData = null;
+      let token = null;
 
-      if (!jobData || !token) return;
+      // Wait up to 3 seconds for sessionStorage/localStorage to be available
+      for (let i = 0; i < 6; i++) {
+        jobData = sessionStorage.getItem("pendingJobPost");
+        token = localStorage.getItem("token");
+
+        if (jobData && token) break;
+        await new Promise((resolve) => setTimeout(resolve, 500));
+      }
+
+      if (!jobData || !token) {
+        setStatus("error");
+        return;
+      }
 
       const parsed = JSON.parse(jobData);
 
-      const response = await apiFetch("/companies/post-job", {
-        method: "POST",
-        headers: {
-          "Authorization": `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(parsed),
-      });
+      try {
+        const response = await apiFetch("/companies/post-job", {
+          method: "POST",
+          headers: {
+            "Authorization": `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(parsed),
+        });
 
-      if (response.ok) {
-        sessionStorage.removeItem("pendingJobPost");
-        router.push("/company/jobs"); // or wherever you want to redirect after posting
-      } else {
-        console.error("Failed to post job after payment");
+        if (response.ok) {
+          sessionStorage.removeItem("pendingJobPost");
+          setStatus("success");
+          router.push("/company/jobs");
+        } else {
+          setStatus("error");
+        }
+      } catch (err) {
+        console.error("Error posting job after payment:", err);
+        setStatus("error");
       }
     };
 
@@ -36,8 +55,18 @@ const PaymentSuccess = () => {
 
   return (
     <div className="p-10 text-center">
-      <h1 className="text-2xl font-bold text-green-600">Payment Successful!</h1>
-      <p>Your job is being posted...</p>
+      {status === "loading" && (
+        <>
+          <h1 className="text-2xl font-bold text-green-600">Payment Successful!</h1>
+          <p>Your job is being posted... Please wait.</p>
+        </>
+      )}
+      {status === "error" && (
+        <>
+          <h1 className="text-2xl font-bold text-red-600">Oops!</h1>
+          <p>Something went wrong. Please try posting your job again.</p>
+        </>
+      )}
     </div>
   );
 };
