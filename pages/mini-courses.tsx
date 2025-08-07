@@ -41,16 +41,26 @@ export default function MiniCoursesPage() {
     fetchCourses();
   }, []);
 
-  // Fetch user profile to get is_premium
+  // Fetch user profile to get is_premium status
   useEffect(() => {
     async function fetchUserProfile() {
       try {
-        const res = await apiFetch("/users/me");
+        const token = localStorage.getItem("token");  // Get the token from localStorage
+        if (!token) {
+          throw new Error("No token found");
+        }
+
+        const res = await apiFetch("/users/me", {
+          headers: {
+            "Authorization": `Bearer ${token}`,  // Send the token as Bearer token
+          },
+        });
+
         if (!res.ok) throw new Error("Failed to fetch user profile");
         const data = await res.json();
-        setIsPremium(data.is_premium);
+        setIsPremium(data.is_premium); // Set the premium status
       } catch (err) {
-        setIsPremium(false);
+        setIsPremium(false); // If there's an error, mark as not premium
       } finally {
         setUserLoading(false);
       }
@@ -59,14 +69,14 @@ export default function MiniCoursesPage() {
   }, []);
 
   async function openCourseDetail(id: number) {
-    if (userLoading) return; // wait for user info
+    if (userLoading) return; // Wait for user info to load
 
     if (!isPremium) {
-      setShowPremiumMessage(true);
+      setShowPremiumMessage(true);  // Show the upgrade message if not premium
       return;
     }
 
-    setShowPremiumMessage(false);
+    setShowPremiumMessage(false);  // Hide the upgrade message
     setLoadingDetail(true);
     setDetailError(null);
     try {
@@ -81,10 +91,9 @@ export default function MiniCoursesPage() {
     }
   }
 
-  // Function to handle redirecting to subscription page
+  // Function to handle redirecting to the subscription page
   function handleUpgrade() {
-    // Redirect to the subscription page (Stripe Checkout)
-    window.location.href = "/subscribe"; // Assuming you already created this page
+    window.location.href = "/student-subscribe"; // Redirect to the subscription page
   }
 
   function closeModal() {
@@ -162,7 +171,7 @@ export default function MiniCoursesPage() {
           ))}
         </div>
 
-        {/* Modal */}
+        {/* Modal for course details */}
         {selectedCourse && (
           <div
             className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
