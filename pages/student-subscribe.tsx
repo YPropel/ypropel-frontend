@@ -1,7 +1,4 @@
 import React, { useState } from "react";
-import { loadStripe } from "@stripe/stripe-js";
-
-const stripePromise = loadStripe("YOUR_STRIPE_PUBLISHABLE_KEY"); // Replace with your Stripe public key
 
 const StudentSubscribePage = () => {
   const [loading, setLoading] = useState(false);
@@ -9,7 +6,7 @@ const StudentSubscribePage = () => {
   const handleSubscribe = async () => {
     setLoading(true);
     try {
-      // Call backend to create the Stripe session
+      // Make a POST request to the backend to create the Stripe session
       const response = await fetch("/payment/create-student-subscription-checkout-session", {
         method: "POST",
       });
@@ -17,12 +14,7 @@ const StudentSubscribePage = () => {
       const session = await response.json();
 
       // Redirect to Stripe Checkout
-      const stripe = await stripePromise;
-      const { error } = await stripe.redirectToCheckout({ sessionId: session.url });
-
-      if (error) {
-        console.error("Stripe checkout error:", error);
-      }
+      window.location.href = session.url; // Redirect to Stripe checkout
     } catch (error) {
       console.error("Error creating Stripe session:", error);
     } finally {
