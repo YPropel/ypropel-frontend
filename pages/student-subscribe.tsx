@@ -1,22 +1,40 @@
 import React, { useState } from "react";
+import { useRouter } from "next/router";
+import { apiFetch } from "../apiClient"; // Ensure the correct import path for apiFetch
 
 const StudentSubscribePage = () => {
   const [loading, setLoading] = useState(false);
+  const router = useRouter();
 
   const handleSubscribe = async () => {
     setLoading(true);
+
     try {
-      // Make a POST request to the backend to create the Stripe session
-      const response = await fetch("/payment/create-student-subscription-checkout-session", {
+      // Get token from localStorage
+      const token = localStorage.getItem("token");
+      if (!token) {
+        console.error("No token found");
+        return;
+      }
+
+      // Make a POST request to create the Stripe session
+      const response = await apiFetch("/payment/create-student-subscription-checkout-session", {
         method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`, // Include the token in the Authorization header
+        },
       });
 
-      const session = await response.json();
-
-      // Redirect to Stripe Checkout
-      window.location.href = session.url; // Redirect to Stripe checkout
+      const data = await response.json();
+      if (data.url) {
+        // Redirect to the Stripe checkout page
+        window.location.href = data.url;
+      } else {
+        console.error("Stripe URL not returned in response");
+      }
     } catch (error) {
-      console.error("Error creating Stripe session:", error);
+      console.error("Subscription failed:", error);
     } finally {
       setLoading(false);
     }
