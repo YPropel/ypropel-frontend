@@ -179,6 +179,11 @@ console.log("Posting Job with values: ", {
   planType,
 
 });
+
+if (planType === "subscription") {
+  router.push("/payment/subscribe");
+  return;
+}
     if (!title || !description || !category || !location || !country || !state || !city || !applyUrl || !jobType ||
   !planType) {
       setError("All required fields must be filled.");
