@@ -26,12 +26,19 @@ const StudentSubscribePage = () => {
         },
       });
 
-      const data = await response.json();
-      if (data.url) {
-        // Redirect to the Stripe checkout page
-        window.location.href = data.url;
+      // Check for successful response
+      if (response.ok) {
+        const data = await response.json();
+        if (data.url) {
+          // Redirect to Stripe checkout
+          window.location.href = data.url;
+        } else {
+          console.error("Stripe URL not returned in response");
+        }
       } else {
-        console.error("Stripe URL not returned in response");
+        // Handle any backend errors
+        const errorData = await response.json();
+        console.error("Error from backend:", errorData.error);
       }
     } catch (error) {
       console.error("Subscription failed:", error);
