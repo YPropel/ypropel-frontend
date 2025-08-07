@@ -39,10 +39,15 @@ const PaymentSuccess = () => {
 
         if (response.ok) {
           sessionStorage.removeItem("pendingJobPost");
-          setStatus("success");
-          router.push("/company/jobs");
+          const companyId = localStorage.getItem("companyId");
+            setStatus("success");
+            if (companyId) {
+            router.push(`/companies/${companyId}/jobs`);
+            } else {
+            router.push("/"); // fallback if companyId is not found
+            }
         } else {
-          setStatus("error");
+          router.push("/");
         }
       } catch (err) {
         console.error("Error posting job after payment:", err);
