@@ -6,27 +6,32 @@ const SubscriptionPage = () => {
   const router = useRouter();
 
   const handleSubscribe = async () => {
-    try {
-      const response = await apiFetch("/payment/create-subscription-checkout-session", {
-        method: "POST",
-      });
-
-      if (!response.ok) {
-        const text = await response.text();
-        console.error("Request failed:", text);
-        return;
-      }
-
-      const data = await response.json();
-      if (data.url) {
-        window.location.href = data.url;
-      } else {
-        console.error("Stripe URL not returned in response");
-      }
-    } catch (error) {
-      console.error("Subscription failed:", error);
+  try {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      console.error("No token found");
+      return;
     }
-  };
+
+    const response = await apiFetch("/payment/create-subscription-checkout-session", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${token}`, // 🔥 This is what was missing
+      },
+    });
+
+    const data = await response.json();
+    if (data.url) {
+      window.location.href = data.url;
+    } else {
+      console.error("Stripe URL not returned in response");
+    }
+  } catch (error) {
+    console.error("Subscription failed:", error);
+  }
+};
+
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-6">
