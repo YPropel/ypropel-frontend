@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { apiFetch } from "../apiClient"; // Adjust path as needed
+import { useRouter } from "next/router";
+
 
 const JOB_TYPES = [
   { label: "Internship", value: "internship" },
@@ -46,7 +48,17 @@ const PostJob = () => {
 
   const [planType, setPlanType] = useState("");
 
+  const router = useRouter();
 
+
+//-----Redirect user  to subscription page if selsected plan type as Subscription
+  useEffect(() => {
+  if (planType === "subscription") {
+    router.push("/subscription");
+  }
+}, [planType]);
+
+//------------------------
   // Fetch companyId from localStorage after the component mounts
   useEffect(() => {
     const storedCompanyId = localStorage.getItem("companyId");
@@ -200,14 +212,14 @@ const jobData = {
 
     // Handle pay-per-post redirect to payment page
    if (planType === "pay_per_post") {
-  sessionStorage.setItem("pendingJobPost", JSON.stringify(jobData));
+      sessionStorage.setItem("pendingJobPost", JSON.stringify(jobData));
 
-  // Call backend to create Stripe Checkout session
-  const response = await apiFetch("/payment/create-checkout-session", {
-    method: "POST",
-    headers: {
-      "Authorization": `Bearer ${token}`,
-    },
+        // Call backend to create Stripe Checkout session
+      const response = await apiFetch("/payment/create-checkout-session", {
+       method: "POST",
+       headers: {
+          "Authorization": `Bearer ${token}`,
+       },
   });
 
   if (response.ok) {
@@ -478,7 +490,7 @@ const jobData = {
                 <option value="">Select a Plan</option>
                 <option value="free">Free Basic Post</option>
                 <option value="pay_per_post">Pay-Per-Post ($75 for 30 days)</option>
-                <option value="subscription">Monthly Subscription ($300)</option>
+                <option value="subscription">Monthly Subscription unlimited ($300)</option>
               </select>
             </div>
 
