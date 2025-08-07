@@ -477,7 +477,7 @@ const jobData = {
               >
                 <option value="">Select a Plan</option>
                 <option value="free">Free Basic Post</option>
-                <option value="pay_per_post">Pay-Per-Post ($75)</option>
+                <option value="pay_per_post">Pay-Per-Post ($75 for 30 days)</option>
                 <option value="subscription">Monthly Subscription ($300)</option>
               </select>
             </div>
