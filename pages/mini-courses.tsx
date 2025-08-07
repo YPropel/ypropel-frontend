@@ -41,26 +41,16 @@ export default function MiniCoursesPage() {
     fetchCourses();
   }, []);
 
-  // Fetch user profile to get is_premium status
+  // Fetch user profile to get is_premium
   useEffect(() => {
     async function fetchUserProfile() {
       try {
-        const token = localStorage.getItem("token");  // Get the token from localStorage
-        if (!token) {
-          throw new Error("No token found");
-        }
-
-        const res = await apiFetch("/users/me", {
-          headers: {
-            "Authorization": `Bearer ${token}`,  // Send the token as Bearer token
-          },
-        });
-
+        const res = await apiFetch("/users/me");
         if (!res.ok) throw new Error("Failed to fetch user profile");
         const data = await res.json();
-        setIsPremium(data.is_premium); // Set the premium status
+        setIsPremium(data.is_premium);
       } catch (err) {
-        setIsPremium(false); // If there's an error, mark as not premium
+        setIsPremium(false);
       } finally {
         setUserLoading(false);
       }
@@ -68,15 +58,16 @@ export default function MiniCoursesPage() {
     fetchUserProfile();
   }, []);
 
+  // Open course detail or show upgrade message
   async function openCourseDetail(id: number) {
-    if (userLoading) return; // Wait for user info to load
+    if (userLoading) return; // wait for user info
 
     if (!isPremium) {
-      setShowPremiumMessage(true);  // Show the upgrade message if not premium
+      setShowPremiumMessage(true);
       return;
     }
 
-    setShowPremiumMessage(false);  // Hide the upgrade message
+    setShowPremiumMessage(false);
     setLoadingDetail(true);
     setDetailError(null);
     try {
@@ -91,9 +82,10 @@ export default function MiniCoursesPage() {
     }
   }
 
-  // Function to handle redirecting to the subscription page
+  // Handle subscription upgrade (redirect to Stripe checkout)
   function handleUpgrade() {
-    window.location.href = "/student-subscribe"; // Redirect to the subscription page
+    // Redirect to the subscription page (Stripe Checkout)
+    window.location.href = "/student-subscribe"; // Page for Stripe checkout
   }
 
   function closeModal() {
@@ -171,7 +163,7 @@ export default function MiniCoursesPage() {
           ))}
         </div>
 
-        {/* Modal for course details */}
+        {/* Modal */}
         {selectedCourse && (
           <div
             className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
