@@ -42,7 +42,8 @@ const PaymentSuccess = () => {
           const companyId = localStorage.getItem("companyId");
             setStatus("success");
             if (companyId) {
-            router.push(`/companies/${companyId}/jobs`);
+            router.push(`/PostJob?companyId=${companyId}`);
+
             } else {
             router.push("/"); // fallback if companyId is not found
             }
