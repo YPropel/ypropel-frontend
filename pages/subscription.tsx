@@ -1,23 +1,27 @@
 import React from "react";
 import { useRouter } from "next/router";
-import { apiFetch } from "../apiClient"; // ✅ Adjust if path is different
+import { apiFetch } from "../apiClient"; // Make sure this import path is correct
 
 const SubscriptionPage = () => {
   const router = useRouter();
 
   const handleSubscribe = async () => {
-    console.log("handel subscribe");
     try {
-      const response = await apiFetch("/payment/create-subscription-checkout-session", {
+      const response = await apiFetch("/payment/create-subscription-session", {
         method: "POST",
       });
 
-      const data = await response.json();
+      if (!response.ok) {
+        const text = await response.text();
+        console.error("Request failed:", text);
+        return;
+      }
 
+      const data = await response.json();
       if (data.url) {
         window.location.href = data.url;
       } else {
-        console.error("Stripe URL not returned");
+        console.error("Stripe URL not returned in response");
       }
     } catch (error) {
       console.error("Subscription failed:", error);
@@ -72,5 +76,4 @@ const SubscriptionPage = () => {
   );
 };
 
-// ✅ This export is required for the page to build
 export default SubscriptionPage;
