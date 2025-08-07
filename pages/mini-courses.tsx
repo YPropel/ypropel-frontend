@@ -45,10 +45,26 @@ export default function MiniCoursesPage() {
   useEffect(() => {
     async function fetchUserProfile() {
       try {
-        const res = await apiFetch("/users/me");
-        if (!res.ok) throw new Error("Failed to fetch user profile");
+        const token = localStorage.getItem("token");  // Get token from localStorage
+        if (!token) {
+          console.error("No token found");
+          return;
+        }
+
+        // Send token with Authorization header
+        const res = await apiFetch("/users/me", {
+          method: "GET",
+          headers: {
+            "Authorization": `Bearer ${token}`,  // Send token with Authorization header
+          },
+        });
+
+        if (!res.ok) {
+          throw new Error("Failed to fetch user profile");
+        }
+
         const data = await res.json();
-        setIsPremium(data.is_premium); // Update the premium status
+        setIsPremium(data.is_premium);  // Update the premium status
       } catch (err) {
         setIsPremium(false);
       } finally {
