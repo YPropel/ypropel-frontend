@@ -172,6 +172,8 @@ console.log("Posting Job with values: ", {
       return;
     }
 
+     
+
     const token = localStorage.getItem("token");
 
     if (!token) {
@@ -180,7 +182,43 @@ console.log("Posting Job with values: ", {
     }
 
     const formattedLocation = location.charAt(0).toUpperCase() + location.slice(1).toLowerCase();
+const jobData = {
+      title,
+      description,
+      category,
+      location: formattedLocation,
+      requirements,
+      applyUrl,
+      salary,
+      jobType,
+      country,
+      state,
+      city,
+      planType,
+    };
 
+    // Handle pay-per-post redirect to payment page
+   if (planType === "pay_per_post") {
+  sessionStorage.setItem("pendingJobPost", JSON.stringify(jobData));
+
+  // Call backend to create Stripe Checkout session
+  const response = await apiFetch("/payment/create-checkout-session", {
+    method: "POST",
+    headers: {
+      "Authorization": `Bearer ${token}`,
+    },
+  });
+
+  if (response.ok) {
+    const data = await response.json();
+    window.location.href = data.url; // Redirect to Stripe checkout
+  } else {
+    const errorData = await response.json();
+    setError(errorData.error || "Failed to initiate payment");
+  }
+
+  return;
+}
     try {
       const response = await apiFetch("/companies/post-job", {
         method: "POST",
@@ -203,6 +241,8 @@ console.log("Posting Job with values: ", {
           "Authorization": `Bearer ${token}`,
         },
       });
+
+      
 
       if (response.ok) {
         const responseData = await response.json();
