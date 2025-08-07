@@ -48,7 +48,7 @@ export default function MiniCoursesPage() {
         const res = await apiFetch("/users/me");
         if (!res.ok) throw new Error("Failed to fetch user profile");
         const data = await res.json();
-        setIsPremium(data.is_premium);
+        setIsPremium(data.is_premium); // Update the premium status
       } catch (err) {
         setIsPremium(false);
       } finally {
@@ -84,7 +84,6 @@ export default function MiniCoursesPage() {
 
   // Handle subscription upgrade (redirect to Stripe checkout)
   function handleUpgrade() {
-    // Redirect to the subscription page (Stripe Checkout)
     window.location.href = "/student-subscribe"; // Page for Stripe checkout
   }
 
@@ -102,7 +101,7 @@ export default function MiniCoursesPage() {
       <div className="container mx-auto p-4">
         <h1 className="text-3xl font-bold mb-6">Mini Courses</h1>
 
-        {showPremiumMessage && (
+        {showPremiumMessage && !isPremium && (
           <div className="mb-4 p-4 bg-yellow-100 border border-yellow-400 text-yellow-800 rounded flex items-center justify-between">
             <div>
               This is a premium feature costing <strong>$4.00/month</strong>.{" "}
