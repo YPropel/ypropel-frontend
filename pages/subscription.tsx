@@ -7,7 +7,7 @@ const SubscriptionPage = () => {
 
   const handleSubscribe = async () => {
     try {
-      const response = await apiFetch("/payment/create-subscription-session", {
+      const response = await apiFetch("/payment/create-subscription-checkout-session", {
         method: "POST",
       });
 
