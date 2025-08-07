@@ -6,6 +6,7 @@ const SubscriptionPage = () => {
   const router = useRouter();
 
   const handleSubscribe = async () => {
+    console.log("handel subscribe");
     try {
       const response = await apiFetch("/payment/create-subscription-checkout-session", {
         method: "POST",
