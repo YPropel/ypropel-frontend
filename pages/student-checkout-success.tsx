@@ -11,6 +11,7 @@ export default function StudentCheckoutSuccess() {
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
     const session_id = urlParams.get("session_id");
+    console.log("Session ID from URL:", session_id); 
     setSessionId(session_id);
   }, []);
 
@@ -38,7 +39,7 @@ export default function StudentCheckoutSuccess() {
     }
   };
 
-  if (loading) return <p>Processing your payment...</p>; // Show loading message while confirming payment
+ // if (loading) return <p>Processing your payment...</p>; // Show loading message while confirming payment
   if (error) return <p className="text-red-600">{error}</p>; // Show error message if there was any issue
 
   return (
