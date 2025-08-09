@@ -22,6 +22,9 @@ export default function StudentCheckoutSuccess() {
 
     try {
       // Send session_id to backend to confirm payment and update user status
+      console.log("Backend URL from environment variable:", process.env.REACT_APP_BACKEND_URL);
+console.log("Frontend URL from environment variable:", process.env.REACT_APP_FRONTEND_URL);
+
       const fullUrl = `${process.env.REACT_APP_BACKEND_URL}/payment/confirm-payment`;  // Construct the full URL
       console.log("Sending request to:", fullUrl);  // Log the full URL
 
