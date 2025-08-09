@@ -25,7 +25,7 @@ export default function StudentCheckoutSuccess() {
       console.log("Backend URL from environment variable:", process.env.REACT_APP_BACKEND_URL);
 console.log("Frontend URL from environment variable:", process.env.NEXT_PUBLIC_API_BASE_URL);
 
-      const fullUrl = `${process.env.NEXT_PUBLIC_API_BASE_URL}/payment/confirm-payment`;  // Construct the full URL
+      const fullUrl =`/payment/confirm-payment`;  // Construct the full URL
       console.log("Sending request to:", fullUrl);  // Log the full URL
 
       const response = await apiFetch(fullUrl, {
