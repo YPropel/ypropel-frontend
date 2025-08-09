@@ -14,6 +14,7 @@ export default function StudentCheckoutSuccess() {
     console.log("Session ID from URL:", session_id); 
     setSessionId(session_id);
   }, []);
+const token = localStorage.getItem("token");  // Get the token from localStorage
 
   // Call the backend to confirm payment and update premium status
   const confirmPayment = async () => {
@@ -23,11 +24,14 @@ export default function StudentCheckoutSuccess() {
     try {
       // Send session_id to backend to confirm payment and update user status
      
-        const response = await apiFetch("/payment/confirm-student-payment", {  // Use full URL for production
-        method: "POST",
-        body: JSON.stringify({ session_id: sessionId }),
-        headers: { "Content-Type": "application/json" },  // Ensure correct headers
-      });
+       const response = await apiFetch("https://www.ypropel.com/payment/confirm-student-payment", {
+  method: "POST",
+  headers: {
+    "Content-Type": "application/json",
+    "Authorization": `Bearer ${token}`,  // Authorization header
+  } as HeadersInit,  // Explicitly type headers as HeadersInit
+  body: JSON.stringify({ session_id: sessionId }),
+});
 
       if (response.ok) {
         setIsPremium(true); // Set user as premium after confirmation
