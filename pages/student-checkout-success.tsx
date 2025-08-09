@@ -30,7 +30,7 @@ export default function StudentCheckoutSuccess() {
 
     try {
       // Send session_id to backend to confirm payment and update user status
-      const response = await apiFetch("https://www.ypropel.com/payment/confirm-student-payment", {
+      const response = await apiFetch("/payment/confirm-student-payment", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
