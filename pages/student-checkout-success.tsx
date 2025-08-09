@@ -22,7 +22,7 @@ export default function StudentCheckoutSuccess() {
 
     try {
       // Send session_id to backend to confirm payment and update user status
-      const response = await apiFetch(`/payment/confirm-payment`, {
+         const response = await apiFetch(`${process.env.REACT_APP_BACKEND_URL}/payment/confirm-payment`, {  // Use full URL for production
         method: "POST",
         body: JSON.stringify({ session_id: sessionId }),
       });
