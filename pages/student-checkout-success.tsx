@@ -22,13 +22,14 @@ export default function StudentCheckoutSuccess() {
 
     try {
       // Send session_id to backend to confirm payment and update user status
-      console.log("Sending request to:", `https://www.ypropel.com/payment/confirm-payment`);
-        const response = await apiFetch(`https://www.ypropel.com/payment/confirm-payment`, {  // Use full URL for production
+      const fullUrl = `${process.env.REACT_APP_BACKEND_URL}/payment/confirm-payment`;  // Construct the full URL
+      console.log("Sending request to:", fullUrl);  // Log the full URL
+
+      const response = await apiFetch(fullUrl, {
         method: "POST",
         body: JSON.stringify({ session_id: sessionId }),
         headers: { "Content-Type": "application/json" },  // Ensure correct headers
-      });
-
+});
       if (response.ok) {
         setIsPremium(true); // Set user as premium after confirmation
       } else {
