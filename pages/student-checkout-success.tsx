@@ -23,15 +23,13 @@ export default function StudentCheckoutSuccess() {
     try {
       // Send session_id to backend to confirm payment and update user status
      
-console.log("Frontend URL from environment variable:", process.env.NEXT_PUBLIC_API_BASE_URL);
-
-      const fullUrl ="/payment/confirm-payment";  // Construct the full URL
-      console.log("Sending request to:", fullUrl);  // Log the full URL
-
-      const response = await apiFetch(fullUrl, {
-        method: "POST",
-        body: JSON.stringify({ session_id: sessionId }),
-        headers: { "Content-Type": "application/json" },  // Ensure correct headers
+const response = await apiFetch("/payment/confirm-payment", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+       
+      },
+   
 });
       if (response.ok) {
         setIsPremium(true); // Set user as premium after confirmation
