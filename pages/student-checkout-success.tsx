@@ -23,14 +23,12 @@ export default function StudentCheckoutSuccess() {
     try {
       // Send session_id to backend to confirm payment and update user status
      
-const response = await apiFetch("/payment/confirm-payment", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-       
-      },
-   
-});
+        const response = await apiFetch("/payment/confirm-student-payment", {  // Use full URL for production
+        method: "POST",
+        body: JSON.stringify({ session_id: sessionId }),
+        headers: { "Content-Type": "application/json" },  // Ensure correct headers
+      });
+
       if (response.ok) {
         setIsPremium(true); // Set user as premium after confirmation
       } else {
