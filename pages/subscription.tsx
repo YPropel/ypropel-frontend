@@ -13,14 +13,19 @@ const SubscriptionPage = () => {
       return;
     }
 
-    const response = await apiFetch("/payment/create-subscription-checkout-session", {
+   /* const response = await apiFetch("/payment/create-subscription-checkout-session", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
         "Authorization": `Bearer ${token}`, // 🔥 This is what was missing
       },
-    });
-
+    }); */
+     const response = await apiFetch("/payment/confirm-student-payment", {  // Use full URL for production
+            method: "POST",
+           // body: JSON.stringify({ session_id: sessionId }),
+            headers: { "Content-Type": "application/json" },  // Ensure correct headers
+ 
+    }); 
     const data = await response.json();
     if (data.url) {
       window.location.href = data.url;

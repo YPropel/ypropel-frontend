@@ -120,7 +120,7 @@ export default function MiniCoursesPage() {
         {showPremiumMessage && !isPremium && (
           <div className="mb-4 p-4 bg-yellow-100 border border-yellow-400 text-yellow-800 rounded flex items-center justify-between">
             <div>
-              This is a premium feature costing <strong>$4.00/month</strong>.{" "}
+              This is a premium feature costing <strong>$4.99/month</strong>.{" "}
               <button
                 onClick={handleUpgrade}
                 className="underline text-blue-600 hover:text-blue-800"
