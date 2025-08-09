@@ -22,7 +22,8 @@ export default function StudentCheckoutSuccess() {
 
     try {
       // Send session_id to backend to confirm payment and update user status
-         const response = await apiFetch(`$https//www.ypropel.com/payment/confirm-payment`, {  // Use full URL for production
+      console.log("Sending request to:", `https://www.ypropel.com/payment/confirm-payment`);
+         const response = await apiFetch(`https//www.ypropel.com/payment/confirm-payment`, {  // Use full URL for production
         method: "POST",
         body: JSON.stringify({ session_id: sessionId }),
       });
