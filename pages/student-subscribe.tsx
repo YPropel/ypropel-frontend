@@ -1,12 +1,15 @@
 import React from "react";
-import { apiFetch } from "../apiClient"; // Adjust path if needed
+import { apiFetch } from "../apiClient";
+import { useRouter } from "next/router";
 
-export default function TestPayment() {
+export default function TestPaymentAndRedirect() {
+  const router = useRouter();
   const token = "YOUR_VALID_JWT_TOKEN_HERE"; // Replace with your actual token
 
-  const testCreateCheckout = async () => {
+  const runTestsAndRedirect = async () => {
     try {
-      const res = await apiFetch("/payment/create-student-subscription-checkout-session", {
+      // Test create checkout session
+      const resCreate = await apiFetch("/payment/create-student-subscription-checkout-session", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -14,39 +17,37 @@ export default function TestPayment() {
         },
         body: JSON.stringify({ planType: "student_monthly" }),
       });
+      if (!resCreate.ok) throw new Error("Create checkout test failed");
+      const dataCreate = await resCreate.json();
+      console.log("Create checkout test response:", dataCreate);
 
-      const data = await res.json();
-      console.log("✅ create-student-subscription-checkout-session response:", data);
-    } catch (err) {
-      console.error("❌ Error hitting create checkout route:", err);
-    }
-  };
-
-  const testConfirmPayment = async () => {
-    try {
-      // Use a test sessionId to match backend param name
-      const res = await apiFetch("/payment/confirm-student-payment", {
+      // Test confirm payment
+      const resConfirm = await apiFetch("/payment/confirm-student-payment", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify({ sessionId: "test_session_123" }),
+        body: JSON.stringify({ sessionId: "test123" }),
       });
+      if (!resConfirm.ok) throw new Error("Confirm payment test failed");
+      const dataConfirm = await resConfirm.json();
+      console.log("Confirm payment test response:", dataConfirm);
 
-      const data = await res.json();
-      console.log("✅ confirm-student-payment response:", data);
+      // If both tests pass, redirect to success page with session_id
+      router.push("/student-checkout-success?session_id=test123");
     } catch (err) {
-      console.error("❌ Error hitting confirm payment route:", err);
+      console.error("Test routes failed:", err);
+      alert("Test routes failed. Check console.");
     }
   };
 
   return (
     <div style={{ padding: "20px" }}>
-      <h1>Test Payment Routes</h1>
-      <button onClick={testCreateCheckout}>Test Create Checkout Session</button>
-      <br /><br />
-      <button onClick={testConfirmPayment}>Test Confirm Payment</button>
+      <h1>Test Payment Routes and Redirect</h1>
+      <button onClick={runTestsAndRedirect} className="bg-blue-600 text-white px-6 py-2 rounded">
+        Run Tests and Go to Success Page
+      </button>
     </div>
   );
 }
