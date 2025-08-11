@@ -1,17 +1,18 @@
 import React from "react";
+import { apiFetch } from "../apiClient"; // Adjust path if needed
 
 export default function TestPayment() {
   const token = "YOUR_VALID_JWT_TOKEN_HERE"; // Replace with your actual token
 
   const testCreateCheckout = async () => {
     try {
-      const res = await fetch("https://ypropel-backend.onrender.com/payment/create-student-subscription-checkout-session", {
+      const res = await apiFetch("/payment/create-student-subscription-checkout-session", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          "Authorization": `Bearer ${token}`
+          Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify({ planType: "student_monthly" })
+        body: JSON.stringify({ planType: "student_monthly" }),
       });
 
       const data = await res.json();
@@ -23,13 +24,13 @@ export default function TestPayment() {
 
   const testConfirmPayment = async () => {
     try {
-      const res = await fetch("https://ypropel-backend.onrender.com/payment/confirm-student-payment", {
+      const res = await apiFetch("/payment/confirm-student-payment", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          "Authorization": `Bearer ${token}`
+          Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify({ paymentId: "test_123", status: "success" })
+        body: JSON.stringify({ paymentId: "test_123", status: "success" }),
       });
 
       const data = await res.json();
@@ -48,3 +49,4 @@ export default function TestPayment() {
     </div>
   );
 }
+ 
