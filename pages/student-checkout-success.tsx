@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
-import { apiFetch } from "../../apiClient";
+import { apiFetch } from "../apiClient";
 
 export default function SubscribeConfirmationPage() {
   const router = useRouter();
