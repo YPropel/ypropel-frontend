@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { apiFetch } from "../apiClient"; // Your API client
+import { apiFetch } from "../apiClient";
 
 export default function StudentCheckoutSuccess() {
   const [sessionId, setSessionId] = useState<string | null>(null);
@@ -7,17 +7,18 @@ export default function StudentCheckoutSuccess() {
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Get the session_id from URL query params once on mount
+  // Only run on client side
   useEffect(() => {
-    const urlParams = new URLSearchParams(window.location.search);
-    const session_id = urlParams.get("session_id");
-    setSessionId(session_id);
+    if (typeof window !== "undefined") {
+      const urlParams = new URLSearchParams(window.location.search);
+      const session_id = urlParams.get("session_id");
+      setSessionId(session_id);
+    }
   }, []);
 
-  // Get token from localStorage
-  const token = localStorage.getItem("token");
+  const token =
+    typeof window !== "undefined" ? localStorage.getItem("token") : null;
 
-  // Confirm payment function
   const confirmPayment = async () => {
     if (!sessionId) {
       setError("No session ID found");
