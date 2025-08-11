@@ -6,18 +6,28 @@ export default function StudentSubscribePage() {
   const [error, setError] = useState<string | null>(null);
 
   async function handleSubscribe() {
-    setLoading(true);
-    setError(null);
-    try {
-      const res = await apiFetch("/subscriptions/create-checkout-session", { method: "POST" });
-      if (!res.ok) throw new Error("Failed to create checkout session");
-      const data = await res.json();
-      window.location.href = data.url; // redirect to Stripe checkout
-    } catch (err: any) {
-      setError(err.message || "Unknown error");
-      setLoading(false);
-    }
+  setLoading(true);
+  setError(null);
+  try {
+    const token = localStorage.getItem("token");
+    if (!token) throw new Error("No auth token found");
+
+    const res = await apiFetch("/subscriptions/create-checkout-session", {
+      method: "POST",
+      headers: {
+        "Authorization": `Bearer ${token}`,
+      },
+    });
+
+    if (!res.ok) throw new Error("Failed to create checkout session");
+    const data = await res.json();
+    window.location.href = data.url;
+  } catch (err: any) {
+    setError(err.message || "Unknown error");
+    setLoading(false);
   }
+}
+
 
   return (
     <div className="container mx-auto p-4">
