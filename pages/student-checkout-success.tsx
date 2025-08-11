@@ -1,62 +1,50 @@
+// pages/payment/confirm-student-payment.tsx
 import React, { useEffect, useState } from "react";
-import { apiFetch } from "../apiClient"; // Your API client
+import { useRouter } from "next/router";
+import { apiFetch } from "../../apiClient"; // adjust path if needed
 
-export default function StudentCheckoutSuccess() {
-  const [sessionId, setSessionId] = useState<string | null>(null);  // Store session ID from query string
-  const [isPremium, setIsPremium] = useState<boolean>(false); // Store user's premium status
-  const [loading, setLoading] = useState<boolean>(true); // Track loading state
-  const [error, setError] = useState<string | null>(null); // Store error message if any
+export default function ConfirmStudentPaymentPage() {
+  const router = useRouter();
+  const [loading, setLoading] = useState(true);
+  const [status, setStatus] = useState("");
 
-  // Get the session_id from the query string
   useEffect(() => {
-    const urlParams = new URLSearchParams(window.location.search);
-    const session_id = urlParams.get("session_id");
-    console.log("Session ID from URL:", session_id); 
-    setSessionId(session_id);
-  }, []);
+    const confirmPayment = async () => {
+      try {
+        const sessionId = sessionStorage.getItem("student_payment_session_id");
+        if (!sessionId) {
+          setStatus("No payment session found.");
+          setLoading(false);
+          return;
+        }
 
-  // Call the backend to confirm payment and update premium status
-  const confirmPayment = async () => {
-    setLoading(true);
-    setError(null);
+        const res = await apiFetch("/payment/confirm-student-payment", {
+          method: "POST",
+          body: JSON.stringify({ sessionId }),
+        });
 
-    try {
-      // Send session_id to backend to confirm payment and update user status
-     
-        const response = await apiFetch("/payment/confirm-student-payment", {  // Use full URL for production
-        method: "POST",
-        body: JSON.stringify({ session_id: sessionId }),
-        headers: { "Content-Type": "application/json" },  // Ensure correct headers
-      });
-
-      if (response.ok) {
-        setIsPremium(true); // Set user as premium after confirmation
-      } else {
-        setError("Failed to update premium status");
+        if (res.success) {
+          setStatus("✅ Student payment confirmed! Subscription active.");
+          // You can redirect to student dashboard if you want:
+          // router.push("/student/dashboard");
+        } else {
+          setStatus("❌ Payment confirmation failed: " + res.error);
+        }
+      } catch (err) {
+        console.error(err);
+        setStatus("❌ Error confirming payment.");
+      } finally {
+        setLoading(false);
       }
-    } catch (err) {
-      setError("There was an error confirming payment");
-    } finally {
-      setLoading(false);
-    }
-  };
+    };
 
- // if (loading) return <p>Processing your payment...</p>; // Show loading message while confirming payment
-  if (error) return <p className="text-red-600">{error}</p>; // Show error message if there was any issue
+    confirmPayment();
+  }, [router]);
 
   return (
-    <div>
-      <h2>Payment Successful!</h2>
-      {isPremium ? (
-        <p>You are now a premium member. Enjoy the courses!</p>  // If user is successfully upgraded
-      ) : (
-        <>
-          <p>Click below to confirm your premium status:</p>
-          <button onClick={confirmPayment} className="bg-blue-600 text-white px-6 py-2 rounded">
-            Confirm Premium Status
-          </button>
-        </>
-      )}
+    <div style={{ padding: "20px" }}>
+      <h2>Confirming Student Payment...</h2>
+      {loading ? <p>Please wait...</p> : <p>{status}</p>}
     </div>
   );
 }
