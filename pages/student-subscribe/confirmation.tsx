@@ -12,17 +12,26 @@ export default function SubscribeConfirmation() {
   useEffect(() => {
     if (!session_id) return;
     async function verify() {
-      try {
-        const res = await apiFetch(`/subscriptions/verify-session?session_id=${session_id}`);
-        if (!res.ok) throw new Error("Failed to verify session");
-        const data = await res.json();
-        setSuccess(data.status === "complete");
-      } catch (err: any) {
-        setError(err.message || "Unknown error");
-      } finally {
-        setLoading(false);
-      }
-    }
+  try {
+    const token = localStorage.getItem("token");
+    if (!token) throw new Error("No auth token found");
+
+    const res = await apiFetch(`/subscriptions/verify-session?session_id=${session_id}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    if (!res.ok) throw new Error("Failed to verify session");
+    const data = await res.json();
+    setSuccess(data.status === "complete");
+  } catch (err: any) {
+    setError(err.message || "Unknown error");
+  } finally {
+    setLoading(false);
+  }
+}
+
     verify();
   }, [session_id]);
 
