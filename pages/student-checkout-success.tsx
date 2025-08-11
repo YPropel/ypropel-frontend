@@ -1,50 +1,48 @@
-// pages/payment/confirm-student-payment.tsx
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
-import { apiFetch } from "../../apiClient"; // adjust path if needed
+import { apiFetch } from "../apiClient"; // adjust path
+import Cookies from "js-cookie";
 
-export default function ConfirmStudentPaymentPage() {
+export default function StudentCheckoutSuccess() {
   const router = useRouter();
-  const [loading, setLoading] = useState(true);
-  const [status, setStatus] = useState("");
+  const { session_id } = router.query;
+  const [status, setStatus] = useState("Verifying payment...");
 
   useEffect(() => {
+    if (!session_id) return; // Wait until session_id is available from query
+    const token = Cookies.get("token"); // JWT stored in cookies
+
     const confirmPayment = async () => {
       try {
-        const sessionId = sessionStorage.getItem("student_payment_session_id");
-        if (!sessionId) {
-          setStatus("No payment session found.");
-          setLoading(false);
-          return;
-        }
-
-        const res = await apiFetch("/payment/confirm-student-payment", {
+        const response = await apiFetch("/payment/confirm-student-payment", {
           method: "POST",
-          body: JSON.stringify({ sessionId }),
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({ session_id }),
         });
 
-        if (res.success) {
-          setStatus("✅ Student payment confirmed! Subscription active.");
-          // You can redirect to student dashboard if you want:
-          // router.push("/student/dashboard");
+        if (response.ok) {
+          const data = await response.json();
+          setStatus(`Payment confirmed! ${data.message || ""}`);
         } else {
-          setStatus("❌ Payment confirmation failed: " + res.error);
+          const errorData = await response.json();
+          setStatus(`Payment failed: ${errorData.error || "Unknown error"}`);
         }
-      } catch (err) {
-        console.error(err);
-        setStatus("❌ Error confirming payment.");
-      } finally {
-        setLoading(false);
+      } catch (error) {
+        console.error("Error confirming payment:", error);
+        setStatus("Error confirming payment. Please contact support.");
       }
     };
 
     confirmPayment();
-  }, [router]);
+  }, [session_id]);
 
   return (
     <div style={{ padding: "20px" }}>
-      <h2>Confirming Student Payment...</h2>
-      {loading ? <p>Please wait...</p> : <p>{status}</p>}
+      <h1>Student Subscription Payment</h1>
+      <p>{status}</p>
     </div>
   );
 }
