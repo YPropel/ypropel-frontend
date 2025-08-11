@@ -3,20 +3,19 @@ import { apiFetch } from "../apiClient";
 
 export default function StudentCheckoutSuccess() {
   const [sessionId, setSessionId] = useState<string | null>(null);
-  const [isPremium, setIsPremium] = useState<boolean>(false);
-  const [loading, setLoading] = useState<boolean>(false);
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-
-  // Extract session_id from URL query params on client side
-  useEffect(() => {
-    if (typeof window !== "undefined") {
-      const urlParams = new URLSearchParams(window.location.search);
-      const session_id = urlParams.get("session_id");
-      setSessionId(session_id);
-    }
-  }, []);
+  const [isPremium, setIsPremium] = useState(false);
 
   const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const params = new URLSearchParams(window.location.search);
+      const id = params.get("session_id");
+      setSessionId(id);
+    }
+  }, []);
 
   const confirmPayment = async () => {
     if (!sessionId) {
@@ -32,47 +31,44 @@ export default function StudentCheckoutSuccess() {
     setError(null);
 
     try {
-      const response = await apiFetch("/payment/confirm-student-payment", {
+      const res = await apiFetch("/payment/confirm-student-payment", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify({ sessionId }), // match backend param name exactly
+        body: JSON.stringify({ session_id: sessionId }),
       });
 
-      if (response.ok) {
+      if (res.ok) {
         setIsPremium(true);
       } else {
-        const data = await response.json();
-        setError(data.message || "Failed to update premium status");
+        const data = await res.json();
+        setError(data.error || "Failed to confirm payment");
       }
-    } catch {
-      setError("There was an error confirming payment");
+    } catch (err) {
+      setError("Error confirming payment");
     } finally {
       setLoading(false);
     }
   };
 
-  if (loading) return <p>Processing your payment...</p>;
-  if (error) return <p className="text-red-600">{error}</p>;
-
   return (
-    <div>
-      <h2>Payment Successful!</h2>
-      {isPremium ? (
-        <p>You are now a premium member. Enjoy the courses!</p>
-      ) : (
+    <div style={{ padding: 20 }}>
+      <h1>Payment Confirmation</h1>
+
+      {loading && <p>Processing payment confirmation...</p>}
+
+      {error && <p style={{ color: "red" }}>{error}</p>}
+
+      {!loading && !isPremium && (
         <>
-          <p>Click below to confirm your premium status:</p>
-          <button
-            onClick={confirmPayment}
-            className="bg-blue-600 text-white px-6 py-2 rounded"
-          >
-            Confirm Premium Status
-          </button>
+          <p>Please confirm your payment to activate premium status.</p>
+          <button onClick={confirmPayment}>Confirm Payment</button>
         </>
       )}
+
+      {isPremium && <p>🎉 You are now a premium member! Enjoy the courses.</p>}
     </div>
   );
 }
