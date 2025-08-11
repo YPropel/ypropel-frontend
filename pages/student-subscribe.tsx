@@ -1,43 +1,35 @@
-import React from "react";
+import React, { useState } from "react";
 import { apiFetch } from "../apiClient";
 
-export default function StartSubscriptionCheckout() {
-  const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
+export default function StudentSubscribePage() {
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  const handleStartCheckout = async () => {
-    if (!token) {
-      alert("Please log in first.");
-      return;
-    }
-
+  async function handleSubscribe() {
+    setLoading(true);
+    setError(null);
     try {
-      const res = await apiFetch("/payment/create-student-subscription-checkout-session", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-      });
-
+      const res = await apiFetch("/subscriptions/create-checkout-session", { method: "POST" });
+      if (!res.ok) throw new Error("Failed to create checkout session");
       const data = await res.json();
-
-      if (data.url) {
-        // Redirect to Stripe Checkout page
-        window.location.href = data.url;
-      } else {
-        alert("Failed to create checkout session");
-      }
-    } catch (error) {
-      console.error("Error creating checkout session:", error);
-      alert("Error creating checkout session");
+      window.location.href = data.url; // redirect to Stripe checkout
+    } catch (err: any) {
+      setError(err.message || "Unknown error");
+      setLoading(false);
     }
-  };
+  }
 
   return (
-    <div style={{ padding: 20 }}>
-      <h1>Subscribe to Premium Mini-Courses</h1>
-      <button onClick={handleStartCheckout} className="bg-blue-600 text-white px-6 py-2 rounded">
-        Start Subscription Checkout
+    <div className="container mx-auto p-4">
+      <h1 className="text-3xl font-bold mb-6">Subscribe to Mini Courses</h1>
+      <p>Get unlimited access for just <strong>$4.99/month</strong>.</p>
+      {error && <p className="text-red-600">{error}</p>}
+      <button
+        onClick={handleSubscribe}
+        disabled={loading}
+        className="mt-4 px-6 py-3 bg-blue-600 text-white rounded hover:bg-blue-700 disabled:opacity-50"
+      >
+        {loading ? "Redirecting..." : "Subscribe"}
       </button>
     </div>
   );

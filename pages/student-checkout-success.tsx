@@ -1,67 +1,49 @@
-import React, { useEffect, useState } from "react";
-import { apiFetch } from "../apiClient";
+import { useEffect, useState } from "react";
+import { useRouter } from "next/router";
+import { apiFetch } from "../../apiClient";
 
-export default function StudentCheckoutSuccess() {
-  const [sessionId, setSessionId] = useState<string | null>(null);
-  const [loading, setLoading] = useState(false);
+export default function SubscribeConfirmationPage() {
+  const router = useRouter();
+  const { session_id } = router.query;
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [isPremium, setIsPremium] = useState(false);
-
-  const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
+  const [success, setSuccess] = useState(false);
 
   useEffect(() => {
-    if (typeof window !== "undefined") {
-      const params = new URLSearchParams(window.location.search);
-      const id = params.get("session_id");
-      setSessionId(id);
-    }
-  }, []);
+    if (!session_id) return;
 
-  useEffect(() => {
-    // Auto-confirm payment when sessionId is set
-    if (sessionId && token) {
-      confirmPayment();
-    }
-  }, [sessionId, token]);
-
-  const confirmPayment = async () => {
-    setLoading(true);
-    setError(null);
-
-    try {
-      const res = await apiFetch("/payment/confirm-student-payment", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({ sessionId }),
-      });
-
-      if (res.ok) {
-        setIsPremium(true);
-      } else {
+    async function verifySession() {
+      try {
+        const res = await apiFetch(`/subscriptions/verify-session?session_id=${session_id}`);
+        if (!res.ok) throw new Error("Failed to verify session");
         const data = await res.json();
-        setError(data.error || "Failed to confirm payment");
+        if (data.status === "complete") {
+          setSuccess(true);
+        } else {
+          setError("Subscription not completed.");
+        }
+      } catch (err: any) {
+        setError(err.message || "Unknown error");
+      } finally {
+        setLoading(false);
       }
-    } catch (err) {
-      setError("Error confirming payment");
-    } finally {
-      setLoading(false);
     }
-  };
 
-  if (loading) return <p>Processing payment confirmation...</p>;
+    verifySession();
+  }, [session_id]);
+
+  if (loading) return <p>Verifying subscription...</p>;
+  if (error) return <p className="text-red-600">{error}</p>;
 
   return (
-    <div style={{ padding: 20 }}>
-      <h1>Payment Confirmation</h1>
-      {error && <p style={{ color: "red" }}>{error}</p>}
-
-      {isPremium ? (
-        <p>🎉 You are now a premium member! Enjoy your mini-courses.</p>
+    <div className="container mx-auto p-4">
+      {success ? (
+        <>
+          <h1 className="text-3xl font-bold mb-4">Subscription Successful!</h1>
+          <p>Thank you for subscribing. You now have full access to the mini courses.</p>
+        </>
       ) : (
-        !error && <p>Confirming your payment, please wait...</p>
+        <p>Subscription not complete.</p>
       )}
     </div>
   );
