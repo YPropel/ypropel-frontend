@@ -11,26 +11,37 @@ export default function SubscribeConfirmation() {
 
   useEffect(() => {
     if (!session_id) return;
+
     async function verify() {
-  try {
-    const token = localStorage.getItem("token");
-    if (!token) throw new Error("No auth token found");
+      try {
+        const token = localStorage.getItem("token");
+        if (!token) throw new Error("No auth token found");
 
-    const res = await apiFetch(`/subscriptions/verify-session?session_id=${session_id}`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
+        // Verify the Stripe session status
+        const res = await apiFetch(`/subscriptions/verify-session?session_id=${session_id}`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        if (!res.ok) throw new Error("Failed to verify session");
+        const data = await res.json();
 
-    if (!res.ok) throw new Error("Failed to verify session");
-    const data = await res.json();
-    setSuccess(data.status === "complete");
-  } catch (err: any) {
-    setError(err.message || "Unknown error");
-  } finally {
-    setLoading(false);
-  }
-}
+        if (data.status === "complete") {
+          setSuccess(true);
+
+          // Update user premium status in your backend
+          const updateRes = await apiFetch("/users/set-premium", {
+            method: "POST",
+            headers: { Authorization: `Bearer ${token}` },
+          });
+          if (!updateRes.ok) throw new Error("Failed to update premium status");
+        } else {
+          setSuccess(false);
+        }
+      } catch (err: any) {
+        setError(err.message || "Unknown error");
+      } finally {
+        setLoading(false);
+      }
+    }
 
     verify();
   }, [session_id]);
