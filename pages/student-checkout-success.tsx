@@ -17,16 +17,14 @@ export default function StudentCheckoutSuccess() {
     }
   }, []);
 
-  const confirmPayment = async () => {
-    if (!sessionId) {
-      setError("No session ID found");
-      return;
+  useEffect(() => {
+    // Auto-confirm payment when sessionId is set
+    if (sessionId && token) {
+      confirmPayment();
     }
-    if (!token) {
-      setError("User not authenticated");
-      return;
-    }
+  }, [sessionId, token]);
 
+  const confirmPayment = async () => {
     setLoading(true);
     setError(null);
 
@@ -37,7 +35,7 @@ export default function StudentCheckoutSuccess() {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify({ session_id: sessionId }),
+        body: JSON.stringify({ sessionId }),
       });
 
       if (res.ok) {
@@ -53,22 +51,18 @@ export default function StudentCheckoutSuccess() {
     }
   };
 
+  if (loading) return <p>Processing payment confirmation...</p>;
+
   return (
     <div style={{ padding: 20 }}>
       <h1>Payment Confirmation</h1>
-
-      {loading && <p>Processing payment confirmation...</p>}
-
       {error && <p style={{ color: "red" }}>{error}</p>}
 
-      {!loading && !isPremium && (
-        <>
-          <p>Please confirm your payment to activate premium status.</p>
-          <button onClick={confirmPayment}>Confirm Payment</button>
-        </>
+      {isPremium ? (
+        <p>🎉 You are now a premium member! Enjoy your mini-courses.</p>
+      ) : (
+        !error && <p>Confirming your payment, please wait...</p>
       )}
-
-      {isPremium && <p>🎉 You are now a premium member! Enjoy the courses.</p>}
     </div>
   );
 }
