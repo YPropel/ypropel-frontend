@@ -7,7 +7,7 @@ export default function StudentCheckoutSuccess() {
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Only run on client side
+  // Extract session_id from URL query params on client side
   useEffect(() => {
     if (typeof window !== "undefined") {
       const urlParams = new URLSearchParams(window.location.search);
@@ -16,8 +16,7 @@ export default function StudentCheckoutSuccess() {
     }
   }, []);
 
-  const token =
-    typeof window !== "undefined" ? localStorage.getItem("token") : null;
+  const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
 
   const confirmPayment = async () => {
     if (!sessionId) {
@@ -39,7 +38,7 @@ export default function StudentCheckoutSuccess() {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify({ session_id: sessionId }),
+        body: JSON.stringify({ sessionId }), // match backend param name exactly
       });
 
       if (response.ok) {
@@ -48,7 +47,7 @@ export default function StudentCheckoutSuccess() {
         const data = await response.json();
         setError(data.message || "Failed to update premium status");
       }
-    } catch (err) {
+    } catch {
       setError("There was an error confirming payment");
     } finally {
       setLoading(false);

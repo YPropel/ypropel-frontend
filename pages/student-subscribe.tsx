@@ -24,13 +24,14 @@ export default function TestPayment() {
 
   const testConfirmPayment = async () => {
     try {
+      // Use a test sessionId to match backend param name
       const res = await apiFetch("/payment/confirm-student-payment", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify({ paymentId: "test_123", status: "success" }),
+        body: JSON.stringify({ sessionId: "test_session_123" }),
       });
 
       const data = await res.json();
@@ -49,4 +50,3 @@ export default function TestPayment() {
     </div>
   );
 }
- 
