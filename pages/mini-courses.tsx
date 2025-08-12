@@ -76,29 +76,40 @@ export default function MiniCoursesPage() {
 
   // Cancel subscription
   async function handleCancelSubscription() {
-    if (!subscriptionId) return;
-    setCancelLoading(true);
-    setCancelMessage("");
-    try {
-      const res = await apiFetch("/stripe/cancel-subscription", {
-        method: "POST",
-        body: JSON.stringify({ subscriptionId }),
-      });
-      const data = await res.json();
-      if (res.ok) {
-        setCancelMessage(data.message || "Subscription cancellation scheduled.");
-        // Update local state so UI reflects cancellation
-        setIsPremium(false);
-        setSubscriptionId(null);
-      } else {
-        setCancelMessage(data.error || "Failed to cancel subscription.");
-      }
-    } catch {
-      setCancelMessage("Failed to cancel subscription.");
-    } finally {
+  if (!subscriptionId) return;
+  setCancelLoading(true);
+  setCancelMessage("");
+  try {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      setCancelMessage("You must be logged in to cancel subscription.");
       setCancelLoading(false);
+      return;
     }
+
+    const res = await apiFetch("/stripe/cancel-subscription", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,  // <-- Add the token here
+      },
+      body: JSON.stringify({ subscriptionId }),
+    });
+
+    const data = await res.json();
+    if (res.ok) {
+      setCancelMessage(data.message || "Subscription cancellation scheduled.");
+      setIsPremium(false);
+      setSubscriptionId(null);
+    } else {
+      setCancelMessage(data.error || "Failed to cancel subscription.");
+    }
+  } catch {
+    setCancelMessage("Failed to cancel subscription.");
+  } finally {
+    setCancelLoading(false);
   }
+}
 
   // Open course detail
   async function openCourseDetail(id: number) {
