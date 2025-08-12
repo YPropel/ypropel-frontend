@@ -47,29 +47,33 @@ export default function MiniCoursesPage() {
 
   // Fetch user profile to get is_premium & subscriptionId
   useEffect(() => {
-    async function fetchUserProfile() {
-      try {
-        const token = localStorage.getItem("token");
-        if (!token) return;
+  async function fetchUserProfile() {
+    try {
+      const token = localStorage.getItem("token");
+      if (!token) return;
 
-        const res = await apiFetch("/users/me", {
-          method: "GET",
-          headers: { Authorization: `Bearer ${token}` },
-        });
+      const res = await apiFetch("/users/me", {
+        method: "GET",
+        headers: { Authorization: `Bearer ${token}` },
+      });
 
-        if (!res.ok) throw new Error("Failed to fetch user profile");
+      if (!res.ok) throw new Error("Failed to fetch user profile");
 
-        const data = await res.json();
-        setIsPremium(data.is_premium);
-        setSubscriptionId(data.subscription_id || null);
-      } catch {
-        setIsPremium(false);
-      } finally {
-        setUserLoading(false);
-      }
+      const data = await res.json();
+
+      // Normalize is_premium to boolean true/false
+      setIsPremium(data.is_premium === 't' || data.is_premium === true);
+
+      setSubscriptionId(data.subscription_id || null);
+
+    } catch {
+      setIsPremium(false);
+    } finally {
+      setUserLoading(false);
     }
-    fetchUserProfile();
-  }, []);
+  }
+  fetchUserProfile();
+}, []);
 
   // Cancel subscription
   async function handleCancelSubscription() {
