@@ -45,31 +45,24 @@ export default function MiniCoursesPage() {
     fetchCourses();
   }, []);
 
-  // Fetch user profile to get is_premium & subscriptionId
+  // Fetch user profile
   useEffect(() => {
     async function fetchUserProfile() {
       try {
         const token = localStorage.getItem("token");
-        if (!token) {
-          console.error("No token found");
-          return;
-        }
+        if (!token) return;
 
         const res = await apiFetch("/users/me", {
           method: "GET",
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
+          headers: { Authorization: `Bearer ${token}` },
         });
 
-        if (!res.ok) {
-          throw new Error("Failed to fetch user profile");
-        }
+        if (!res.ok) throw new Error("Failed to fetch user profile");
 
         const data = await res.json();
         setIsPremium(data.is_premium);
         setSubscriptionId(data.subscription_id || null);
-      } catch (err) {
+      } catch {
         setIsPremium(false);
       } finally {
         setUserLoading(false);
@@ -90,16 +83,15 @@ export default function MiniCoursesPage() {
       });
       const data = await res.json();
       setCancelMessage(data.message || "Subscription cancellation scheduled.");
-    } catch (err) {
+    } catch {
       setCancelMessage("Failed to cancel subscription.");
+    } finally {
+      setCancelLoading(false);
     }
-    setCancelLoading(false);
   }
 
-  // Open course detail
   async function openCourseDetail(id: number) {
     if (userLoading) return;
-
     if (!isPremium) {
       setShowPremiumMessage(true);
       return;
@@ -120,7 +112,6 @@ export default function MiniCoursesPage() {
     }
   }
 
-  // Upgrade
   function handleUpgrade() {
     window.location.href = "/student-subscribe";
   }
@@ -143,7 +134,9 @@ export default function MiniCoursesPage() {
           <div className="mb-6 p-4 bg-gray-100 border rounded flex items-center justify-between">
             <div>
               You have a premium subscription.
-              {cancelMessage && <p className="mt-1 text-sm text-gray-600">{cancelMessage}</p>}
+              {cancelMessage && (
+                <p className="mt-1 text-sm text-gray-600">{cancelMessage}</p>
+              )}
             </div>
             <button
               onClick={handleCancelSubscription}
@@ -216,7 +209,6 @@ export default function MiniCoursesPage() {
           ))}
         </div>
 
-        {/* Modal */}
         {selectedCourse && (
           <div
             className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
@@ -252,15 +244,22 @@ export default function MiniCoursesPage() {
                     />
                   )}
 
-                  <h2 className="text-2xl font-bold mb-4">{selectedCourse.title}</h2>
+                  <h2 className="text-2xl font-bold mb-4">
+                    {selectedCourse.title}
+                  </h2>
 
-                  {selectedCourse.content_url && selectedCourse.content_url.trim() !== "" ? (
+                  {selectedCourse.content_url &&
+                  selectedCourse.content_url.trim() !== "" ? (
                     <div
                       className="prose max-w-none"
-                      dangerouslySetInnerHTML={{ __html: selectedCourse.content_url }}
+                      dangerouslySetInnerHTML={{
+                        __html: selectedCourse.content_url,
+                      }}
                     />
                   ) : selectedCourse.description ? (
-                    <p className="whitespace-pre-line">{selectedCourse.description}</p>
+                    <p className="whitespace-pre-line">
+                      {selectedCourse.description}
+                    </p>
                   ) : (
                     <p>No content available.</p>
                   )}
