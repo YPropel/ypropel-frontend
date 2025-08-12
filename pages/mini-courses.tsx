@@ -20,7 +20,7 @@ export default function MiniCoursesPage() {
   const [loadingDetail, setLoadingDetail] = useState(false);
   const [detailError, setDetailError] = useState<string | null>(null);
 
-  const [isPremium, setIsPremium] = useState<boolean | null>(null);
+  const [isPremium, setIsPremium] = useState<string | null>(null);
   const [subscriptionId, setSubscriptionId] = useState<string | null>(null);
   const [userLoading, setUserLoading] = useState(true);
   const [showPremiumMessage, setShowPremiumMessage] = useState(false);
@@ -45,32 +45,32 @@ export default function MiniCoursesPage() {
     fetchCourses();
   }, []);
 
-  // Fetch user profile to get is_premium & subscriptionId
+  // Fetch user profile
   useEffect(() => {
-  async function fetchUserProfile() {
-    try {
-      const token = localStorage.getItem("token");
-      if (!token) return;
+    async function fetchUserProfile() {
+      try {
+        const token = localStorage.getItem("token");
+        if (!token) return;
 
-      const res = await apiFetch("/users/me", {
-        method: "GET",
-        headers: { Authorization: `Bearer ${token}` },
-      });
+        const res = await apiFetch("/users/me", {
+          method: "GET",
+          headers: { Authorization: `Bearer ${token}` },
+        });
 
-      if (!res.ok) throw new Error("Failed to fetch user profile");
+        if (!res.ok) throw new Error("Failed to fetch user profile");
 
-      const data = await res.json();
-      setIsPremium(data.is_premium === "t");  // Convert 't'/'f' to boolean
-      setSubscriptionId(data.subscription_id || null);
-    } catch {
-      setIsPremium(false);
-    } finally {
-      setUserLoading(false);
+        const data = await res.json();
+        // Keep isPremium as string exactly as returned
+        setIsPremium(data.is_premium || null);
+        setSubscriptionId(data.subscription_id || null);
+      } catch {
+        setIsPremium(null);
+      } finally {
+        setUserLoading(false);
+      }
     }
-  }
-  fetchUserProfile();
-}, []);
-
+    fetchUserProfile();
+  }, []);
 
   // Cancel subscription
   async function handleCancelSubscription() {
@@ -83,14 +83,7 @@ export default function MiniCoursesPage() {
         body: JSON.stringify({ subscriptionId }),
       });
       const data = await res.json();
-      if (res.ok) {
-        setCancelMessage(data.message || "Subscription cancellation scheduled.");
-        // Update local state so UI reflects cancellation
-        setIsPremium(false);
-        setSubscriptionId(null);
-      } else {
-        setCancelMessage(data.error || "Failed to cancel subscription.");
-      }
+      setCancelMessage(data.message || "Subscription cancellation scheduled.");
     } catch {
       setCancelMessage("Failed to cancel subscription.");
     } finally {
@@ -98,10 +91,9 @@ export default function MiniCoursesPage() {
     }
   }
 
-  // Open course detail
   async function openCourseDetail(id: number) {
     if (userLoading) return;
-    if (!isPremium) {
+    if (isPremium !== "t") {
       setShowPremiumMessage(true);
       return;
     }
@@ -139,8 +131,7 @@ export default function MiniCoursesPage() {
       <div className="container mx-auto p-4">
         <h1 className="text-3xl font-bold mb-6">Mini Courses</h1>
 
-        {/* Cancel subscription UI */}
-        {isPremium && subscriptionId && (
+        {isPremium === "t" && subscriptionId && (
           <div className="mb-6 p-4 bg-gray-100 border rounded flex items-center justify-between">
             <div>
               You have a premium subscription.
@@ -158,8 +149,7 @@ export default function MiniCoursesPage() {
           </div>
         )}
 
-        {/* Premium upgrade message */}
-        {showPremiumMessage && !isPremium && (
+        {showPremiumMessage && isPremium !== "t" && (
           <div className="mb-4 p-4 bg-yellow-100 border border-yellow-400 text-yellow-800 rounded flex items-center justify-between">
             <div>
               This is a premium feature costing <strong>$4.99/month</strong>.{" "}
@@ -181,7 +171,6 @@ export default function MiniCoursesPage() {
           </div>
         )}
 
-        {/* Courses list */}
         <div className="divide-y divide-gray-300">
           {courses.map((course) => (
             <div
@@ -221,7 +210,6 @@ export default function MiniCoursesPage() {
           ))}
         </div>
 
-        {/* Course details modal */}
         {selectedCourse && (
           <div
             className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
