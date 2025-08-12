@@ -1,3 +1,7 @@
+
+//------- Page: subscription for companies to post jobs as premium user
+//-------------------------
+
 import React from "react";
 import { useRouter } from "next/router";
 import { apiFetch } from "../apiClient"; // Make sure this import path is correct

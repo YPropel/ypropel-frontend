@@ -1,19 +1,24 @@
 import React, { useEffect, useState } from "react";
 import { useRouter } from "next/router";
-import { apiFetch } from "../../apiClient"; // Adjust the import based on your project structure
+import { apiFetch } from "../../apiClient";
 
 const CompanyDetailsPage = () => {
   const [company, setCompany] = useState<any | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [isPremium, setIsPremium] = useState(false);
   const router = useRouter();
-  const { companyId } = router.query; // Get companyId from the URL
+  const { companyId } = router.query;
   const [loggedInUserId, setLoggedInUserId] = useState<string | null>(null);
-
+  const [cancelLoading, setCancelLoading] = useState(false);
 
   useEffect(() => {
-    if (!companyId) return; // Don't fetch if companyId is not available yet
-      const userId = localStorage.getItem("userId");
-      setLoggedInUserId(userId);
+    const userId = localStorage.getItem("userId");
+    setLoggedInUserId(userId);
+  }, []);
+
+  // Fetch company details
+  useEffect(() => {
+    if (!companyId) return;
 
     const fetchCompanyDetails = async () => {
       try {
@@ -31,7 +36,7 @@ const CompanyDetailsPage = () => {
           const errorData = await response.json();
           setError(errorData.error || "Failed to fetch company details");
         }
-      } catch (error) {
+      } catch {
         setError("Something went wrong in fetching company details. Please try again later.");
       }
     };
@@ -39,14 +44,38 @@ const CompanyDetailsPage = () => {
     fetchCompanyDetails();
   }, [companyId]);
 
+  // Fetch user subscription status (company premium)
+  useEffect(() => {
+    const fetchUserPremiumStatus = async () => {
+      const token = localStorage.getItem("token");
+      if (!token) return;
+
+      try {
+        const response = await apiFetch("/users/me", {
+          method: "GET",
+          headers: {
+            "Authorization": `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        });
+
+        if (response.ok) {
+          const userData = await response.json();
+          setIsPremium(!!userData.is_company_premium);
+        }
+      } catch {
+        // silently fail or handle if needed
+      }
+    };
+
+    fetchUserPremiumStatus();
+  }, []);
+
   const handleAddJob = () => {
     if (!companyId) return;
-
-    // Redirect to PostJob page with companyId in the query string
-    router.push(`/PostJob?companyId=${companyId}`); // Corrected URL (capital "P" in PostJob)
+    router.push(`/PostJob?companyId=${companyId}`);
   };
 
- // Handle Delete Company
   const handleDeleteCompany = async () => {
     const token = localStorage.getItem("token");
     const userId = localStorage.getItem("userId");
@@ -59,7 +88,7 @@ const CompanyDetailsPage = () => {
     try {
       const response = await apiFetch("/companies/delete", {
         method: "DELETE",
-        body: JSON.stringify({ companyId, userId }), // Send companyId and userId for validation
+        body: JSON.stringify({ companyId, userId }),
         headers: {
           "Content-Type": "application/json",
           "Authorization": `Bearer ${token}`,
@@ -68,78 +97,98 @@ const CompanyDetailsPage = () => {
 
       if (response.ok) {
         alert("Company deleted successfully");
-        // Redirect to dashboard or another page after deletion
-        router.push("/dashboard"); // You can change this to any page
+        router.push("/dashboard");
       } else {
         const errorData = await response.json();
         setError(errorData.error || "Failed to delete company");
       }
-    } catch (error) {
+    } catch {
       setError("Something went wrong. Please try again later.");
     }
   };
 
+  const handleCancelSubscription = async () => {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      alert("You must be logged in to cancel subscription.");
+      return;
+    }
 
-  if (error) {
-    return <p className="text-red-500">{error}</p>;
-  }
+    setCancelLoading(true);
+    try {
+      const response = await apiFetch("/payment/cancel-subscription", {
+        method: "POST",
+        headers: {
+          "Authorization": `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      });
 
-  if (!company) {
-    return <p>Loading...</p>;
-  }
+      if (response.ok) {
+        alert("Subscription canceled successfully. You will lose premium access.");
+        setIsPremium(false);
+      } else {
+        const errorData = await response.json();
+        alert(errorData.error || "Failed to cancel subscription.");
+      }
+    } catch (err) {
+      alert("Error canceling subscription. Please try again later.");
+    } finally {
+      setCancelLoading(false);
+    }
+  };
+
+  if (error) return <p className="text-red-500">{error}</p>;
+
+  if (!company) return <p>Loading...</p>;
+
+  const userOwnsCompany = String(company.user_id) === String(loggedInUserId);
 
   return (
     <div className="container mx-auto p-6">
-      
       <div className="space-y-4">
-        <div>
-          <strong>Company Name:</strong> {company.name}
-        </div>
-        <div>
-          <strong>About:</strong> {company.description}
-        </div>
-        <div>
-          <strong>Location:</strong> {company.location}
-        </div>
-        <div>
-          <strong>Industry:</strong> {company.industry}
-        </div>
-       {/* Display Logo */}
+        <div><strong>Company Name:</strong> {company.name}</div>
+        <div><strong>About:</strong> {company.description}</div>
+        <div><strong>Location:</strong> {company.location}</div>
+        <div><strong>Industry:</strong> {company.industry}</div>
         <div>
           {company.logo_url && (
-            <div>
-             
-              <img
-                src={company.logo_url}
-                alt="Company Logo"
-                className="mt-4"
-                style={{ maxWidth: "200px", height: "auto" }}
-              />
-            </div>
+            <img
+              src={company.logo_url}
+              alt="Company Logo"
+              className="mt-4"
+              style={{ maxWidth: "200px", height: "auto" }}
+            />
           )}
         </div>
       </div>
-       {String(company.user_id) === String(loggedInUserId) && (
-          <div className="mt-6 flex space-x-4">
+
+      {userOwnsCompany && (
+        <div className="mt-6 flex space-x-4">
+          <button onClick={handleAddJob} className="px-4 py-2 bg-blue-500 text-white">
+            Add Job
+          </button>
+
+          <button onClick={handleDeleteCompany} className="px-4 py-2 bg-red-500 text-white">
+            Delete Company
+          </button>
+
+          {isPremium && (
             <button
-              onClick={handleAddJob}
-              className="px-4 py-2 bg-blue-500 text-white"
+              onClick={handleCancelSubscription}
+              disabled={cancelLoading}
+              className={`px-4 py-2 text-white rounded ${
+                cancelLoading ? "bg-gray-400 cursor-not-allowed" : "bg-yellow-600"
+              }`}
+              title="Cancel your premium subscription"
             >
-              Add Job
+              {cancelLoading ? "Cancelling..." : "Cancel Premium Subscription"}
             </button>
-
-            <button
-              onClick={handleDeleteCompany}
-              className="px-4 py-2 bg-red-500 text-white"
-            >
-              Delete Company
-            </button>
-          </div>
-        )}
-
-
-            </div>
-          );
+          )}
+        </div>
+      )}
+    </div>
+  );
 };
 
 export default CompanyDetailsPage;

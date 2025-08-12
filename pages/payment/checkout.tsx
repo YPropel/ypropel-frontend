@@ -1,3 +1,5 @@
+//------------Page: checkout for companies payment
+//------------------------------------------------------------------------
 import { useEffect } from "react";
 import { useRouter } from "next/router";
 import { apiFetch } from "../../apiClient";
