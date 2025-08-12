@@ -76,40 +76,31 @@ export default function MiniCoursesPage() {
 
   // Cancel subscription
   async function handleCancelSubscription() {
-  if (!subscriptionId) return;
-  setCancelLoading(true);
-  setCancelMessage("");
-  try {
-    const token = localStorage.getItem("token");
-    if (!token) {
-      setCancelMessage("You must be logged in to cancel subscription.");
+    if (!subscriptionId) return;
+    setCancelLoading(true);
+    setCancelMessage("");
+    try {
+      const res = await apiFetch("/stripe/cancel-subscription", {
+        method: "POST",
+        body: JSON.stringify({ subscriptionId }),
+      });
+      const data = await res.json();
+      if (res.ok) {
+        setCancelMessage(
+          data.message || "Subscription cancellation scheduled."
+        );
+        // Update local state so UI reflects cancellation
+        setIsPremium(false);
+        setSubscriptionId(null);
+      } else {
+        setCancelMessage(data.error || "Failed to cancel subscription.");
+      }
+    } catch {
+      setCancelMessage("Failed to cancel subscription.");
+    } finally {
       setCancelLoading(false);
-      return;
     }
-
-    const res = await apiFetch("/stripe/cancel-subscription", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,  // <-- Add the token here
-      },
-      body: JSON.stringify({ subscriptionId }),
-    });
-
-    const data = await res.json();
-    if (res.ok) {
-      setCancelMessage(data.message || "Subscription cancellation scheduled.");
-      setIsPremium(false);
-      setSubscriptionId(null);
-    } else {
-      setCancelMessage(data.error || "Failed to cancel subscription.");
-    }
-  } catch {
-    setCancelMessage("Failed to cancel subscription.");
-  } finally {
-    setCancelLoading(false);
   }
-}
 
   // Open course detail
   async function openCourseDetail(id: number) {
@@ -149,7 +140,7 @@ export default function MiniCoursesPage() {
 
   // DEBUG: Remove this console.log in production!
   // console.log("isPremium:", isPremium, "subscriptionId:", subscriptionId);
-console.log("isPremium:", isPremium, "subscriptionId:", subscriptionId);
+  console.log("isPremium:", isPremium, "subscriptionId:", subscriptionId);
 
   return (
     <AuthGuard>
@@ -158,20 +149,28 @@ console.log("isPremium:", isPremium, "subscriptionId:", subscriptionId);
 
         {/* Cancel subscription UI */}
         {isPremium && subscriptionId && (
-          <div className="mb-6 p-4 bg-gray-100 border rounded flex items-center justify-between">
-            <div>
-              You have a premium subscription.
-              {cancelMessage && (
-                <p className="mt-1 text-sm text-gray-600">{cancelMessage}</p>
-              )}
+          <div className="mb-6 p-4 bg-gray-100 border rounded flex flex-col items-start">
+            <div className="flex items-center justify-between w-full">
+              <div>
+                You have a premium subscription.
+                {cancelMessage && (
+                  <p className="mt-1 text-sm text-gray-600">{cancelMessage}</p>
+                )}
+              </div>
+              <button
+                onClick={handleCancelSubscription}
+                disabled={cancelLoading}
+                className="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700"
+              >
+                {cancelLoading ? "Cancelling..." : "Cancel Subscription"}
+              </button>
             </div>
-            <button
-              onClick={handleCancelSubscription}
-              disabled={cancelLoading}
-              className="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700"
-            >
-              {cancelLoading ? "Cancelling..." : "Cancel Subscription"}
-            </button>
+            {/* Show cancellation confirmation and premium access revoked message */}
+            {cancelMessage && (
+              <p className="mt-4 text-red-700 font-semibold">
+                Your subscription is canceled. You will no longer have access to premium features.
+              </p>
+            )}
           </div>
         )}
 
