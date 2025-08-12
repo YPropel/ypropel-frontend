@@ -138,6 +138,7 @@ export default function MiniCoursesPage() {
 
   // DEBUG: Remove this console.log in production!
   // console.log("isPremium:", isPremium, "subscriptionId:", subscriptionId);
+console.log("isPremium:", isPremium, "subscriptionId:", subscriptionId);
 
   return (
     <AuthGuard>
