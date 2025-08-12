@@ -21,8 +21,12 @@ export default function MiniCoursesPage() {
   const [detailError, setDetailError] = useState<string | null>(null);
 
   const [isPremium, setIsPremium] = useState<boolean | null>(null);
+  const [subscriptionId, setSubscriptionId] = useState<string | null>(null);
   const [userLoading, setUserLoading] = useState(true);
   const [showPremiumMessage, setShowPremiumMessage] = useState(false);
+
+  const [cancelLoading, setCancelLoading] = useState(false);
+  const [cancelMessage, setCancelMessage] = useState("");
 
   // Fetch courses
   useEffect(() => {
@@ -41,21 +45,20 @@ export default function MiniCoursesPage() {
     fetchCourses();
   }, []);
 
-  // Fetch user profile to get is_premium
+  // Fetch user profile to get is_premium & subscriptionId
   useEffect(() => {
     async function fetchUserProfile() {
       try {
-        const token = localStorage.getItem("token");  // Get token from localStorage
+        const token = localStorage.getItem("token");
         if (!token) {
           console.error("No token found");
           return;
         }
 
-        // Send token with Authorization header
         const res = await apiFetch("/users/me", {
           method: "GET",
           headers: {
-            "Authorization": `Bearer ${token}`,  // Send token with Authorization header
+            Authorization: `Bearer ${token}`,
           },
         });
 
@@ -64,7 +67,8 @@ export default function MiniCoursesPage() {
         }
 
         const data = await res.json();
-        setIsPremium(data.is_premium);  // Update the premium status
+        setIsPremium(data.is_premium);
+        setSubscriptionId(data.subscription_id || null);
       } catch (err) {
         setIsPremium(false);
       } finally {
@@ -74,9 +78,27 @@ export default function MiniCoursesPage() {
     fetchUserProfile();
   }, []);
 
-  // Open course detail or show upgrade message
+  // Cancel subscription
+  async function handleCancelSubscription() {
+    if (!subscriptionId) return;
+    setCancelLoading(true);
+    setCancelMessage("");
+    try {
+      const res = await apiFetch("/stripe/cancel-subscription", {
+        method: "POST",
+        body: JSON.stringify({ subscriptionId }),
+      });
+      const data = await res.json();
+      setCancelMessage(data.message || "Subscription cancellation scheduled.");
+    } catch (err) {
+      setCancelMessage("Failed to cancel subscription.");
+    }
+    setCancelLoading(false);
+  }
+
+  // Open course detail
   async function openCourseDetail(id: number) {
-    if (userLoading) return; // wait for user info
+    if (userLoading) return;
 
     if (!isPremium) {
       setShowPremiumMessage(true);
@@ -98,9 +120,9 @@ export default function MiniCoursesPage() {
     }
   }
 
-  // Handle subscription upgrade (redirect to Stripe checkout)
+  // Upgrade
   function handleUpgrade() {
-    window.location.href = "/student-subscribe"; // Page for Stripe checkout
+    window.location.href = "/student-subscribe";
   }
 
   function closeModal() {
@@ -116,6 +138,22 @@ export default function MiniCoursesPage() {
     <AuthGuard>
       <div className="container mx-auto p-4">
         <h1 className="text-3xl font-bold mb-6">Mini Courses</h1>
+
+        {isPremium && subscriptionId && (
+          <div className="mb-6 p-4 bg-gray-100 border rounded flex items-center justify-between">
+            <div>
+              You have a premium subscription.
+              {cancelMessage && <p className="mt-1 text-sm text-gray-600">{cancelMessage}</p>}
+            </div>
+            <button
+              onClick={handleCancelSubscription}
+              disabled={cancelLoading}
+              className="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700"
+            >
+              {cancelLoading ? "Cancelling..." : "Cancel Subscription"}
+            </button>
+          </div>
+        )}
 
         {showPremiumMessage && !isPremium && (
           <div className="mb-4 p-4 bg-yellow-100 border border-yellow-400 text-yellow-800 rounded flex items-center justify-between">
@@ -216,7 +254,7 @@ export default function MiniCoursesPage() {
 
                   <h2 className="text-2xl font-bold mb-4">{selectedCourse.title}</h2>
 
-                  {(selectedCourse.content_url && selectedCourse.content_url.trim() !== "") ? (
+                  {selectedCourse.content_url && selectedCourse.content_url.trim() !== "" ? (
                     <div
                       className="prose max-w-none"
                       dangerouslySetInnerHTML={{ __html: selectedCourse.content_url }}
