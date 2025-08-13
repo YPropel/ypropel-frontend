@@ -1,5 +1,3 @@
-//---Page: where companies can post jobs after being subscribed to monthly package
-//------------------------------------------------------
 import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
 import { apiFetch } from "../apiClient";
@@ -10,7 +8,7 @@ const SubscriptionSuccess = () => {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const verifySubscription = async () => {
+    const verifyAndActivateSubscription = async () => {
       try {
         const token = localStorage.getItem("token");
         if (!token) {
@@ -19,6 +17,7 @@ const SubscriptionSuccess = () => {
           return;
         }
 
+        // Step 1: Verify subscription status
         const response = await apiFetch("/users/me", {
           headers: { Authorization: `Bearer ${token}` },
         });
@@ -32,12 +31,23 @@ const SubscriptionSuccess = () => {
         const userData = await response.json();
 
         if (!userData.is_company_premium) {
-          setError("Subscription not active. Please subscribe first.");
-          setLoading(false);
-          return;
+          // Step 2: If not premium yet, call the endpoint to set it
+          const setPremiumResponse = await apiFetch("/users/set-company-premium", {
+            method: "POST",
+            headers: {
+              Authorization: `Bearer ${token}`,
+              "Content-Type": "application/json",
+            },
+          });
+
+          if (!setPremiumResponse.ok) {
+            setError("Failed to activate company premium status.");
+            setLoading(false);
+            return;
+          }
         }
 
-        // Clear pending session data after confirmation
+        // Clear any pending session data after confirmation
         sessionStorage.removeItem("pendingJobPost");
         setLoading(false);
       } catch {
@@ -46,7 +56,7 @@ const SubscriptionSuccess = () => {
       }
     };
 
-    verifySubscription();
+    verifyAndActivateSubscription();
   }, []);
 
   if (loading) {
