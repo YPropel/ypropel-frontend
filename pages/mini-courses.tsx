@@ -74,33 +74,46 @@ export default function MiniCoursesPage() {
     fetchUserProfile();
   }, []);
 
-  // Cancel subscription
-  async function handleCancelSubscription() {
-    if (!subscriptionId) return;
-    setCancelLoading(true);
-    setCancelMessage("");
-    try {
-      const res = await apiFetch("/stripe/cancel-subscription", {
-        method: "POST",
-        body: JSON.stringify({ subscriptionId }),
-      });
-      const data = await res.json();
-      if (res.ok) {
-        setCancelMessage(
-          data.message || "Subscription cancellation scheduled."
-        );
-        // Update local state so UI reflects cancellation
-        setIsPremium(false);
-        setSubscriptionId(null);
-      } else {
-        setCancelMessage(data.error || "Failed to cancel subscription.");
-      }
-    } catch {
-      setCancelMessage("Failed to cancel subscription.");
-    } finally {
+ // Cancel subscription
+async function handleCancelSubscription() {
+  if (!subscriptionId) return;
+  setCancelLoading(true);
+  setCancelMessage("");
+
+  try {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      setCancelMessage("You must be logged in to cancel your subscription.");
       setCancelLoading(false);
+      return;
     }
+
+    const res = await apiFetch("/stripe/cancel-subscription", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${token}`, // ✅ Send token for authenticateToken
+      },
+      body: JSON.stringify({ subscriptionId }),
+    });
+
+    const data = await res.json();
+
+    if (res.ok) {
+      setCancelMessage(data.message || "Subscription cancellation scheduled.");
+      setIsPremium(false); // update local state
+      setSubscriptionId(null);
+    } else {
+      setCancelMessage(data.error || "Failed to cancel subscription.");
+    }
+  } catch (err) {
+    console.error("Cancel subscription error:", err);
+    setCancelMessage("Failed to cancel subscription.");
+  } finally {
+    setCancelLoading(false);
   }
+}
+
 
   // Open course detail
   async function openCourseDetail(id: number) {
