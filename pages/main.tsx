@@ -11,6 +11,16 @@ import { apiFetch } from "../apiClient";
 enum AuthView { Login = "login", SignUp = "signup", ForgotPassword = "forgotPassword" }
 
 const GOOGLE_CLIENT_ID = "914673158285-2kvn5lcd073aflv4smut843b1jh74k6t.apps.googleusercontent.com";
+// Cloudinary static images (paste your exact secure URLs)
+
+// Cloudinary static images
+const PITCHPOINT_IMG =
+  "https://res.cloudinary.com/denggbgma/image/upload/pexels-olly-3783839_zcfasg.jpg";
+
+const VIDEOS_IMG =
+  "https://res.cloudinary.com/denggbgma/image/upload/pexels-sam-lion-6001235_bppg12.jpg";
+
+
 
 export default function LandingPage() {
   const [view, setView] = useState<AuthView>(AuthView.SignUp); // default to Sign Up for conversion
@@ -452,11 +462,15 @@ export default function LandingPage() {
               Create My Pitch
             </button>
           </div>
-          <div className="aspect-square bg-white border rounded-xl grid place-items-center text-gray-400">
-            {/* Replace with a real preview image of your hub */}
-            <span className="text-sm">PitchPoint preview</span>
-          </div>
+         <div className="aspect-square bg-white border rounded-xl overflow-hidden">
+          <img
+            src={PITCHPOINT_IMG}
+            alt="PitchPoint preview"
+            className="w-full h-full object-cover"
+            loading="lazy"
+          />
         </div>
+
       </section>
 
       {/* Educational Videos (Distraction-Free) */}
@@ -478,9 +492,15 @@ export default function LandingPage() {
               Start Learning
             </button>
           </div>
-          <div className="aspect-video bg-gray-50 border rounded-xl grid place-items-center text-gray-400">
-            <span className="text-sm">Video player preview</span>
+          <div className="aspect-video bg-gray-50 border rounded-xl overflow-hidden">
+            <img
+              src={VIDEOS_IMG}
+              alt="Educational videos preview"
+              className="w-full h-full object-cover"
+              loading="lazy"
+            />
           </div>
+
         </div>
       </section>
 
