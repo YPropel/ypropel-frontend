@@ -477,6 +477,7 @@ export default function LandingPage() {
 </section>
 
 
+
       {/* Educational Videos (Distraction-Free) */}
       <section id="videos" className="bg-white">
         <div className="mx-auto max-w-6xl px-4 py-12 grid md:grid-cols-2 gap-10 items-start">
