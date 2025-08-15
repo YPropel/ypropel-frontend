@@ -445,33 +445,37 @@ export default function LandingPage() {
       </section>
 
       {/* PitchPoint Video Hub */}
-      <section id="pitchpoint" className="bg-gray-50">
-        <div className="mx-auto max-w-6xl px-4 py-12 grid md:grid-cols-2 gap-10 items-center">
-          <div>
-            <h2 className="text-3xl font-bold text-blue-900">PitchPoint: Your Video Elevator Pitch</h2>
-            <p className="mt-3 text-gray-700">
-              Record a short video to showcase your skills, projects, and story — then share it with employers and universities.
-            </p>
-            <ul className="mt-4 space-y-2 text-gray-700 list-disc list-inside">
-              <li>Clean, distraction-free viewer page</li>
-              <li>Auto-generated cover + easy sharing</li>
-              <li>Tips & examples to nail your pitch</li>
-            </ul>
-            <button onClick={scrollToForm}
-              className="mt-6 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white font-semibold px-6 py-3">
-              Create My Pitch
-            </button>
-          </div>
-         <div className="aspect-square bg-white border rounded-xl overflow-hidden">
-          <img
-            src={PITCHPOINT_IMG}
-            alt="PitchPoint preview"
-            className="w-full h-full object-cover"
-            loading="lazy"
-          />
-        </div>
+<section id="pitchpoint" className="bg-gray-50">
+  <div className="mx-auto max-w-6xl px-4 py-12 grid md:grid-cols-2 gap-10 items-center">{/* 1 */}
+    <div>{/* 2 */}
+      <h2 className="text-3xl font-bold text-blue-900">PitchPoint: Your Video Elevator Pitch</h2>
+      <p className="mt-3 text-gray-700">
+        Record a short video to showcase your skills, projects, and story — then share it with employers and universities.
+      </p>
+      <ul className="mt-4 space-y-2 text-gray-700 list-disc list-inside">
+        <li>Clean, distraction-free viewer page</li>
+        <li>Auto-generated cover + easy sharing</li>
+        <li>Tips &amp; examples to nail your pitch</li>
+      </ul>
+      <button
+        onClick={scrollToForm}
+        className="mt-6 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white font-semibold px-6 py-3"
+      >
+        Create My Pitch
+      </button>
+    </div>{/* /2 */}
 
-      </section>
+    <div className="aspect-square bg-white border rounded-xl overflow-hidden">{/* 3 */}
+      <img
+        src={PITCHPOINT_IMG}
+        alt="PitchPoint preview"
+        className="w-full h-full object-cover"
+        loading="lazy"
+      />
+    </div>{/* /3 */}
+  </div>{/* /1 */}
+</section>
+
 
       {/* Educational Videos (Distraction-Free) */}
       <section id="videos" className="bg-white">
@@ -492,15 +496,9 @@ export default function LandingPage() {
               Start Learning
             </button>
           </div>
-          <div className="aspect-video bg-gray-50 border rounded-xl overflow-hidden">
-            <img
-              src={VIDEOS_IMG}
-              alt="Educational videos preview"
-              className="w-full h-full object-cover"
-              loading="lazy"
-            />
+          <div className="aspect-video bg-gray-50 border rounded-xl grid place-items-center text-gray-400">
+            <span className="text-sm">Video player preview</span>
           </div>
-
         </div>
       </section>
 
