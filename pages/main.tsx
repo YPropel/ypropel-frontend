@@ -32,6 +32,32 @@ export default function LandingPage() {
   const router = useRouter();
   const formRef = useRef<HTMLDivElement>(null);
 
+  //----------
+  // ---- Redirect helpers ----
+const getRedirectTarget = () => {
+  if (typeof window === "undefined") return "/";
+  const qs = new URLSearchParams(window.location.search);
+  const fromQuery = qs.get("redirect");
+  const fromSession = sessionStorage.getItem("returnTo");
+  const candidate = fromQuery || fromSession || "/";
+  // prevent open redirects: only allow same-site relative paths
+  return candidate.startsWith("/") ? candidate : "/";
+};
+
+const finishLogin = () => {
+  const target = getRedirectTarget();
+  try { sessionStorage.removeItem("returnTo"); } catch {}
+  router.replace(target);
+};
+
+useEffect(() => {
+  if (typeof window === "undefined") return;
+  const qs = new URLSearchParams(window.location.search);
+  const v = qs.get("view");
+  if (v === "signup") setView(AuthView.SignUp);
+  if (v === "login") setView(AuthView.Login);
+}, []);
+
   // ----------- NEW: demo data (replace with API calls later) -----------
   const newsItems = [
     { tag: "AI", title: "Resume scanners now prefer concrete metrics", time: "2h ago" },
@@ -89,7 +115,10 @@ export default function LandingPage() {
       localStorage.setItem("role", data.user.is_admin ? "admin" : "user");
       if (data.isNewUser && mode === "signup") alert(`Welcome ${data.user.name}!`);
       window.dispatchEvent(new Event("login"));
-      router.push("/");
+      //router.push("/");
+      window.dispatchEvent(new Event("login"));
+finishLogin();
+
     } catch (error) {
       alert(`${mode === "login" ? "Google login" : "Google signup"} error: ${(error as Error).message}`);
     }
@@ -128,7 +157,10 @@ export default function LandingPage() {
       localStorage.setItem("userName", data.user.name);
       localStorage.setItem("role", data.user.is_admin ? "admin" : "user");
       window.dispatchEvent(new Event("login"));
-      router.push("/");
+      ///router.push("/");
+      window.dispatchEvent(new Event("login"));
+finishLogin();
+
     } catch (error) { alert(`Login error: ${(error as Error).message}`); }
   };
 
@@ -152,7 +184,10 @@ export default function LandingPage() {
       localStorage.setItem("userName", data.user.name);
       localStorage.setItem("role", data.user.is_admin ? "admin" : "user");
       window.dispatchEvent(new Event("login"));
-      router.push("/");
+      //router.push("/");
+      window.dispatchEvent(new Event("login"));
+finishLogin();
+
     } catch (error) { alert(`Sign-up error: ${(error as Error).message}`); }
   };
 
