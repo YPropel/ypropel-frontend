@@ -289,7 +289,11 @@ function JobsPageContent() {
               <li key={job.id} className="border rounded p-4 mb-4 shadow-sm">
                 <div className="flex justify-between items-center">
                   <div>
-                    <h2 className="text-xl font-semibold">{job.title}</h2>
+                    <h2 className="text-xl font-semibold">
+                        <Link href={`/jobs/${job.id}`} className="text-blue-900 hover:underline">
+                          {job.title}
+                        </Link>
+                      </h2>
                     <p className="text-gray-700">
                       <strong>Company:</strong> {job.company}
                     </p>
