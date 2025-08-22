@@ -232,7 +232,7 @@ finishLogin();
       <a href="#features" className="hover:text-blue-900">Features</a>
       <a href="#circles" className="hover:text-blue-900">Study Circles</a>
       <a href="#news" className="hover:text-blue-900">News</a>
-      <a href="#jobs" className="hover:text-blue-900">Internship & Hourly Jobs</a>
+      <a href="#jobs" className="hover:text-blue-900">Internships & Jobs</a>
       <a href="#pitchpoint" className="hover:text-blue-900">PitchPoint</a>
       <a href="#videos" className="hover:text-blue-900">Videos</a>
       <a href="#why" className="hover:text-blue-900">Why Us</a>
