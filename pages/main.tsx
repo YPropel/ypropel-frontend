@@ -232,7 +232,7 @@ finishLogin();
       <a href="#features" className="hover:text-blue-900">Features</a>
       <a href="#circles" className="hover:text-blue-900">Study Circles</a>
       <a href="#news" className="hover:text-blue-900">News</a>
-      <a href="#jobs" className="hover:text-blue-900">Hourly Jobs</a>
+      <a href="#jobs" className="hover:text-blue-900">Internship & Hourly Jobs</a>
       <a href="#pitchpoint" className="hover:text-blue-900">PitchPoint</a>
       <a href="#videos" className="hover:text-blue-900">Videos</a>
       <a href="#why" className="hover:text-blue-900">Why Us</a>
@@ -465,7 +465,7 @@ finishLogin();
             </ul>
             <button onClick={scrollToForm}
               className="mt-6 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white font-semibold px-6 py-3">
-              Browse Hourly Jobs
+              Browse Jobs & Internships
             </button>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
