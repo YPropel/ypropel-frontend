@@ -215,7 +215,8 @@ finishLogin();
       <Script src="https://accounts.google.com/gsi/client" strategy="beforeInteractive" />
 
       {/* Sticky Header */}
-      <header className="sticky top-0 z-40 bg-white/80 backdrop-blur border-b border-gray-100">
+     <header className="sticky top-10 md:top-12 z-30 bg-white/80 backdrop-blur border-b border-gray-100">
+
         <div className="mx-auto max-w-6xl px-4 py-3 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <img src="/ypropel-logo.png" alt="YPropel" className="h-9 w-9" />
