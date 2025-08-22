@@ -30,6 +30,52 @@ type Post = {
   comments: Comment[];
 };
 
+//---------allow links and add see more button
+const MAX_POST_CHARS = 280;
+
+function escapeHtml(s: string) {
+  return s
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+}
+
+// Truncate on a word boundary (so we don't cut URLs in half as often)
+function truncateText(s: string, max = MAX_POST_CHARS) {
+  if (s.length <= max) return s;
+  const cut = s.slice(0, max);
+  const lastSpace = cut.lastIndexOf(" ");
+  return (lastSpace > 40 ? cut.slice(0, lastSpace) : cut) + "…";
+}
+
+// Escape first, then convert URLs to <a>, then convert newlines to <br/>
+function linkifyAndEscape(text: string) {
+  const escaped = escapeHtml(text);
+
+  // match http(s)://... or www....
+  const urlRegex = /\b((https?:\/\/|www\.)[^\s<]+)\b/gi;
+
+  const withLinks = escaped.replace(urlRegex, (match) => {
+    // strip trailing punctuation like ),.;!
+    let url = match;
+    let trailing = "";
+    while (/[),.;!?]$/.test(url)) {
+      trailing = url.slice(-1) + trailing;
+      url = url.slice(0, -1);
+    }
+    const href = url.startsWith("http") ? url : `https://${url}`;
+    // inline style so Tailwind purge doesn’t remove classes
+    return `<a href="${href}" target="_blank" rel="noopener noreferrer nofollow" style="color:#1d4ed8;text-decoration:underline;word-break:break-word">${url}</a>${trailing}`;
+  });
+
+  return withLinks.replace(/\n/g, "<br/>");
+}
+
+
+
+//-----------------------------
 export default function Home() {
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
   const imageInputRef = useRef<HTMLInputElement | null>(null);
@@ -49,6 +95,8 @@ export default function Home() {
   const [editFields, setEditFields] = useState<{ [key: number]: { content: string } }>({});
   const [editingCommentId, setEditingCommentId] = useState<number | null>(null);
   const [editedCommentText, setEditedCommentText] = useState<string>("");
+  const [expandedPosts, setExpandedPosts] = useState<{ [postId: number]: boolean }>({});
+
 
   const BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:4000";
 
@@ -123,6 +171,12 @@ export default function Home() {
       console.error("Error loading posts:", error);
     }
   }
+//-------see more button for post content
+
+  function togglePostExpand(postId: number) {
+  setExpandedPosts((prev) => ({ ...prev, [postId]: !prev[postId] }));
+}
+//---------------------
 
   async function addPost() {
     if (!newContent.trim() && !newImageFile && !newVideoFile) {
@@ -552,7 +606,30 @@ console.log("Uploading videoooooooo file:", newVideoFile);
                 </>
               ) : (
                 <>
-                  <p style={{ whiteSpace: "pre-wrap" }} >{post.content}</p>
+                 {(() => {
+                        const raw = post.content || "";
+                        const expanded = !!expandedPosts[post.id];
+                        const toShow = expanded ? raw : truncateText(raw, MAX_POST_CHARS);
+                        const html = linkifyAndEscape(toShow);
+                        return (
+                          <>
+                            <div
+                              className="leading-relaxed"
+                              // safe: we escape user text before adding <a> tags
+                              dangerouslySetInnerHTML={{ __html: html }}
+                            />
+                            {raw.length > MAX_POST_CHARS && (
+                              <button
+                                onClick={() => togglePostExpand(post.id)}
+                                className="text-xs text-blue-600 mt-1"
+                              >
+                                {expanded ? "See less" : "See more"}
+                              </button>
+                            )}
+                          </>
+                        );
+                      })()}
+
 
                   {imageUrlToShow && (
                     <img
