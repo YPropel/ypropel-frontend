@@ -215,33 +215,33 @@ finishLogin();
       <Script src="https://accounts.google.com/gsi/client" strategy="beforeInteractive" />
 
       {/* Sticky Header */}
-     <header className="sticky top-10 md:top-12 z-30 bg-white/80 backdrop-blur border-b border-gray-100">
+    <header className="sticky top-0 z-40 bg-white/80 backdrop-blur border-b border-gray-100">
+  <div className="mx-auto max-w-6xl px-4 py-3">
+    {/* Logo row */}
+    <div className="flex items-center gap-3">
+      <img src="/ypropel-logo.png" alt="YPropel" className="h-9 w-9" />
+      <span className="font-semibold text-blue-900">YPropel</span>
+    </div>
 
-        <div className="mx-auto max-w-6xl px-4 py-3 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <img src="/ypropel-logo.png" alt="YPropel" className="h-9 w-9" />
-            <span className="font-semibold text-blue-900">YPropel</span>
-          </div>
-          <nav className="hidden md:flex items-center gap-6 text-sm text-gray-700">
-            <a href="#features" className="hover:text-blue-900">Features</a>
-            <a href="#circles" className="hover:text-blue-900">Study Circles</a>
-            <a href="#news" className="hover:text-blue-900">News</a>
-            <a href="#jobs" className="hover:text-blue-900">Hourly Jobs</a>
-            <a href="#pitchpoint" className="hover:text-blue-900">PitchPoint</a>
-            <a href="#videos" className="hover:text-blue-900">Videos</a>
-            <a href="#why" className="hover:text-blue-900">Why Us</a>
-            <a href="#faq" className="hover:text-blue-900">FAQ</a>
-          </nav>
-          <button
-            onClick={scrollToForm}
-            className="inline-flex items-center justify-center rounded-lg px-4 py-2 text-white font-semibold
-            bg-emerald-600 hover:bg-emerald-700 transition"
-            aria-label="Join YPropel for free"
-          >
-            Join Free
-          </button>
-        </div>
-      </header>
+    {/* Nav row (now below the logo) */}
+    <nav
+      className="hidden md:flex flex-wrap gap-6 text-sm text-gray-700 mt-2"
+      role="navigation"
+      aria-label="Primary"
+    >
+      <a href="#features" className="hover:text-blue-900">Features</a>
+      <a href="#circles" className="hover:text-blue-900">Study Circles</a>
+      <a href="#news" className="hover:text-blue-900">News</a>
+      <a href="#jobs" className="hover:text-blue-900">Hourly Jobs</a>
+      <a href="#pitchpoint" className="hover:text-blue-900">PitchPoint</a>
+      <a href="#videos" className="hover:text-blue-900">Videos</a>
+      <a href="#why" className="hover:text-blue-900">Why Us</a>
+      <a href="#faq" className="hover:text-blue-900">FAQ</a>
+    </nav>
+    {/* removed the "Join Free" button from the header */}
+  </div>
+</header>
+
 
       {/* Hero */}
       <section className="bg-gray-50">
