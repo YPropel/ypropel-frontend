@@ -547,7 +547,7 @@ finishLogin();
             {[
               { title: "Built for Students", desc: "Everything targets your stage — not mid-career noise." },
               { title: "Distraction-Free", desc: "Curated news & videos, clean viewing, zero spam." },
-              { title: "Action First", desc: "Study Circles, hourly jobs, and PitchPoint to get results fast." },
+              { title: "Action First", desc: "Study Circles, Internships & jobs, and PitchPoint to get results fast." },
             ].map((b) => (
               <div key={b.title} className="p-6 bg-white border rounded-xl">
                 <h3 className="font-semibold text-blue-900">{b.title}</h3>
