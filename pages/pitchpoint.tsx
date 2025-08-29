@@ -1,6 +1,8 @@
 import React, { useEffect, useState, ChangeEvent, FormEvent } from "react";
 import AuthGuard from "../components/AuthGuard";
 import { apiFetch } from "../apiClient";
+import Head from "next/head";
+
 
 type Video = {
   id: number;
@@ -296,9 +298,17 @@ export default function PitchPoint() {
 
   return (
     <AuthGuard>
+        <Head>
+    <title>YPropel Talks — Short Student-Made Talks & Pitches</title>
+    <meta name="description" content="Watch and share short student-made talks, demos, and pitches on YPropel." />
+    <meta property="og:title" content="YPropel Talks" />
+    <meta property="og:description" content="Short talks, demos, and pitches for students." />
+  </Head>
+
       <div className="max-w-4xl mx-auto p-6 space-y-6">
         <div className="flex justify-between items-center">
-          <h1 className="text-3xl font-bold text-blue-900">PitchPoint Video Hub</h1>
+         <h1 className="text-3xl font-bold text-blue-900">YPropel Talks</h1>
+
           <button
             onClick={() => setShowForm(true)}
             className="bg-blue-900 text-white px-4 py-2 rounded hover:bg-blue-800 transition"
