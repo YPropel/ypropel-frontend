@@ -1,9 +1,10 @@
 /* eslint-disable @next/next/no-img-element */
 import React, { useRef } from "react";
 import Head from "next/head";
+import { useRouter } from "next/router";
 
 export default function EmployersLandingPage() {
-  const startRef = useRef<HTMLDivElement | null>(null);
+  const router = useRouter();
   const pricingRef = useRef<HTMLDivElement | null>(null);
   const faqRef = useRef<HTMLDivElement | null>(null);
 
@@ -18,7 +19,7 @@ export default function EmployersLandingPage() {
         <title>Hire Early-Career Talent | Y-Propel for Employers</title>
         <meta
           name="description"
-          content="Y-Propel is a curated marketplace for students & early-career hires. Post roles free, get your first applicants at no cost, and pay only for qualified applicants."
+          content="Create your company profile and post your first job for free. Pay only for qualified applicants. No subscriptions."
         />
       </Head>
 
@@ -33,9 +34,16 @@ export default function EmployersLandingPage() {
             </span>
           </div>
           <nav className="hidden md:flex items-center gap-6 text-sm text-gray-700">
-            <button onClick={() => scrollTo(startRef.current)} className="hover:text-blue-900">
+            <a
+              href="#how"
+              onClick={(e) => {
+                e.preventDefault();
+                document.getElementById("how")?.scrollIntoView({ behavior: "smooth" });
+              }}
+              className="hover:text-blue-900"
+            >
               How it works
-            </button>
+            </a>
             <button onClick={() => scrollTo(pricingRef.current)} className="hover:text-blue-900">
               Pricing
             </button>
@@ -46,15 +54,12 @@ export default function EmployersLandingPage() {
               Contact Sales
             </a>
           </nav>
+          {/* Primary header CTA goes straight to create company profile */}
           <a
-            href="#start"
-            onClick={(e) => {
-              e.preventDefault();
-              scrollTo(startRef.current);
-            }}
+            href="/employers/create-company" // <-- change this if your route differs
             className="hidden sm:inline-flex items-center justify-center rounded-lg px-4 py-2 text-white font-semibold bg-emerald-600 hover:bg-emerald-700 transition"
           >
-            Post Up To 3 Jobs Free
+            Create Company Profile
           </a>
         </div>
       </header>
@@ -67,15 +72,15 @@ export default function EmployersLandingPage() {
               Hire early-career talent. <span className="text-emerald-600">Pay only for applicants.</span>
             </h1>
             <p className="mt-4 text-gray-700 text-lg leading-relaxed">
-              Y-Propel is a curated marketplace for students and early-career hires. Post your roles free, get your
-              first applicants at no cost, then pay only for qualified applicants. No monthly fees. No wasted spend.
+              Create your company profile and post your first job for free. We’ll deliver your first applicants at no
+              cost, then you pay only for qualified applicants. No monthly fees. No wasted spend.
             </p>
             <div className="mt-6 flex flex-col sm:flex-row gap-3">
               <button
-                onClick={() => scrollTo(startRef.current)}
+                onClick={() => router.push("/employers/create-company")} // <-- change if needed
                 className="w-full sm:w-auto rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white font-semibold px-6 py-3"
               >
-                Post Up To 3 Jobs Free
+                Create Company Profile
               </button>
               <button
                 onClick={() => scrollTo(pricingRef.current)}
@@ -84,7 +89,12 @@ export default function EmployersLandingPage() {
                 See Pricing
               </button>
             </div>
-            <p className="mt-3 text-sm text-gray-500">Low risk launch offer included.</p>
+            <p className="mt-3 text-sm text-gray-500">
+              Already set up?{" "}
+              <a href="/employers/post" className="text-blue-900 underline">
+                Post your first job free →
+              </a>
+            </p>
           </div>
           <div className="aspect-video bg-white border rounded-xl grid place-items-center text-gray-400">
             <span className="text-sm">Employer dashboard preview</span>
@@ -93,16 +103,16 @@ export default function EmployersLandingPage() {
       </section>
 
       {/* How it Works */}
-      <section id="start" ref={startRef} className="bg-white">
+      <section id="how" className="bg-white">
         <div className="mx-auto max-w-6xl px-4 py-12">
           <h2 className="text-3xl font-bold text-blue-900 text-center">How it works</h2>
           <div className="mt-8 grid grid-cols-1 md:grid-cols-5 gap-4">
             {[
               { icon: "🏢", title: "Create your company profile" },
-              { icon: "📌", title: "Post up to 3 priority roles for free (month 1)" },
-              { icon: "🎯", title: "Get your first applicants on us" },
+              { icon: "🆓", title: "Post your first job for free" },
+              { icon: "🎁", title: "We deliver your first applicants on us" },
+              { icon: "📬", title: "Share up to 2 more roles for our team to add (free)" },
               { icon: "✅", title: "Only pay when qualified candidates apply" },
-              { icon: "⚡", title: "Hire faster with less noise via pre-screening" },
             ].map((s) => (
               <div key={s.title} className="p-5 border rounded-xl bg-gray-50 text-center">
                 <div className="text-3xl">{s.icon}</div>
@@ -144,8 +154,9 @@ export default function EmployersLandingPage() {
             <div className="p-6 border rounded-xl bg-gray-50">
               <h3 className="text-xl font-semibold text-blue-900">Free to start</h3>
               <ul className="mt-3 space-y-2 text-gray-700 list-disc list-inside">
-                <li>Post up to 3 roles in month 1</li>
-                <li>First 30 applicants free (10 per role)</li>
+                <li>Create your company profile</li>
+                <li>Post your first job free (month 1)</li>
+                <li>We’ll add up to 2 more roles for you (also free)</li>
                 <li>Basic company profile & job board placement</li>
               </ul>
             </div>
@@ -185,20 +196,18 @@ export default function EmployersLandingPage() {
             <div>
               <h3 className="text-2xl md:text-3xl font-extrabold">Launch Offer (low risk)</h3>
               <ul className="mt-3 space-y-1 list-disc list-inside text-emerald-50">
-                <li>Post 3 roles free</li>
+                <li>Create your company profile + post 1 job free</li>
                 <li>Guaranteed 30 qualified applicants in month 1</li>
-                <li>
-                  Continue only if quality meets your bar. After the free pool, pay per applicant.
-                </li>
+                <li>Continue only if quality meets your bar. After the free pool, pay per applicant.</li>
               </ul>
             </div>
             <div className="text-right md:text-left">
-              <button
-                onClick={() => scrollTo(startRef.current)}
+              <a
+                href="/employers/create-company" // <-- adjust if needed
                 className="inline-flex items-center justify-center rounded-lg bg-white text-emerald-700 font-semibold px-6 py-3 hover:bg-emerald-50"
               >
-                Start Free
-              </button>
+                Create Company Profile
+              </a>
             </div>
           </div>
         </div>
@@ -208,7 +217,7 @@ export default function EmployersLandingPage() {
       <section id="faq" ref={faqRef} className="bg-gray-50">
         <div className="mx-auto max-w-6xl px-4 py-12">
           <h2 className="text-3xl font-bold text-blue-900 text-center">FAQ</h2>
-          <div className="mt-6 divide-y divide-gray-200 border rounded-xl bg-white">
+        <div className="mt-6 divide-y divide-gray-200 border rounded-xl bg-white">
             {[
               {
                 q: "How do you verify ‘qualified’?",
@@ -247,15 +256,14 @@ export default function EmployersLandingPage() {
         <div className="mx-auto max-w-6xl px-4 py-12 text-center text-white">
           <h2 className="text-3xl font-extrabold">Hire early-career talent without subscriptions.</h2>
           <p className="mt-2 text-blue-100">
-            Start with 3 free postings and your first 30 applicants on us. After that, pay only for what matters:
-            qualified applicants.
+            Start with a free company profile and your first job on us. After that, pay only for what matters: qualified applicants.
           </p>
-          <button
-            onClick={() => scrollTo(startRef.current)}
+          <a
+            href="/employers/create-company" // <-- adjust if needed
             className="mt-6 inline-flex items-center justify-center rounded-lg bg-emerald-600 hover:bg-emerald-700 px-6 py-3 font-semibold"
           >
-            Start Free
-          </button>
+            Create Company Profile
+          </a>
         </div>
       </section>
 
