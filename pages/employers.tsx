@@ -61,7 +61,7 @@ function EmailChip({ withLink = false }: { withLink?: boolean }) {
         <span className="text-gray-600">
           •{" "}
           <a href={mailto} className="underline hover:text-blue-900">
-            Contact us to claim our special offer and Add 2 more free jobs →
+            Claim our special offer, Add 2 more free jobs  - Contact Us →
           </a>
         </span>
       )}
