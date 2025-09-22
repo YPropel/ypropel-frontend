@@ -44,22 +44,35 @@ function useMailtoForTwoFreeJobs() {
   }, []);
 }
 
-function EmailChip() {
+function EmailChip({ withLink = false }: { withLink?: boolean }) {
   const mailto = useMailtoForTwoFreeJobs();
   const copy = async () => {
     try {
       await navigator.clipboard.writeText(SALES_EMAIL);
       alert("Email copied: " + SALES_EMAIL);
     } catch {
-      // no-op
+      // ignore
     }
   };
   return (
-    <div className="flex items-center gap-2 text-sm">
-      <a href={mailto} className="underline text-emerald-700">Email {SALES_EMAIL}</a>
-      <button onClick={copy} className="px-2 py-1 text-xs rounded border border-gray-300 hover:bg-gray-50">
+    <div className="flex flex-wrap items-center gap-2 text-sm">
+      <a href={mailto} className="underline text-emerald-700">
+        Email {SALES_EMAIL}
+      </a>
+      <button
+        onClick={copy}
+        className="px-2 py-1 text-xs rounded border border-gray-300 hover:bg-gray-50"
+      >
         Copy
       </button>
+      {withLink && (
+        <span className="text-gray-600">
+          •{" "}
+          <a href={mailto} className="underline hover:text-blue-900">
+            Add 2 more free jobs →
+          </a>
+        </span>
+      )}
     </div>
   );
 }
@@ -70,7 +83,8 @@ export default function EmployersLandingPage() {
   const faqRef = useRef<HTMLDivElement | null>(null);
   const mailto = useMailtoForTwoFreeJobs();
 
-  const scrollTo = (el: HTMLElement | null) => el?.scrollIntoView({ behavior: "smooth", block: "start" });
+  const scrollTo = (el: HTMLElement | null) =>
+    el?.scrollIntoView({ behavior: "smooth", block: "start" });
 
   return (
     <>
@@ -97,19 +111,26 @@ export default function EmployersLandingPage() {
               href="#how"
               onClick={(e) => {
                 e.preventDefault();
-                document.getElementById("how")?.scrollIntoView({ behavior: "smooth" });
+                document
+                  .getElementById("how")
+                  ?.scrollIntoView({ behavior: "smooth" });
               }}
               className="hover:text-blue-900"
             >
               How it works
             </a>
-            <button onClick={() => scrollTo(pricingRef.current)} className="hover:text-blue-900">
+            <button
+              onClick={() => scrollTo(pricingRef.current)}
+              className="hover:text-blue-900"
+            >
               Pricing
             </button>
-            <button onClick={() => scrollTo(faqRef.current)} className="hover:text-blue-900">
+            <button
+              onClick={() => scrollTo(faqRef.current)}
+              className="hover:text-blue-900"
+            >
               FAQ
             </button>
-            {/* keep contact sales as mailto */}
             <a href={mailto} className="hover:text-blue-900">
               Contact Sales
             </a>
@@ -130,7 +151,7 @@ export default function EmployersLandingPage() {
           <a className="underline font-semibold" href={mailto}>
             email us and we’ll add 2 more jobs free
           </a>{" "}
-          within your first month. <span className="inline-block ml-2"><EmailChip /></span>
+          within your first month.
         </div>
       </div>
 
@@ -139,12 +160,14 @@ export default function EmployersLandingPage() {
         <div className="mx-auto max-w-6xl px-4 py-14 md:py-20 grid md:grid-cols-2 gap-10 items-center">
           <div>
             <h1 className="text-4xl md:text-5xl font-extrabold tracking-tight text-blue-900">
-              Hire early-career talent. <span className="text-emerald-600">Pay only for applicants.</span>
+              Hire early-career talent.{" "}
+              <span className="text-emerald-600">Pay only for applicants.</span>
             </h1>
             <p className="mt-4 text-gray-700 text-lg leading-relaxed">
-              Create your company profile and post your first job for free. As a special limited-time offer, email us and
-              we’ll add 2 more jobs for you at no cost during your first month. After that, pay only for qualified
-              applicants. No monthly fees. No wasted spend.
+              Create your company profile and post your first job for free. As a
+              special limited-time offer, email us and we’ll add 2 more jobs
+              for you at no cost during your first month. After that, pay only
+              for qualified applicants. No monthly fees. No wasted spend.
             </p>
             <div className="mt-6 flex flex-col sm:flex-row gap-3">
               <button
@@ -153,12 +176,6 @@ export default function EmployersLandingPage() {
               >
                 Create Company Profile
               </button>
-              <a
-                href={mailto}
-                className="w-full sm:w-auto rounded-lg border border-emerald-600 text-emerald-700 hover:bg-emerald-50 font-semibold px-6 py-3 bg-white text-center"
-              >
-                Add 2 More Free Jobs
-              </a>
               <button
                 onClick={() => scrollTo(pricingRef.current)}
                 className="w-full sm:w-auto rounded-lg border border-gray-300 hover:border-blue-900 text-blue-900 font-semibold px-6 py-3 bg-white"
@@ -166,7 +183,12 @@ export default function EmployersLandingPage() {
                 See Pricing
               </button>
             </div>
-            <div className="mt-3"><EmailChip /></div>
+
+            {/* Inline email + copy with subtle link */}
+            <div className="mt-3">
+              <EmailChip withLink />
+            </div>
+
             <p className="mt-3 text-sm text-gray-500">
               Already set up?{" "}
               <a href="/employers/post" className="text-blue-900 underline">
@@ -183,7 +205,9 @@ export default function EmployersLandingPage() {
       {/* How it Works */}
       <section id="how" className="bg-white">
         <div className="mx-auto max-w-6xl px-4 py-12">
-          <h2 className="text-3xl font-bold text-blue-900 text-center">How it works</h2>
+          <h2 className="text-3xl font-bold text-blue-900 text-center">
+            How it works
+          </h2>
           <div className="mt-8 grid grid-cols-1 md:grid-cols-5 gap-4">
             {[
               { icon: "🏢", title: "Create your company profile" },
@@ -195,7 +219,10 @@ export default function EmployersLandingPage() {
               },
               { icon: "✅", title: "Only pay when qualified candidates apply" },
             ].map((s) => (
-              <div key={s.title} className="p-5 border rounded-xl bg-gray-50 text-center">
+              <div
+                key={s.title}
+                className="p-5 border rounded-xl bg-gray-50 text-center"
+              >
                 <div className="text-3xl">{s.icon}</div>
                 <p className="mt-3 text-sm text-gray-800">{s.title}</p>
               </div>
@@ -207,8 +234,10 @@ export default function EmployersLandingPage() {
       {/* Why Y-Propel */}
       <section className="bg-gray-50">
         <div className="mx-auto max-w-6xl px-4 py-12">
-          <h2 className="text-3xl font-bold text-blue-900 text-center">Why Y-Propel</h2>
-          <div className="mt-8 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <h2 className="text-3xl font-bold text-blue-900 text-center">
+            Why Y-Propel
+          </h2>
+        <div className="mt-8 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {[
               { t: "Pay-per-applicant, not per month.", d: "Cost maps directly to real pipeline." },
               { t: "Curated, early-career audience.", d: "Students and new grads only." },
@@ -228,7 +257,9 @@ export default function EmployersLandingPage() {
       {/* Pricing */}
       <section id="pricing" ref={pricingRef} className="bg-white">
         <div className="mx-auto max-w-6xl px-4 py-12">
-          <h2 className="text-3xl font-bold text-blue-900 text-center">Pricing (simple & transparent)</h2>
+          <h2 className="text-3xl font-bold text-blue-900 text-center">
+            Pricing (simple & transparent)
+          </h2>
 
           <div className="mt-8 grid grid-cols-1 lg:grid-cols-3 gap-6">
             {/* Free to start */}
@@ -245,12 +276,16 @@ export default function EmployersLandingPage() {
                 </li>
                 <li>Basic company profile & job board placement</li>
               </ul>
-              <div className="mt-2"><EmailChip /></div>
+              <div className="mt-2">
+                <EmailChip />
+              </div>
             </div>
 
             {/* Pay per applicant */}
             <div className="p-6 border rounded-xl bg-gray-50">
-              <h3 className="text-xl font-semibold text-blue-900">Then, pay per qualified applicant</h3>
+              <h3 className="text-xl font-semibold text-blue-900">
+                Then, pay per qualified applicant
+              </h3>
               <ul className="mt-3 space-y-2 text-gray-700 list-disc list-inside">
                 <li>$20/applicant list price</li>
                 <li>Volume discounts: $16 (50+/mo), $12 (200+/mo)</li>
@@ -296,12 +331,10 @@ export default function EmployersLandingPage() {
               >
                 Create Company Profile
               </a>
-              <a
-                href={mailto}
-                className="inline-flex items-center justify-center rounded-lg bg-emerald-700 text-white font-semibold px-6 py-3 hover:bg-emerald-800"
-              >
-                Add 2 More Free Jobs
-              </a>
+              {/* removed the separate button; keep subtle inline link under */}
+            </div>
+            <div className="md:col-span-2 mt-2">
+              <EmailChip withLink />
             </div>
           </div>
         </div>
@@ -336,7 +369,8 @@ export default function EmployersLandingPage() {
             ].map((item) => (
               <details key={item.q} className="p-5 group">
                 <summary className="cursor-pointer font-semibold text-blue-900 flex justify-between items-center">
-                  {item.q} <span className="text-gray-400 group-open:rotate-180 transition">⌄</span>
+                  {item.q}{" "}
+                  <span className="text-gray-400 group-open:rotate-180 transition">⌄</span>
                 </summary>
                 <p className="mt-2 text-gray-700">{item.a}</p>
               </details>
@@ -348,7 +382,9 @@ export default function EmployersLandingPage() {
       {/* Final CTA */}
       <section className="bg-blue-900">
         <div className="mx-auto max-w-6xl px-4 py-12 text-center text-white">
-          <h2 className="text-3xl font-extrabold">Hire early-career talent without subscriptions.</h2>
+          <h2 className="text-3xl font-extrabold">
+            Hire early-career talent without subscriptions.
+          </h2>
           <p className="mt-2 text-blue-100">
             Start with a free company profile and your first job on us. Limited-time: email us and we’ll add 2 more free
             postings in your first month. After that, pay only for qualified applicants.
@@ -360,14 +396,10 @@ export default function EmployersLandingPage() {
             >
               Create Company Profile
             </a>
-            <a
-              href={mailto}
-              className="inline-flex items-center justify-center rounded-lg border border-white/60 hover:bg-white/10 px-6 py-3 font-semibold"
-            >
-              Add 2 More Free Jobs
-            </a>
           </div>
-          <div className="mt-3"><EmailChip /></div>
+          <div className="mt-3">
+            <EmailChip withLink />
+          </div>
         </div>
       </section>
 
@@ -375,9 +407,15 @@ export default function EmployersLandingPage() {
         <div className="mx-auto max-w-6xl px-4 py-6 text-xs text-gray-500 flex flex-col sm:flex-row gap-2 sm:gap-6 justify-between">
           <p>© {new Date().getFullYear()} YPropel. All rights reserved.</p>
           <div className="flex gap-4">
-            <a className="hover:text-blue-900" href="/terms">Terms</a>
-            <a className="hover:text-blue-900" href="/privacy">Privacy</a>
-            <a className="hover:text-blue-900" href={mailto}>Contact</a>
+            <a className="hover:text-blue-900" href="/terms">
+              Terms
+            </a>
+            <a className="hover:text-blue-900" href="/privacy">
+              Privacy
+            </a>
+            <a className="hover:text-blue-900" href={mailto}>
+              Contact
+            </a>
           </div>
         </div>
       </footer>
