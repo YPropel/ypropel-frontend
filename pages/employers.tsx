@@ -56,7 +56,16 @@ function EmailChip({ withLink = false }: { withLink?: boolean }) {
   };
   return (
     <div className="flex flex-wrap items-center gap-2 text-sm">
-      <a href={mailto} className="underline text-emerald-700">
+     
+      {withLink && (
+        <span className="text-gray-600">
+          •{" "}
+          <a href={mailto} className="underline hover:text-blue-900">
+            Contact us to claim our special offer and Add 2 more free jobs →
+          </a>
+        </span>
+      )}
+       <a href={mailto} className="underline text-emerald-700">
         Email {SALES_EMAIL}
       </a>
       <button
@@ -65,14 +74,6 @@ function EmailChip({ withLink = false }: { withLink?: boolean }) {
       >
         Copy
       </button>
-      {withLink && (
-        <span className="text-gray-600">
-          •{" "}
-          <a href={mailto} className="underline hover:text-blue-900">
-            Add 2 more free jobs →
-          </a>
-        </span>
-      )}
     </div>
   );
 }
