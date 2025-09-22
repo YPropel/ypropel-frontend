@@ -8,10 +8,7 @@ export default function EmployersLandingPage() {
   const pricingRef = useRef<HTMLDivElement | null>(null);
   const faqRef = useRef<HTMLDivElement | null>(null);
 
-  const scrollTo = (el: HTMLElement | null) => {
-    if (!el) return;
-    el.scrollIntoView({ behavior: "smooth", block: "start" });
-  };
+  const scrollTo = (el: HTMLElement | null) => el?.scrollIntoView({ behavior: "smooth", block: "start" });
 
   return (
     <>
@@ -19,7 +16,7 @@ export default function EmployersLandingPage() {
         <title>Hire Early-Career Talent | Y-Propel for Employers</title>
         <meta
           name="description"
-          content="Create your company profile and post your first job for free. Pay only for qualified applicants. No subscriptions."
+          content="Create your company profile and post your first job for free. Limited-time: we’ll add 2 more jobs free when you contact us. Pay only for qualified applicants."
         />
       </Head>
 
@@ -54,15 +51,25 @@ export default function EmployersLandingPage() {
               Contact Sales
             </a>
           </nav>
-          {/* Primary header CTA goes straight to create company profile */}
           <a
-            href="/employers/create-company" // <-- change this if your route differs
+            href="/CreateCompany"
             className="hidden sm:inline-flex items-center justify-center rounded-lg px-4 py-2 text-white font-semibold bg-emerald-600 hover:bg-emerald-700 transition"
           >
             Create Company Profile
           </a>
         </div>
       </header>
+
+      {/* Promo ribbon */}
+      <div className="bg-emerald-600/10 border-y border-emerald-600/20">
+        <div className="mx-auto max-w-6xl px-4 py-2 text-center text-sm text-emerald-800">
+          Limited-time offer: Post your first job free — then{" "}
+          <a className="underline font-semibold" href="/contact?type=sales">
+            we’ll add 2 more jobs free
+          </a>{" "}
+          within your first month.
+        </div>
+      </div>
 
       {/* Hero */}
       <section className="bg-gray-50">
@@ -72,16 +79,23 @@ export default function EmployersLandingPage() {
               Hire early-career talent. <span className="text-emerald-600">Pay only for applicants.</span>
             </h1>
             <p className="mt-4 text-gray-700 text-lg leading-relaxed">
-              Create your company profile and post your first job for free. We’ll deliver your first applicants at no
-              cost, then you pay only for qualified applicants. No monthly fees. No wasted spend.
+              Create your company profile and post your first job for free. As a special limited-time offer, we’ll add 2
+              more jobs for you at no cost during your first month — just contact us. After that, pay only for qualified
+              applicants. No monthly fees. No wasted spend.
             </p>
             <div className="mt-6 flex flex-col sm:flex-row gap-3">
               <button
-                onClick={() => router.push("/employers/create-company")} // <-- change if needed
+                onClick={() => router.push("/CreateCompany")}
                 className="w-full sm:w-auto rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white font-semibold px-6 py-3"
               >
                 Create Company Profile
               </button>
+              <a
+                href="/contact?type=sales"
+                className="w-full sm:w-auto rounded-lg border border-emerald-600 text-emerald-700 hover:bg-emerald-50 font-semibold px-6 py-3 bg-white text-center"
+              >
+                Add 2 More Free Roles
+              </a>
               <button
                 onClick={() => scrollTo(pricingRef.current)}
                 className="w-full sm:w-auto rounded-lg border border-gray-300 hover:border-blue-900 text-blue-900 font-semibold px-6 py-3 bg-white"
@@ -111,7 +125,10 @@ export default function EmployersLandingPage() {
               { icon: "🏢", title: "Create your company profile" },
               { icon: "🆓", title: "Post your first job for free" },
               { icon: "🎁", title: "We deliver your first applicants on us" },
-              { icon: "📬", title: "Share up to 2 more roles for our team to add (free)" },
+              {
+                icon: "🤝",
+                title: "Special-time offer: contact us and we’ll add 2 more jobs free (month 1)",
+              },
               { icon: "✅", title: "Only pay when qualified candidates apply" },
             ].map((s) => (
               <div key={s.title} className="p-5 border rounded-xl bg-gray-50 text-center">
@@ -156,7 +173,13 @@ export default function EmployersLandingPage() {
               <ul className="mt-3 space-y-2 text-gray-700 list-disc list-inside">
                 <li>Create your company profile</li>
                 <li>Post your first job free (month 1)</li>
-                <li>We’ll add up to 2 more roles for you (also free)</li>
+                <li>
+                  Special-time offer:{" "}
+                  <a className="underline" href="/contact?type=sales">
+                    we’ll add 2 more jobs free
+                  </a>{" "}
+                  in your first month
+                </li>
                 <li>Basic company profile & job board placement</li>
               </ul>
             </div>
@@ -197,16 +220,23 @@ export default function EmployersLandingPage() {
               <h3 className="text-2xl md:text-3xl font-extrabold">Launch Offer (low risk)</h3>
               <ul className="mt-3 space-y-1 list-disc list-inside text-emerald-50">
                 <li>Create your company profile + post 1 job free</li>
+                <li>We’ll add 2 more jobs free when you contact us (month 1)</li>
                 <li>Guaranteed 30 qualified applicants in month 1</li>
                 <li>Continue only if quality meets your bar. After the free pool, pay per applicant.</li>
               </ul>
             </div>
-            <div className="text-right md:text-left">
+            <div className="flex flex-col sm:flex-row gap-3 justify-end md:justify-start">
               <a
-                href="/employers/create-company" // <-- adjust if needed
+                href="/CreateCompany"
                 className="inline-flex items-center justify-center rounded-lg bg-white text-emerald-700 font-semibold px-6 py-3 hover:bg-emerald-50"
               >
                 Create Company Profile
+              </a>
+              <a
+                href="/contact?type=sales"
+                className="inline-flex items-center justify-center rounded-lg bg-emerald-700 text-white font-semibold px-6 py-3 hover:bg-emerald-800"
+              >
+                Add 2 More Free Roles
               </a>
             </div>
           </div>
@@ -217,7 +247,7 @@ export default function EmployersLandingPage() {
       <section id="faq" ref={faqRef} className="bg-gray-50">
         <div className="mx-auto max-w-6xl px-4 py-12">
           <h2 className="text-3xl font-bold text-blue-900 text-center">FAQ</h2>
-        <div className="mt-6 divide-y divide-gray-200 border rounded-xl bg-white">
+          <div className="mt-6 divide-y divide-gray-200 border rounded-xl bg-white">
             {[
               {
                 q: "How do you verify ‘qualified’?",
@@ -256,14 +286,23 @@ export default function EmployersLandingPage() {
         <div className="mx-auto max-w-6xl px-4 py-12 text-center text-white">
           <h2 className="text-3xl font-extrabold">Hire early-career talent without subscriptions.</h2>
           <p className="mt-2 text-blue-100">
-            Start with a free company profile and your first job on us. After that, pay only for what matters: qualified applicants.
+            Start with a free company profile and your first job on us. Limited-time: we’ll add 2 more free postings when
+            you contact us. After that, pay only for qualified applicants.
           </p>
-          <a
-            href="/employers/create-company" // <-- adjust if needed
-            className="mt-6 inline-flex items-center justify-center rounded-lg bg-emerald-600 hover:bg-emerald-700 px-6 py-3 font-semibold"
-          >
-            Create Company Profile
-          </a>
+          <div className="mt-6 flex items-center justify-center gap-3">
+            <a
+              href="/CreateCompany"
+              className="inline-flex items-center justify-center rounded-lg bg-emerald-600 hover:bg-emerald-700 px-6 py-3 font-semibold"
+            >
+              Create Company Profile
+            </a>
+            <a
+              href="/contact?type=sales"
+              className="inline-flex items-center justify-center rounded-lg border border-white/60 hover:bg-white/10 px-6 py-3 font-semibold"
+            >
+              Add 2 More Free Roles
+            </a>
+          </div>
         </div>
       </section>
 
@@ -271,15 +310,9 @@ export default function EmployersLandingPage() {
         <div className="mx-auto max-w-6xl px-4 py-6 text-xs text-gray-500 flex flex-col sm:flex-row gap-2 sm:gap-6 justify-between">
           <p>© {new Date().getFullYear()} YPropel. All rights reserved.</p>
           <div className="flex gap-4">
-            <a className="hover:text-blue-900" href="/terms">
-              Terms
-            </a>
-            <a className="hover:text-blue-900" href="/privacy">
-              Privacy
-            </a>
-            <a className="hover:text-blue-900" href="/contact">
-              Contact
-            </a>
+            <a className="hover:text-blue-900" href="/terms">Terms</a>
+            <a className="hover:text-blue-900" href="/privacy">Privacy</a>
+            <a className="hover:text-blue-900" href="/contact">Contact</a>
           </div>
         </div>
       </footer>
