@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from "react";
-import { apiFetch } from "../apiClient"; // Adjust path as needed
+import { apiFetch } from "../apiClient";
 import { useRouter } from "next/router";
-
 
 const JOB_TYPES = [
   { label: "Internship", value: "internship" },
@@ -11,25 +10,19 @@ const JOB_TYPES = [
 
 const LOCATION_OPTIONS = ["Remote", "Onsite", "Hybrid"];
 
-type Country = {
-  name: string;
-};
-
-type State = {
-  name: string;
-  abbreviation: string;
-};
-
-type City = {
-  name: string;
-};
+type Country = { name: string };
+type State = { name: string; abbreviation: string };
+type City = { name: string };
 
 const PostJob = () => {
+  const router = useRouter();
+
   const [companyId, setCompanyId] = useState<string | null>(null);
+
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [category, setCategory] = useState("");
-  const [location, setLocation] = useState("remote");
+  const [location, setLocation] = useState("Remote"); // match allowed values
   const [requirements, setRequirements] = useState("");
   const [applyUrl, setApplyUrl] = useState("");
   const [salary, setSalary] = useState("");
@@ -37,174 +30,156 @@ const PostJob = () => {
   const [country, setCountry] = useState("");
   const [state, setState] = useState("");
   const [city, setCity] = useState("");
- // const [expiresAt, setExpiresAt] = useState("");
-  // const [isActive, setIsActive] = useState(true);
+  const [planType, setPlanType] = useState("");
+
   const [error, setError] = useState<string | null>(null);
-  const [jobs, setJobs] = useState<any[]>([]); // Store jobs
+  const [jobs, setJobs] = useState<any[]>([]);
 
   const [countries, setCountries] = useState<Country[]>([]);
   const [states, setStates] = useState<State[]>([]);
   const [cities, setCities] = useState<City[]>([]);
 
-  const [planType, setPlanType] = useState("");
-
-  const router = useRouter();
-
-
-//-----Redirect user  to subscription page if selsected plan type as Subscription
+  // pick companyId from URL first, then localStorage
   useEffect(() => {
-  if (planType === "subscription") {
-    router.push("/subscription");
-  }
-}, [planType]);
+    // URL query (e.g. /PostJob?companyId=123)
+    const qId = router.query.companyId;
+    if (typeof qId === "string" && qId.trim()) {
+      setCompanyId(qId);
+      localStorage.setItem("companyId", qId); // keep it handy for later
+      return;
+    }
 
-//------------------------
-  // Fetch companyId from localStorage after the component mounts
-  useEffect(() => {
+    // fallback to localStorage
     const storedCompanyId = localStorage.getItem("companyId");
     if (storedCompanyId) {
-      setCompanyId(storedCompanyId); // Set companyId in state
+      setCompanyId(storedCompanyId);
     } else {
-      setError("Company ID is required.");
+      setError("Company ID is required. Please navigate from your company page.");
     }
-  }, []); // This will only run once when the component mounts
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [router.query.companyId]);
 
-  // Fetch jobs based on companyId after companyId is set
+  // redirect if subscription selected
   useEffect(() => {
-    if (!companyId) return;
+    if (planType === "subscription") {
+      router.push("/subscription");
+    }
+  }, [planType, router]);
 
+  // Fetch jobs for the company
+  useEffect(() => {
     const fetchJobs = async () => {
+      if (!companyId) return;
       const token = localStorage.getItem("token");
-
       if (!token) {
         setError("User is not logged in.");
         return;
       }
+      try {
+        const response = await apiFetch(`/companies/${companyId}/jobs`, {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        });
 
-      const response = await apiFetch(`/companies/${companyId}/jobs`, {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": `Bearer ${token}`,
-        },
-      });
-
-      if (response.ok) {
-        const jobData = await response.json();
-        setJobs(jobData); // Update jobs state
-      } else {
-        const errorData = await response.json();
-        setError(errorData.error || "Failed to fetch jobs.");
+        if (response.ok) {
+          const jobData = await response.json();
+          setJobs(Array.isArray(jobData) ? jobData : []);
+        } else {
+          const errorData = await response.json();
+          setError(errorData.error || "Failed to fetch jobs.");
+        }
+      } catch {
+        setError("Failed to fetch jobs. Please try again later.");
       }
     };
 
     fetchJobs();
-  }, [companyId]); // Re-run effect when companyId changes
+  }, [companyId]);
 
-  // Fetch countries once
+  // Countries
   useEffect(() => {
     apiFetch("/countries")
       .then((res) => res.json())
       .then((data) => {
         if (Array.isArray(data)) {
-          setCountries(data.map((country) => ({ name: country })));
-        } else {
-          console.error("Fetched countries is not an array:", data);
+          setCountries(data.map((c: any) => ({ name: typeof c === "string" ? c : c?.name })));
         }
       })
-      .catch((err) => {
-        console.error("Failed to load countries:", err);
-        setError("Failed to load countries.");
-      });
+      .catch(() => setError("Failed to load countries."));
   }, []);
 
-  // Fetch states when country changes (only if USA)
+  // States (US only)
   useEffect(() => {
     if (!country) return;
-
     if (country === "USA" || country === "United States") {
       apiFetch("/us-states")
         .then((res) => res.json())
         .then((data) => {
-          if (Array.isArray(data)) {
-            setStates(data); // Use the fetched states
-          } else {
-            console.error("Fetched states is not an array:", data);
-          }
+          if (Array.isArray(data)) setStates(data);
         })
         .catch(() => setStates([]));
     } else {
       setStates([]);
-      setState(""); // Reset state when country is not USA
-      setCity(""); // Reset city when country is not USA
+      setState("");
+      setCity("");
     }
   }, [country]);
 
-  // Fetch cities when state changes
+  // Cities (when US state chosen)
   useEffect(() => {
     if (!state || !(country === "USA" || country === "United States")) {
       setCities([]);
-      setCity(""); // Reset city when state is empty
+      setCity("");
       return;
     }
-
     apiFetch(`/us-cities?state=${encodeURIComponent(state)}`)
       .then((res) => res.json())
       .then((data) => {
-        if (Array.isArray(data)) {
-          setCities(data.map((city) => ({ name: city }))); // Map cities to city objects
-        } else {
-          console.error("Fetched cities is not an array:", data);
-        }
+        if (Array.isArray(data)) setCities(data.map((n: string) => ({ name: n })));
       })
       .catch(() => setCities([]));
   }, [state, country]);
 
-  
-//-------------------HAndle Submit-------------------
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-console.log("Posting Job with values: ", {
-  title,
-  description,
-  category,
-  location,
-  requirements,
-  applyUrl,        // Check if this is populated
-  salary,
-  jobType,         // Check if this is populated
-  country,
-  state,
-  city,
-  planType,
-
-});
-
-if (planType === "subscription") {
-  router.push("/payment/subscribe");
-  return;
-}
-    if (!title || !description || !category || !location || !country || !state || !city || !applyUrl || !jobType ||
-  !planType) {
-      setError("All required fields must be filled.");
-      return;
-    }
-
-     
+    setError(null);
 
     const token = localStorage.getItem("token");
-
     if (!token) {
       setError("User is not logged in.");
       return;
     }
 
-    const formattedLocation = location.charAt(0).toUpperCase() + location.slice(1).toLowerCase();
-const jobData = {
+    if (
+      !title ||
+      !description ||
+      !category ||
+      !location ||
+      !country ||
+      !state ||
+      !city ||
+      !applyUrl ||
+      !jobType ||
+      !planType
+    ) {
+      setError("All required fields must be filled.");
+      return;
+    }
+
+    // subscription plan handled earlier by redirect effect, but keep guard
+    if (planType === "subscription") {
+      router.push("/subscription");
+      return;
+    }
+
+    const jobData = {
       title,
       description,
       category,
-      location: formattedLocation,
+      location, // already one of Remote/Onsite/Hybrid
       requirements,
       applyUrl,
       salary,
@@ -215,112 +190,100 @@ const jobData = {
       planType,
     };
 
-    // Handle pay-per-post redirect to payment page
-   if (planType === "pay_per_post") {
+    // Pay per post: create Stripe checkout
+    if (planType === "pay_per_post") {
       sessionStorage.setItem("pendingJobPost", JSON.stringify(jobData));
-
-        // Call backend to create Stripe Checkout session
       const response = await apiFetch("/payment/create-checkout-session", {
-       method: "POST",
-       headers: {
-          "Authorization": `Bearer ${token}`,
-       },
-  });
+        method: "POST",
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (response.ok) {
+        const data = await response.json();
+        window.location.href = data.url;
+      } else {
+        const errorData = await response.json();
+        setError(errorData.error || "Failed to initiate payment");
+      }
+      return;
+    }
 
-  if (response.ok) {
-    const data = await response.json();
-    window.location.href = data.url; // Redirect to Stripe checkout
-  } else {
-    const errorData = await response.json();
-    setError(errorData.error || "Failed to initiate payment");
-  }
-
-  return;
-}
+    // Free post (or subscription should never reach here)
     try {
       const response = await apiFetch("/companies/post-job", {
         method: "POST",
-        body: JSON.stringify({
-          title,
-          description,
-          category,
-          location: formattedLocation,
-          requirements,
-          applyUrl,
-          salary,
-          jobType,
-          country,
-          state,
-          city,
-          planType,
-        }),
+        body: JSON.stringify(jobData),
         headers: {
           "Content-Type": "application/json",
-          "Authorization": `Bearer ${token}`,
+          Authorization: `Bearer ${token}`,
         },
       });
 
-      
-
       if (response.ok) {
         const responseData = await response.json();
-       // ---Fetch updated list of jobs after posting
-              const token = localStorage.getItem("token");
-              const refreshed = await apiFetch(`/companies/${companyId}/jobs`, {
-                method: "GET",
-                headers: {
-                  "Content-Type": "application/json",
-                  "Authorization": `Bearer ${token}`,
-                },
-              });
-              if (refreshed.ok) {
-                const updatedJobs = await refreshed.json();
-                setJobs(updatedJobs);
-              }
-        //-------- end of Fetch jobs
 
-        // Clear form fields
+        // Prefer companyId returned from backend if present
+        const cid = String(responseData.companyId || companyId || "");
+        if (cid) {
+          setCompanyId(cid);
+          localStorage.setItem("companyId", cid);
+          // refresh jobs list
+          const refreshed = await apiFetch(`/companies/${cid}/jobs`, {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
+            },
+          });
+          if (refreshed.ok) {
+            const updated = await refreshed.json();
+            setJobs(Array.isArray(updated) ? updated : []);
+          }
+        }
+
+        // reset form
         setTitle("");
         setDescription("");
         setCategory("");
-        setLocation("remote");
+        setLocation("Remote");
         setRequirements("");
         setApplyUrl("");
         setSalary("");
-       setJobType("entry_level");
+        setJobType("entry_level");
         setCountry("");
         setState("");
         setCity("");
-       // setExpiresAt("");
-       // setIsActive(true);
+        setPlanType("");
       } else {
         const errorData = await response.json();
         setError(errorData.error || "Failed to post job");
       }
-    } catch (error) {
+    } catch {
       setError("Something went wrong. Please try again later.");
     }
   };
 
-  const handleDelete = async (jobId: string) => {
+  const handleDelete = async (jobId: string | number) => {
     const token = localStorage.getItem("token");
-
+    if (!token) {
+      setError("User is not logged in.");
+      return;
+    }
     try {
       const response = await apiFetch(`/companies/jobs/${jobId}`, {
         method: "DELETE",
         headers: {
           "Content-Type": "application/json",
-          "Authorization": `Bearer ${token}`,
+          Authorization: `Bearer ${token}`,
         },
       });
 
       if (response.ok) {
-        setJobs(jobs.filter((job) => job.id !== jobId)); // Remove deleted job from the state
+        setJobs((cur) => cur.filter((j) => String(j.id) !== String(jobId)));
       } else {
         const errorData = await response.json();
         setError(errorData.error || "Failed to delete job");
       }
-    } catch (error) {
+    } catch {
       setError("Something went wrong. Please try again later.");
     }
   };
@@ -328,8 +291,9 @@ const jobData = {
   return (
     <div className="container mx-auto p-6">
       <h2 className="text-2xl font-bold">Post a Job</h2>
-      {error && <p className="text-red-500">{error}</p>}
-      <form onSubmit={handleSubmit} className="space-y-4">
+      {error && <p className="text-red-500 mt-2">{error}</p>}
+
+      <form onSubmit={handleSubmit} className="space-y-4 mt-4">
         {/* Job Title */}
         <div>
           <label className="block">Job Title</label>
@@ -365,7 +329,7 @@ const jobData = {
           />
         </div>
 
-        {/* Location (Dropdown for remote, onsite, hybrid) */}
+        {/* Location */}
         <div>
           <label className="block">Location</label>
           <select
@@ -374,15 +338,15 @@ const jobData = {
             onChange={(e) => setLocation(e.target.value)}
             required
           >
-            {LOCATION_OPTIONS.map((option) => (
-              <option key={option} value={option}>
-                {option.charAt(0).toUpperCase() + option.slice(1)}
+            {LOCATION_OPTIONS.map((opt) => (
+              <option key={opt} value={opt}>
+                {opt}
               </option>
             ))}
           </select>
         </div>
 
-        {/* Country (Dropdown) */}
+        {/* Country */}
         <div>
           <label className="block">Country</label>
           <select
@@ -392,15 +356,15 @@ const jobData = {
             required
           >
             <option value="">Select a country</option>
-            {countries.map((country) => (
-              <option key={country.name} value={country.name}>
-                {country.name}
+            {countries.map((c) => (
+              <option key={c.name} value={c.name}>
+                {c.name}
               </option>
             ))}
           </select>
         </div>
 
-        {/* State (Dropdown) */}
+        {/* State */}
         <div>
           <label className="block">State</label>
           <select
@@ -410,15 +374,15 @@ const jobData = {
             required
           >
             <option value="">Select a state</option>
-            {states.map((state) => (
-              <option key={state.abbreviation} value={state.abbreviation}>
-                {state.name}
+            {states.map((s) => (
+              <option key={s.abbreviation} value={s.abbreviation}>
+                {s.name}
               </option>
             ))}
           </select>
         </div>
 
-        {/* City (Dropdown) */}
+        {/* City */}
         <div>
           <label className="block">City</label>
           <select
@@ -428,9 +392,9 @@ const jobData = {
             required
           >
             <option value="">Select a city</option>
-            {cities.map((city) => (
-              <option key={city.name} value={city.name}>
-                {city.name}
+            {cities.map((c) => (
+              <option key={c.name} value={c.name}>
+                {c.name}
               </option>
             ))}
           </select>
@@ -478,66 +442,71 @@ const jobData = {
             onChange={(e) => setJobType(e.target.value)}
             required
           >
-            <option value="internship">Internship</option>
-            <option value="entry_level">Entry Level</option>
-            <option value="hourly">Hourly</option>
+            {JOB_TYPES.map((jt) => (
+              <option key={jt.value} value={jt.value}>
+                {jt.label}
+              </option>
+            ))}
           </select>
         </div>
-            {/* Plan Type */}
-            <div>
-              <label className="block">Job Plan</label>
-              <select
-                className="w-full p-2 border border-gray-300"
-                value={planType}
-                onChange={(e) => setPlanType(e.target.value)}
-                required
-              >
-                <option value="">Select a Plan</option>
-                <option value="free">Free Basic Post</option>
-                <option value="pay_per_post">Pay-Per-Post ($75 for 30 days)</option>
-                <option value="subscription">Monthly Subscription unlimited ($300)</option>
-              </select>
-            </div>
+
+        {/* Plan Type */}
+        <div>
+          <label className="block">Job Plan</label>
+          <select
+            className="w-full p-2 border border-gray-300"
+            value={planType}
+            onChange={(e) => setPlanType(e.target.value)}
+            required
+          >
+            <option value="">Select a Plan</option>
+            <option value="free">Free Basic Post</option>
+            <option value="pay_per_post">Pay-Per-Post ($75 for 30 days)</option>
+            <option value="subscription">Monthly Subscription unlimited ($300)</option>
+          </select>
+        </div>
 
         <button type="submit" className="px-4 py-2 bg-blue-500 text-white">
           Post Job
         </button>
       </form>
 
-{/* Display Jobs */}
-<div className="mt-8">
-  <h2 className="text-2xl font-bold">Posted Jobs</h2>
-  {jobs.length > 0 ? (
-    <ul>
-     {jobs.map((job) => (
-  <li key={job.id} className="py-2">
-    <h3 className="text-lg font-semibold">{job.title}</h3>
-    <p><strong>Description:</strong> {job.description}</p>
-    <p><strong>Category:</strong> {job.category}</p>
-    <p><strong>Location:</strong> {job.location}</p>
-    <p><strong>Job Type:</strong> {job.job_type}</p>
-    <p><strong>Salary:</strong> {job.salary}</p>
-    <p><strong>Requirements:</strong> {job.requirements}</p>
-    <p><strong>Apply URL:</strong> <a href={job.apply_url} target="_blank" rel="noopener noreferrer">{job.apply_url}</a></p>
-    <p><strong>Expiration Date:</strong> {job.expires_at}</p>
-    <p><strong>Active:</strong> {job.is_active ? "Yes" : "No"}</p>
+      {/* Display Jobs */}
+      <div className="mt-8">
+        <h2 className="text-2xl font-bold">Posted Jobs</h2>
+        {jobs.length > 0 ? (
+          <ul>
+            {jobs.map((job) => (
+              <li key={job.id} className="py-2 border-b">
+                <h3 className="text-lg font-semibold">{job.title}</h3>
+                <p><strong>Description:</strong> {job.description}</p>
+                <p><strong>Category:</strong> {job.category}</p>
+                <p><strong>Location:</strong> {job.location}</p>
+                <p><strong>Job Type:</strong> {job.job_type}</p>
+                <p><strong>Salary:</strong> {job.salary}</p>
+                <p><strong>Requirements:</strong> {job.requirements}</p>
+                <p>
+                  <strong>Apply URL:</strong>{" "}
+                  <a href={job.apply_url} target="_blank" rel="noopener noreferrer">
+                    {job.apply_url}
+                  </a>
+                </p>
+                <p><strong>Expiration Date:</strong> {job.expires_at ? new Date(job.expires_at).toLocaleString() : "-"}</p>
+                <p><strong>Active:</strong> {job.is_active ? "Yes" : "No"}</p>
 
-
-          {/* Delete Button */}
-          <button
-            onClick={() => handleDelete(job.id)}
-            className="bg-red-500 text-white py-1 px-3 rounded mt-2"
-          >
-            Delete Job
-          </button>
-        </li>
-      ))}
-    </ul>
-  ) : (
-    <p>No jobs available for this company.</p>
-  )}
-</div>
-
+                <button
+                  onClick={() => handleDelete(job.id)}
+                  className="bg-red-500 text-white py-1 px-3 rounded mt-2"
+                >
+                  Delete Job
+                </button>
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <p>No jobs available for this company.</p>
+        )}
+      </div>
     </div>
   );
 };
