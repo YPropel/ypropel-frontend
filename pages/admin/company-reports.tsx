@@ -1,7 +1,7 @@
 /* eslint-disable @next/next/no-img-element */
 import React, { useEffect, useMemo, useState } from "react";
-import AuthGuard from "../../components/AuthGuard"; // adjust path if needed
-import { apiFetch } from "../../apiClient";        // adjust path if needed
+import AuthGuard from "../../components/AuthGuard";
+import { apiFetch } from "../../apiClient";
 
 type DailyCompaniesRow = { day: string; companies: number };
 type JobsDailyRow = { day: string; total_jobs: number; free_jobs: number; paid_jobs: number };
@@ -15,59 +15,56 @@ type JobsByCompanyRow = {
   last_job_posted_at: string | null;
   free_jobs_used_total: number | null;
 };
+type SummaryResp = {
+  non_admin: { companies_created: number; paid_jobs: number; free_jobs: number; };
+  admin:     { companies_created: number; paid_jobs: number; free_jobs: number; };
+};
 
 export default function CompanyReportsPage() {
-  // --- quick auth gate (client-side convenience; backend still enforces admin) ---
+  // auth gate (backend still enforces admin)
   const [isAuthorized, setIsAuthorized] = useState<boolean | null>(null);
-  const [loading, setLoading] = useState(false);
-  const [errMsg, setErrMsg] = useState<string>("");
 
-  // date filters (default: last 30 days)
+  // filters
   const [from, setFrom] = useState(() =>
     new Date(Date.now() - 30 * 86400000).toISOString().slice(0, 10)
   );
   const [to, setTo] = useState(() => new Date().toISOString().slice(0, 10));
+  const [query, setQuery] = useState<string>(""); // company name search
 
   // data
+  const [loading, setLoading] = useState(false);
+  const [errMsg, setErrMsg] = useState<string>("");
+  const [summary, setSummary] = useState<SummaryResp | null>(null);
   const [dailyCompanies, setDailyCompanies] = useState<DailyCompaniesRow[]>([]);
   const [jobsDaily, setJobsDaily] = useState<JobsDailyRow[]>([]);
   const [jobsByCompany, setJobsByCompany] = useState<JobsByCompanyRow[]>([]);
 
-  // small helpers
   const token = useMemo(
     () => (typeof window !== "undefined" ? localStorage.getItem("token") || "" : ""),
     []
   );
   const headers = useMemo(() => ({ Authorization: `Bearer ${token}` }), [token]);
 
-  // client-side admin check: reuses your existing /reports/members endpoint
   async function checkAdmin() {
     try {
-      if (!token) {
-        setIsAuthorized(false);
-        return;
-      }
+      if (!token) { setIsAuthorized(false); return; }
       const res = await apiFetch("/reports/members", { headers });
-      if (res.status === 403 || res.status === 401) {
-        setIsAuthorized(false);
-        return;
-      }
-      // if it didn’t 403/401, user is admin (backend endpoint itself checks admin)
+      if (res.status === 401 || res.status === 403) { setIsAuthorized(false); return; }
       setIsAuthorized(true);
-    } catch {
-      setIsAuthorized(false);
-    }
+    } catch { setIsAuthorized(false); }
   }
 
   async function loadReports() {
     setLoading(true);
     setErrMsg("");
     try {
-      const [dc, jd, jbc] = await Promise.all([
-        apiFetch(`/reports/companies/daily?from=${from}&to=${to}`, { headers }).then((r) => r.json()),
-        apiFetch(`/reports/companies/jobs-daily?from=${from}&to=${to}`, { headers }).then((r) => r.json()),
-        apiFetch(`/reports/companies/jobs-by-company?from=${from}&to=${to}`, { headers }).then((r) => r.json()),
+      const [sum, dc, jd, jbc] = await Promise.all([
+        apiFetch(`/reports/companies/summary?from=${from}&to=${to}`, { headers }).then(r => r.json()),
+        apiFetch(`/reports/companies/daily?from=${from}&to=${to}`, { headers }).then(r => r.json()),
+        apiFetch(`/reports/companies/jobs-daily?from=${from}&to=${to}`, { headers }).then(r => r.json()),
+        apiFetch(`/reports/companies/jobs-by-company?from=${from}&to=${to}${query ? `&q=${encodeURIComponent(query)}` : ""}`, { headers }).then(r => r.json()),
       ]);
+      setSummary(sum || null);
       setDailyCompanies(dc || []);
       setJobsDaily(jd || []);
       setJobsByCompany(jbc || []);
@@ -78,13 +75,8 @@ export default function CompanyReportsPage() {
     }
   }
 
-  useEffect(() => {
-    checkAdmin();
-  }, []);
-
-  useEffect(() => {
-    if (isAuthorized) loadReports();
-  }, [isAuthorized, from, to]);
+  useEffect(() => { checkAdmin(); }, []);
+  useEffect(() => { if (isAuthorized) loadReports(); }, [isAuthorized, from, to]);
 
   if (isAuthorized === null) return <div className="p-6">Loading…</div>;
   if (isAuthorized === false)
@@ -98,38 +90,50 @@ export default function CompanyReportsPage() {
   return (
     <AuthGuard>
       <div className="max-w-6xl mx-auto px-4 py-6 space-y-6">
-        <header className="flex items-center justify-between">
+        {/* Header + filters */}
+        <header className="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
           <h1 className="text-2xl font-bold text-blue-900">Company Reports</h1>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 flex-wrap">
             <label className="text-sm text-gray-600">From</label>
-            <input
-              type="date"
-              className="border rounded px-2 py-1"
-              value={from}
-              onChange={(e) => setFrom(e.target.value)}
-            />
+            <input type="date" className="border rounded px-2 py-1" value={from} onChange={(e)=>setFrom(e.target.value)} />
             <label className="text-sm text-gray-600">To</label>
+            <input type="date" className="border rounded px-2 py-1" value={to} onChange={(e)=>setTo(e.target.value)} />
             <input
-              type="date"
+              type="text"
+              placeholder="Search company…"
               className="border rounded px-2 py-1"
-              value={to}
-              onChange={(e) => setTo(e.target.value)}
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
             />
-            <button
-              onClick={loadReports}
-              className="px-3 py-1 rounded bg-blue-900 text-white"
-              disabled={loading}
-            >
-              {loading ? "Refreshing…" : "Refresh"}
+            <button onClick={loadReports} className="px-3 py-1 rounded bg-blue-900 text-white" disabled={loading}>
+              {loading ? "Refreshing…" : "Apply"}
             </button>
           </div>
         </header>
 
         {errMsg && (
-          <div className="p-3 rounded bg-red-50 border border-red-200 text-red-800 text-sm">
-            {errMsg}
-          </div>
+          <div className="p-3 rounded bg-red-50 border border-red-200 text-red-800 text-sm">{errMsg}</div>
         )}
+
+        {/* Summary bars */}
+        <section className="grid sm:grid-cols-2 gap-4">
+          <div className="p-4 rounded-lg border bg-white">
+            <h2 className="text-sm font-semibold text-gray-600 mb-2">Non-Admin Totals (Selected Range)</h2>
+            <div className="grid grid-cols-3 gap-3">
+              <SummaryStat label="Companies" value={summary?.non_admin.companies_created ?? 0} />
+              <SummaryStat label="Paid Jobs" value={summary?.non_admin.paid_jobs ?? 0} />
+              <SummaryStat label="Free Jobs" value={summary?.non_admin.free_jobs ?? 0} />
+            </div>
+          </div>
+          <div className="p-4 rounded-lg border bg-white">
+            <h2 className="text-sm font-semibold text-gray-600 mb-2">Admin Totals (Selected Range)</h2>
+            <div className="grid grid-cols-3 gap-3">
+              <SummaryStat label="Companies" value={summary?.admin.companies_created ?? 0} />
+              <SummaryStat label="Paid Jobs" value={summary?.admin.paid_jobs ?? 0} />
+              <SummaryStat label="Free Jobs" value={summary?.admin.free_jobs ?? 0} />
+            </div>
+          </div>
+        </section>
 
         {/* 1) Companies created per day */}
         <section className="p-4 rounded-lg border bg-white">
@@ -139,14 +143,10 @@ export default function CompanyReportsPage() {
               {dailyCompanies.at(-1)?.companies ?? 0} today
             </div>
           </div>
-
           <div className="overflow-auto mt-3">
             <table className="w-full text-sm">
               <thead className="text-left text-gray-500">
-                <tr>
-                  <th className="py-2">Day</th>
-                  <th className="py-2">Companies</th>
-                </tr>
+                <tr><th className="py-2">Day</th><th className="py-2">Companies</th></tr>
               </thead>
               <tbody>
                 {dailyCompanies.map((row) => (
@@ -156,18 +156,14 @@ export default function CompanyReportsPage() {
                   </tr>
                 ))}
                 {dailyCompanies.length === 0 && (
-                  <tr>
-                    <td className="py-3 text-gray-500" colSpan={2}>
-                      No data in selected range.
-                    </td>
-                  </tr>
+                  <tr><td className="py-3 text-gray-500" colSpan={2}>No data in selected range.</td></tr>
                 )}
               </tbody>
             </table>
           </div>
         </section>
 
-        {/* 2) Jobs daily (total / free / paid) */}
+        {/* 2) Jobs daily */}
         <section className="p-4 rounded-lg border bg-white">
           <h2 className="text-lg font-semibold text-blue-900">Jobs Created (Daily)</h2>
           <div className="overflow-auto mt-3">
@@ -190,18 +186,14 @@ export default function CompanyReportsPage() {
                   </tr>
                 ))}
                 {jobsDaily.length === 0 && (
-                  <tr>
-                    <td className="py-3 text-gray-500" colSpan={4}>
-                      No data in selected range.
-                    </td>
-                  </tr>
+                  <tr><td className="py-3 text-gray-500" colSpan={4}>No data in selected range.</td></tr>
                 )}
               </tbody>
             </table>
           </div>
         </section>
 
-        {/* 3) Jobs by company (period) */}
+        {/* 3) Jobs by company (filtered by q) */}
         <section className="p-4 rounded-lg border bg-white">
           <h2 className="text-lg font-semibold text-blue-900">Jobs by Company (Selected Period)</h2>
           <div className="overflow-auto mt-3">
@@ -226,21 +218,13 @@ export default function CompanyReportsPage() {
                     <td className="py-2 font-semibold">{row.total_jobs}</td>
                     <td className="py-2">{row.free_jobs}</td>
                     <td className="py-2">{row.paid_jobs}</td>
-                    <td className="py-2">
-                      {row.first_job_posted_at ? new Date(row.first_job_posted_at).toLocaleString() : "-"}
-                    </td>
-                    <td className="py-2">
-                      {row.last_job_posted_at ? new Date(row.last_job_posted_at).toLocaleString() : "-"}
-                    </td>
+                    <td className="py-2">{row.first_job_posted_at ? new Date(row.first_job_posted_at).toLocaleString() : "-"}</td>
+                    <td className="py-2">{row.last_job_posted_at ? new Date(row.last_job_posted_at).toLocaleString() : "-"}</td>
                     <td className="py-2">{row.free_jobs_used_total ?? 0}</td>
                   </tr>
                 ))}
                 {jobsByCompany.length === 0 && (
-                  <tr>
-                    <td className="py-3 text-gray-500" colSpan={8}>
-                      No companies found in selected range.
-                    </td>
-                  </tr>
+                  <tr><td className="py-3 text-gray-500" colSpan={8}>No companies found.</td></tr>
                 )}
               </tbody>
             </table>
@@ -248,5 +232,14 @@ export default function CompanyReportsPage() {
         </section>
       </div>
     </AuthGuard>
+  );
+}
+
+function SummaryStat({ label, value }: { label: string; value: number }) {
+  return (
+    <div className="p-3 border rounded-lg bg-gray-50">
+      <div className="text-xs text-gray-500">{label}</div>
+      <div className="text-lg font-semibold text-blue-900">{value}</div>
+    </div>
   );
 }
