@@ -198,12 +198,54 @@ const PostJob = () => {
         headers: { Authorization: `Bearer ${token}` },
       });
       if (response.ok) {
-        const data = await response.json();
-        window.location.href = data.url;
-      } else {
-        const errorData = await response.json();
-        setError(errorData.error || "Failed to initiate payment");
-      }
+  const { job, companyId: createdForCompanyId } = await response.json();
+
+  // If the page didn’t have companyId yet, take it from the API response
+  if (!companyId && createdForCompanyId) {
+    setCompanyId(String(createdForCompanyId));
+  }
+
+  // ✅ Show the new job immediately
+  setJobs((prev) => [job, ...prev]);
+
+   // Clear form fields
+    setTitle("");
+    setDescription("");
+    setCategory("");
+    setLocation("remote");
+    setRequirements("");
+    setApplyUrl("");
+    setSalary("");
+    setJobType("entry_level");
+    setCountry("");
+    setState("");
+    setCity("");
+    setPlanType("");
+
+  // (Optional) If you still want to refetch to be 100% in sync, do it using the
+  // companyId returned by the backend to avoid timing issues:
+  /*
+  const token2 = localStorage.getItem("token");
+  const cid = createdForCompanyId || companyId;
+  if (token2 && cid) {
+    const refreshed = await apiFetch(`/companies/${cid}/jobs`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${token2}`,
+      },
+    });
+    if (refreshed.ok) {
+      const updated = await refreshed.json();
+      setJobs(updated);
+    }
+  }
+  */
+    } else {
+      const errorData = await response.json();
+      setError(errorData.error || "Failed to post job");
+    }
+
       return;
     }
 
