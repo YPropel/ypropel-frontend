@@ -172,7 +172,7 @@ export default function EmployersLandingPage() {
             </p>
             <div className="mt-6 flex flex-col sm:flex-row gap-3">
               <button
-                onClick={() => router.push("/employers/CreateCompany")}
+                onClick={() => router.push("/CreateCompany")}
                 className="w-full sm:w-auto rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white font-semibold px-6 py-3"
               >
                 Create Company Profile
@@ -327,7 +327,7 @@ export default function EmployersLandingPage() {
             </div>
             <div className="flex flex-col sm:flex-row gap-3 justify-end md:justify-start">
               <a
-                href="/employers/CreateCompany"
+                href="/CreateCompany"
                 className="inline-flex items-center justify-center rounded-lg bg-white text-emerald-700 font-semibold px-6 py-3 hover:bg-emerald-50"
               >
                 Create Company Profile
@@ -392,7 +392,7 @@ export default function EmployersLandingPage() {
           </p>
           <div className="mt-6 flex items-center justify-center gap-3">
             <a
-              href="/employers/CreateCompany"
+              href="/CreateCompany"
               className="inline-flex items-center justify-center rounded-lg bg-emerald-600 hover:bg-emerald-700 px-6 py-3 font-semibold"
             >
               Create Company Profile
