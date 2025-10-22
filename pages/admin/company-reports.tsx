@@ -1,0 +1,252 @@
+/* eslint-disable @next/next/no-img-element */
+import React, { useEffect, useMemo, useState } from "react";
+import AuthGuard from "../../components/AuthGuard"; // adjust path if needed
+import { apiFetch } from "../../apiClient";        // adjust path if needed
+
+type DailyCompaniesRow = { day: string; companies: number };
+type JobsDailyRow = { day: string; total_jobs: number; free_jobs: number; paid_jobs: number };
+type JobsByCompanyRow = {
+  company_id: number;
+  company_name: string;
+  total_jobs: number;
+  free_jobs: number;
+  paid_jobs: number;
+  first_job_posted_at: string | null;
+  last_job_posted_at: string | null;
+  free_jobs_used_total: number | null;
+};
+
+export default function CompanyReportsPage() {
+  // --- quick auth gate (client-side convenience; backend still enforces admin) ---
+  const [isAuthorized, setIsAuthorized] = useState<boolean | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [errMsg, setErrMsg] = useState<string>("");
+
+  // date filters (default: last 30 days)
+  const [from, setFrom] = useState(() =>
+    new Date(Date.now() - 30 * 86400000).toISOString().slice(0, 10)
+  );
+  const [to, setTo] = useState(() => new Date().toISOString().slice(0, 10));
+
+  // data
+  const [dailyCompanies, setDailyCompanies] = useState<DailyCompaniesRow[]>([]);
+  const [jobsDaily, setJobsDaily] = useState<JobsDailyRow[]>([]);
+  const [jobsByCompany, setJobsByCompany] = useState<JobsByCompanyRow[]>([]);
+
+  // small helpers
+  const token = useMemo(
+    () => (typeof window !== "undefined" ? localStorage.getItem("token") || "" : ""),
+    []
+  );
+  const headers = useMemo(() => ({ Authorization: `Bearer ${token}` }), [token]);
+
+  // client-side admin check: reuses your existing /reports/members endpoint
+  async function checkAdmin() {
+    try {
+      if (!token) {
+        setIsAuthorized(false);
+        return;
+      }
+      const res = await apiFetch("/reports/members", { headers });
+      if (res.status === 403 || res.status === 401) {
+        setIsAuthorized(false);
+        return;
+      }
+      // if it didn’t 403/401, user is admin (backend endpoint itself checks admin)
+      setIsAuthorized(true);
+    } catch {
+      setIsAuthorized(false);
+    }
+  }
+
+  async function loadReports() {
+    setLoading(true);
+    setErrMsg("");
+    try {
+      const [dc, jd, jbc] = await Promise.all([
+        apiFetch(`/reports/companies/daily?from=${from}&to=${to}`, { headers }).then((r) => r.json()),
+        apiFetch(`/reports/companies/jobs-daily?from=${from}&to=${to}`, { headers }).then((r) => r.json()),
+        apiFetch(`/reports/companies/jobs-by-company?from=${from}&to=${to}`, { headers }).then((r) => r.json()),
+      ]);
+      setDailyCompanies(dc || []);
+      setJobsDaily(jd || []);
+      setJobsByCompany(jbc || []);
+    } catch (e: any) {
+      setErrMsg(e?.message || "Failed to load reports.");
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  useEffect(() => {
+    checkAdmin();
+  }, []);
+
+  useEffect(() => {
+    if (isAuthorized) loadReports();
+  }, [isAuthorized, from, to]);
+
+  if (isAuthorized === null) return <div className="p-6">Loading…</div>;
+  if (isAuthorized === false)
+    return (
+      <div className="p-6">
+        <h1 className="text-xl font-semibold text-red-700">Admins only</h1>
+        <p className="text-gray-700 mt-2">Please log in as an admin to view company reports.</p>
+      </div>
+    );
+
+  return (
+    <AuthGuard>
+      <div className="max-w-6xl mx-auto px-4 py-6 space-y-6">
+        <header className="flex items-center justify-between">
+          <h1 className="text-2xl font-bold text-blue-900">Company Reports</h1>
+          <div className="flex items-center gap-2">
+            <label className="text-sm text-gray-600">From</label>
+            <input
+              type="date"
+              className="border rounded px-2 py-1"
+              value={from}
+              onChange={(e) => setFrom(e.target.value)}
+            />
+            <label className="text-sm text-gray-600">To</label>
+            <input
+              type="date"
+              className="border rounded px-2 py-1"
+              value={to}
+              onChange={(e) => setTo(e.target.value)}
+            />
+            <button
+              onClick={loadReports}
+              className="px-3 py-1 rounded bg-blue-900 text-white"
+              disabled={loading}
+            >
+              {loading ? "Refreshing…" : "Refresh"}
+            </button>
+          </div>
+        </header>
+
+        {errMsg && (
+          <div className="p-3 rounded bg-red-50 border border-red-200 text-red-800 text-sm">
+            {errMsg}
+          </div>
+        )}
+
+        {/* 1) Companies created per day */}
+        <section className="p-4 rounded-lg border bg-white">
+          <div className="flex items-center justify-between">
+            <h2 className="text-lg font-semibold text-blue-900">Company Profiles Created (Daily)</h2>
+            <div className="text-sm text-gray-600">
+              {dailyCompanies.at(-1)?.companies ?? 0} today
+            </div>
+          </div>
+
+          <div className="overflow-auto mt-3">
+            <table className="w-full text-sm">
+              <thead className="text-left text-gray-500">
+                <tr>
+                  <th className="py-2">Day</th>
+                  <th className="py-2">Companies</th>
+                </tr>
+              </thead>
+              <tbody>
+                {dailyCompanies.map((row) => (
+                  <tr key={row.day} className="border-t">
+                    <td className="py-2">{row.day}</td>
+                    <td className="py-2">{row.companies}</td>
+                  </tr>
+                ))}
+                {dailyCompanies.length === 0 && (
+                  <tr>
+                    <td className="py-3 text-gray-500" colSpan={2}>
+                      No data in selected range.
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        {/* 2) Jobs daily (total / free / paid) */}
+        <section className="p-4 rounded-lg border bg-white">
+          <h2 className="text-lg font-semibold text-blue-900">Jobs Created (Daily)</h2>
+          <div className="overflow-auto mt-3">
+            <table className="w-full text-sm">
+              <thead className="text-left text-gray-500">
+                <tr>
+                  <th className="py-2">Day</th>
+                  <th className="py-2">Total</th>
+                  <th className="py-2 text-emerald-700">Free</th>
+                  <th className="py-2 text-blue-700">Paid</th>
+                </tr>
+              </thead>
+              <tbody>
+                {jobsDaily.map((row) => (
+                  <tr key={row.day} className="border-t">
+                    <td className="py-2">{row.day}</td>
+                    <td className="py-2">{row.total_jobs}</td>
+                    <td className="py-2">{row.free_jobs}</td>
+                    <td className="py-2">{row.paid_jobs}</td>
+                  </tr>
+                ))}
+                {jobsDaily.length === 0 && (
+                  <tr>
+                    <td className="py-3 text-gray-500" colSpan={4}>
+                      No data in selected range.
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        {/* 3) Jobs by company (period) */}
+        <section className="p-4 rounded-lg border bg-white">
+          <h2 className="text-lg font-semibold text-blue-900">Jobs by Company (Selected Period)</h2>
+          <div className="overflow-auto mt-3">
+            <table className="w-full text-sm">
+              <thead className="text-left text-gray-500">
+                <tr>
+                  <th className="py-2">Company</th>
+                  <th className="py-2">Company ID</th>
+                  <th className="py-2">Total</th>
+                  <th className="py-2 text-emerald-700">Free</th>
+                  <th className="py-2 text-blue-700">Paid</th>
+                  <th className="py-2">First Posted</th>
+                  <th className="py-2">Last Posted</th>
+                  <th className="py-2">Free Jobs Used (lifetime)</th>
+                </tr>
+              </thead>
+              <tbody>
+                {jobsByCompany.map((row) => (
+                  <tr key={row.company_id} className="border-t">
+                    <td className="py-2">{row.company_name}</td>
+                    <td className="py-2">{row.company_id}</td>
+                    <td className="py-2 font-semibold">{row.total_jobs}</td>
+                    <td className="py-2">{row.free_jobs}</td>
+                    <td className="py-2">{row.paid_jobs}</td>
+                    <td className="py-2">
+                      {row.first_job_posted_at ? new Date(row.first_job_posted_at).toLocaleString() : "-"}
+                    </td>
+                    <td className="py-2">
+                      {row.last_job_posted_at ? new Date(row.last_job_posted_at).toLocaleString() : "-"}
+                    </td>
+                    <td className="py-2">{row.free_jobs_used_total ?? 0}</td>
+                  </tr>
+                ))}
+                {jobsByCompany.length === 0 && (
+                  <tr>
+                    <td className="py-3 text-gray-500" colSpan={8}>
+                      No companies found in selected range.
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
+        </section>
+      </div>
+    </AuthGuard>
+  );
+}
