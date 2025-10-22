@@ -1,364 +1,267 @@
-/* pages/admin/reports/companies.tsx */
-import React, { useEffect, useMemo, useRef, useState } from "react";
-import { apiFetch } from "../../../apiClient";
+/* eslint-disable @next/next/no-img-element */
+import React, { useEffect, useMemo, useState } from "react";
+import AuthGuard from "../../components/AuthGuard";
+import { apiFetch } from "../../apiClient";
 
-type SummaryResponse = {
-  non_admin: {
-    companies_created: number;
-    paid_jobs: number;
-    free_jobs: number;
-  };
-  admin: {
-    companies_created: number;
-    paid_jobs: number;
-    free_jobs: number;
-  };
-  all_time_companies: {
+type DailyCompaniesRow = { day: string; companies: number };
+type JobsDailyRow = { day: string; total_jobs: number; free_jobs: number; paid_jobs: number };
+type JobsByCompanyRow = {
+  company_id: number;
+  company_name: string;
+  total_jobs: number;
+  free_jobs: number;
+  paid_jobs: number;
+  first_job_posted_at: string | null;
+  last_job_posted_at: string | null;
+  free_jobs_used_total: number | null;
+};
+
+type SummaryResp = {
+  non_admin: { companies_created: number; paid_jobs: number; free_jobs: number };
+  admin:     { companies_created: number; paid_jobs: number; free_jobs: number };
+  // new: all-time totals (ignores date filters)
+  all_time_companies?: {
     non_admin: number;
     admin: number;
     total: number;
   };
 };
 
-type DailyCompaniesRow = { day: string; companies: number };
-type DailyJobsRow = { day: string; total_jobs: number; paid_jobs: number; free_jobs: number };
-
-type JobsByCompanyRow = {
-  company_id: number;
-  company_name: string;
-  owner_user_id?: number;
-  owner_total_companies_all_time?: number;
-  total_jobs: number;
-  paid_jobs: number;
-  free_jobs: number;
-  first_job_posted_at: string | null;
-  last_job_posted_at: string | null;
-  free_jobs_used_total: number;
-};
-
-const fmtDate = (iso: string | null | undefined) =>
-  !iso ? "—" : new Date(iso).toLocaleDateString();
-
-const getToken = () => (typeof window === "undefined" ? "" : localStorage.getItem("token") || "");
-
-export default function CompaniesReportsAdmin() {
+export default function CompanyReportsPage() {
+  // auth gate (backend still enforces admin)
   const [isAuthorized, setIsAuthorized] = useState<boolean | null>(null);
 
   // filters
-  const [from, setFrom] = useState<string>("");
-  const [to, setTo] = useState<string>("");
-  const [q, setQ] = useState<string>("");
+  const [from, setFrom] = useState(() =>
+    new Date(Date.now() - 30 * 86400000).toISOString().slice(0, 10)
+  );
+  const [to, setTo] = useState(() => new Date().toISOString().slice(0, 10));
+  const [query, setQuery] = useState<string>(""); // company name search
 
   // data
-  const [summary, setSummary] = useState<SummaryResponse | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [errMsg, setErrMsg] = useState<string>("");
+  const [summary, setSummary] = useState<SummaryResp | null>(null);
   const [dailyCompanies, setDailyCompanies] = useState<DailyCompaniesRow[]>([]);
-  const [dailyJobs, setDailyJobs] = useState<DailyJobsRow[]>([]);
+  const [jobsDaily, setJobsDaily] = useState<JobsDailyRow[]>([]);
   const [jobsByCompany, setJobsByCompany] = useState<JobsByCompanyRow[]>([]);
 
-  const [loading, setLoading] = useState(false);
-  const [msg, setMsg] = useState<string>("");
+  const token = useMemo(
+    () => (typeof window !== "undefined" ? localStorage.getItem("token") || "" : ""),
+    []
+  );
+  const headers = useMemo(() => ({ Authorization: `Bearer ${token}` }), [token]);
 
-  // ---- auth check (basic) ----
-  useEffect(() => {
-    const token = getToken();
-    if (!token) {
-      setIsAuthorized(false);
-      if (typeof window !== "undefined") {
-        alert("❌ You must be logged in as admin.");
-        window.location.href = "/admin/login";
-      }
-      return;
-    }
-    setIsAuthorized(true);
-  }, []);
-
-  // build query string for fetches
-  const qs = useMemo(() => {
-    const params = new URLSearchParams();
-    if (from) params.set("from", from);
-    if (to) params.set("to", to);
-    return params.toString();
-  }, [from, to]);
-
-  const qsWithSearch = useMemo(() => {
-    const params = new URLSearchParams();
-    if (from) params.set("from", from);
-    if (to) params.set("to", to);
-    if (q.trim()) params.set("q", q.trim());
-    return params.toString();
-  }, [from, to, q]);
-
-  const handleAuthError = (status: number) => {
-    if (status === 401 || status === 403) {
-      setMsg("❌ Unauthorized. Redirecting to login…");
-      localStorage.removeItem("token");
-      setTimeout(() => (window.location.href = "/admin/login"), 1200);
-      return true;
-    }
-    return false;
-  };
-
-  const fetchAll = async () => {
-    const token = getToken();
-    if (!token) return;
-    setLoading(true);
-    setMsg("");
-
+  async function checkAdmin() {
     try {
-      const [s, dc, dj, jbc] = await Promise.all([
-        apiFetch(`/reports/companies/summary${qs ? `?${qs}` : ""}`, {
-          headers: { Authorization: `Bearer ${token}` },
-        }),
-        apiFetch(`/reports/companies/daily${qs ? `?${qs}` : ""}`, {
-          headers: { Authorization: `Bearer ${token}` },
-        }),
-        apiFetch(`/reports/companies/jobs-daily${qs ? `?${qs}` : ""}`, {
-          headers: { Authorization: `Bearer ${token}` },
-        }),
-        apiFetch(`/reports/companies/jobs-by-company${qsWithSearch ? `?${qsWithSearch}` : ""}`, {
-          headers: { Authorization: `Bearer ${token}` },
-        }),
+      if (!token) { setIsAuthorized(false); return; }
+      const res = await apiFetch("/reports/members", { headers });
+      if (res.status === 401 || res.status === 403) { setIsAuthorized(false); return; }
+      setIsAuthorized(true);
+    } catch { setIsAuthorized(false); }
+  }
+
+  async function loadReports() {
+    setLoading(true);
+    setErrMsg("");
+    try {
+      const [sum, dc, jd, jbc] = await Promise.all([
+        apiFetch(`/reports/companies/summary?from=${from}&to=${to}`, { headers }).then(r => r.json()),
+        apiFetch(`/reports/companies/daily?from=${from}&to=${to}`, { headers }).then(r => r.json()),
+        apiFetch(`/reports/companies/jobs-daily?from=${from}&to=${to}`, { headers }).then(r => r.json()),
+        apiFetch(
+          `/reports/companies/jobs-by-company?from=${from}&to=${to}${query ? `&q=${encodeURIComponent(query)}` : ""}`,
+          { headers }
+        ).then(r => r.json()),
       ]);
-
-      if ([s, dc, dj, jbc].some((r) => handleAuthError(r.status))) return;
-
-      if (!s.ok || !dc.ok || !dj.ok || !jbc.ok) {
-        setMsg("Failed to load one or more report endpoints.");
-        return;
-      }
-
-      const [sData, dcData, djData, jbcData] = await Promise.all([
-        s.json(),
-        dc.json(),
-        dj.json(),
-        jbc.json(),
-      ]);
-
-      setSummary(sData);
-      setDailyCompanies(dcData || []);
-      setDailyJobs(djData || []);
-      setJobsByCompany(jbcData || []);
-    } catch (err) {
-      console.error(err);
-      setMsg("Server error while loading reports.");
+      setSummary(sum || null);
+      setDailyCompanies(dc || []);
+      setJobsDaily(jd || []);
+      setJobsByCompany(jbc || []);
+    } catch (e: any) {
+      setErrMsg(e?.message || "Failed to load reports.");
     } finally {
       setLoading(false);
     }
-  };
+  }
 
-  useEffect(() => {
-    if (isAuthorized) fetchAll();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isAuthorized]);
+  useEffect(() => { checkAdmin(); }, []);
+  useEffect(() => { if (isAuthorized) loadReports(); }, [isAuthorized, from, to]);
 
-  // re-fetch when filters change
-  const onApplyFilters = () => fetchAll();
-
-  if (isAuthorized === null) return <p className="p-4">Loading…</p>;
-  if (isAuthorized === false) return null;
-
-  const periodHint =
-    from || to
-      ? `for ${from || "…"} → ${to || "…"}`
-      : "for last 30 days (default)";
+  if (isAuthorized === null) return <div className="p-6">Loading…</div>;
+  if (isAuthorized === false)
+    return (
+      <div className="p-6">
+        <h1 className="text-xl font-semibold text-red-700">Admins only</h1>
+        <p className="text-gray-700 mt-2">Please log in as an admin to view company reports.</p>
+      </div>
+    );
 
   return (
-    <div className="max-w-7xl mx-auto p-6 space-y-6">
-      <h1 className="text-2xl font-bold text-blue-900">Employer / Companies Reports</h1>
-
-      {/* Filters */}
-      <div className="bg-white border rounded p-4 shadow-sm">
-        <div className="grid sm:grid-cols-5 gap-3 items-end">
-          <div className="sm:col-span-1">
-            <label className="block text-sm text-gray-600 mb-1">From</label>
-            <input
-              type="date"
-              value={from}
-              onChange={(e) => setFrom(e.target.value)}
-              className="w-full border rounded px-3 py-2"
-            />
-          </div>
-          <div className="sm:col-span-1">
-            <label className="block text-sm text-gray-600 mb-1">To</label>
-            <input
-              type="date"
-              value={to}
-              onChange={(e) => setTo(e.target.value)}
-              className="w-full border rounded px-3 py-2"
-            />
-          </div>
-          <div className="sm:col-span-2">
-            <label className="block text-sm text-gray-600 mb-1">Search by Company Name</label>
+    <AuthGuard>
+      <div className="max-w-6xl mx-auto px-4 py-6 space-y-6">
+        {/* Header + filters */}
+        <header className="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+          <h1 className="text-2xl font-bold text-blue-900">Company Reports</h1>
+          <div className="flex items-center gap-2 flex-wrap">
+            <label className="text-sm text-gray-600">From</label>
+            <input type="date" className="border rounded px-2 py-1" value={from} onChange={(e)=>setFrom(e.target.value)} />
+            <label className="text-sm text-gray-600">To</label>
+            <input type="date" className="border rounded px-2 py-1" value={to} onChange={(e)=>setTo(e.target.value)} />
             <input
               type="text"
-              placeholder="e.g. YPropel"
-              value={q}
-              onChange={(e) => setQ(e.target.value)}
-              className="w-full border rounded px-3 py-2"
+              placeholder="Search company…"
+              className="border rounded px-2 py-1"
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
             />
-          </div>
-          <div className="sm:col-span-1">
-            <button
-              onClick={onApplyFilters}
-              disabled={loading}
-              className="w-full bg-blue-900 text-white rounded px-4 py-2 font-semibold"
-            >
-              {loading ? "Loading…" : "Apply"}
+            <button onClick={loadReports} className="px-3 py-1 rounded bg-blue-900 text-white" disabled={loading}>
+              {loading ? "Refreshing…" : "Apply"}
             </button>
           </div>
-        </div>
-        {msg && <p className="text-sm text-red-600 mt-3">{msg}</p>}
-        <p className="text-xs text-gray-500 mt-2">Showing data {periodHint}.</p>
-      </div>
+        </header>
 
-      {/* Summary Cards */}
-      <div className="grid md:grid-cols-2 gap-4">
-        {/* Non-admin period */}
-        <div className="bg-white border rounded p-4 shadow-sm">
-          <h2 className="font-semibold text-blue-900 mb-2">Non-Admin (Selected Period)</h2>
-          <div className="grid grid-cols-3 gap-3">
-            <SummaryStat label="Companies" value={summary?.non_admin.companies_created} />
-            <SummaryStat label="Paid Jobs" value={summary?.non_admin.paid_jobs} />
-            <SummaryStat label="Free Jobs" value={summary?.non_admin.free_jobs} />
+        {errMsg && (
+          <div className="p-3 rounded bg-red-50 border border-red-200 text-red-800 text-sm">{errMsg}</div>
+        )}
+
+        {/* Summary bars */}
+        <section className="grid sm:grid-cols-2 gap-4">
+          <div className="p-4 rounded-lg border bg-white">
+            <h2 className="text-sm font-semibold text-gray-600 mb-2">Non-Admin Totals (Selected Range)</h2>
+            <div className="grid grid-cols-3 gap-3">
+              <SummaryStat label="Companies" value={summary?.non_admin.companies_created ?? 0} />
+              <SummaryStat label="Paid Jobs" value={summary?.non_admin.paid_jobs ?? 0} />
+              <SummaryStat label="Free Jobs" value={summary?.non_admin.free_jobs ?? 0} />
+            </div>
           </div>
-        </div>
-
-        {/* Admin period */}
-        <div className="bg-white border rounded p-4 shadow-sm">
-          <h2 className="font-semibold text-blue-900 mb-2">Admin (Selected Period)</h2>
-          <div className="grid grid-cols-3 gap-3">
-            <SummaryStat label="Companies" value={summary?.admin.companies_created} />
-            <SummaryStat label="Paid Jobs" value={summary?.admin.paid_jobs} />
-            <SummaryStat label="Free Jobs" value={summary?.admin.free_jobs} />
+          <div className="p-4 rounded-lg border bg-white">
+            <h2 className="text-sm font-semibold text-gray-600 mb-2">Admin Totals (Selected Range)</h2>
+            <div className="grid grid-cols-3 gap-3">
+              <SummaryStat label="Companies" value={summary?.admin.companies_created ?? 0} />
+              <SummaryStat label="Paid Jobs" value={summary?.admin.paid_jobs ?? 0} />
+              <SummaryStat label="Free Jobs" value={summary?.admin.free_jobs ?? 0} />
+            </div>
           </div>
-        </div>
-      </div>
+        </section>
 
-      {/* All-time companies */}
-      <div className="bg-emerald-50 border border-emerald-200 rounded p-4">
-        <h3 className="font-semibold text-emerald-900 mb-1">All-Time Companies (ignores date)</h3>
-        <p className="text-sm text-emerald-800">
-          Admin: <b>{summary?.all_time_companies.admin ?? 0}</b> &nbsp;•&nbsp; Non-Admin:{" "}
-          <b>{summary?.all_time_companies.non_admin ?? 0}</b> &nbsp;•&nbsp; Total:{" "}
-          <b>{summary?.all_time_companies.total ?? 0}</b>
-        </p>
-      </div>
+        {/* NEW: All-time companies (ignores date filters) */}
+        {summary?.all_time_companies && (
+          <section className="p-4 rounded-lg border bg-emerald-50 border-emerald-200">
+            <h2 className="text-sm font-semibold text-emerald-900 mb-1">All-Time Companies (ignores date)</h2>
+            <p className="text-sm text-emerald-800">
+              Admin: <b>{summary.all_time_companies.admin}</b> &nbsp;•&nbsp; Non-Admin:{" "}
+              <b>{summary.all_time_companies.non_admin}</b> &nbsp;•&nbsp; Total:{" "}
+              <b>{summary.all_time_companies.total}</b>
+            </p>
+          </section>
+        )}
 
-      {/* Daily Companies */}
-      <div className="bg-white border rounded p-4 shadow-sm">
-        <h2 className="font-semibold text-blue-900 mb-3">Daily Companies (Selected Period)</h2>
-        {dailyCompanies.length === 0 ? (
-          <p className="text-sm text-gray-600">No data.</p>
-        ) : (
-          <div className="overflow-x-auto">
-            <table className="min-w-full text-sm">
-              <thead>
-                <tr className="text-left border-b">
-                  <th className="py-2 pr-4">Day</th>
-                  <th className="py-2">Companies</th>
-                </tr>
+        {/* 1) Companies created per day */}
+        <section className="p-4 rounded-lg border bg-white">
+          <div className="flex items-center justify-between">
+            <h2 className="text-lg font-semibold text-blue-900">Company Profiles Created (Daily)</h2>
+            <div className="text-sm text-gray-600">
+              {dailyCompanies.at(-1)?.companies ?? 0} today
+            </div>
+          </div>
+          <div className="overflow-auto mt-3">
+            <table className="w-full text-sm">
+              <thead className="text-left text-gray-500">
+                <tr><th className="py-2">Day</th><th className="py-2">Companies</th></tr>
               </thead>
               <tbody>
                 {dailyCompanies.map((row) => (
-                  <tr key={row.day} className="border-b last:border-0">
-                    <td className="py-2 pr-4">{fmtDate(row.day)}</td>
+                  <tr key={row.day} className="border-t">
+                    <td className="py-2">{row.day}</td>
                     <td className="py-2">{row.companies}</td>
                   </tr>
                 ))}
+                {dailyCompanies.length === 0 && (
+                  <tr><td className="py-3 text-gray-500" colSpan={2}>No data in selected range.</td></tr>
+                )}
               </tbody>
             </table>
           </div>
-        )}
-      </div>
+        </section>
 
-      {/* Daily Jobs */}
-      <div className="bg-white border rounded p-4 shadow-sm">
-        <h2 className="font-semibold text-blue-900 mb-3">Daily Jobs (Selected Period)</h2>
-        {dailyJobs.length === 0 ? (
-          <p className="text-sm text-gray-600">No data.</p>
-        ) : (
-          <div className="overflow-x-auto">
-            <table className="min-w-full text-sm">
-              <thead>
-                <tr className="text-left border-b">
-                  <th className="py-2 pr-4">Day</th>
-                  <th className="py-2 pr-4">Total</th>
-                  <th className="py-2 pr-4">Paid</th>
-                  <th className="py-2">Free</th>
+        {/* 2) Jobs daily */}
+        <section className="p-4 rounded-lg border bg-white">
+          <h2 className="text-lg font-semibold text-blue-900">Jobs Created (Daily)</h2>
+          <div className="overflow-auto mt-3">
+            <table className="w-full text-sm">
+              <thead className="text-left text-gray-500">
+                <tr>
+                  <th className="py-2">Day</th>
+                  <th className="py-2">Total</th>
+                  <th className="py-2 text-emerald-700">Free</th>
+                  <th className="py-2 text-blue-700">Paid</th>
                 </tr>
               </thead>
               <tbody>
-                {dailyJobs.map((row) => (
-                  <tr key={row.day} className="border-b last:border-0">
-                    <td className="py-2 pr-4">{fmtDate(row.day)}</td>
-                    <td className="py-2 pr-4">{row.total_jobs}</td>
-                    <td className="py-2 pr-4">{row.paid_jobs}</td>
+                {jobsDaily.map((row) => (
+                  <tr key={row.day} className="border-t">
+                    <td className="py-2">{row.day}</td>
+                    <td className="py-2">{row.total_jobs}</td>
                     <td className="py-2">{row.free_jobs}</td>
+                    <td className="py-2">{row.paid_jobs}</td>
                   </tr>
                 ))}
+                {jobsDaily.length === 0 && (
+                  <tr><td className="py-3 text-gray-500" colSpan={4}>No data in selected range.</td></tr>
+                )}
               </tbody>
             </table>
           </div>
-        )}
-      </div>
+        </section>
 
-      {/* Jobs by Company */}
-      <div className="bg-white border rounded p-4 shadow-sm">
-        <div className="flex items-center justify-between mb-3">
-          <h2 className="font-semibold text-blue-900">Jobs by Company (Selected Period)</h2>
-          {q.trim() && <span className="text-xs text-gray-500">Filter: “{q.trim()}”</span>}
-        </div>
-
-        {jobsByCompany.length === 0 ? (
-          <p className="text-sm text-gray-600">No data.</p>
-        ) : (
-          <div className="overflow-x-auto">
-            <table className="min-w-full text-sm">
-              <thead>
-                <tr className="text-left border-b">
-                  <th className="py-2 pr-4">Company</th>
-                  <th className="py-2 pr-4">Total Jobs</th>
-                  <th className="py-2 pr-4">Paid</th>
-                  <th className="py-2 pr-4">Free</th>
-                  <th className="py-2 pr-4">Free Jobs Used</th>
-                  <th className="py-2 pr-4">First Posted</th>
+        {/* 3) Jobs by company (filtered by q) */}
+        <section className="p-4 rounded-lg border bg-white">
+          <h2 className="text-lg font-semibold text-blue-900">Jobs by Company (Selected Period)</h2>
+          <div className="overflow-auto mt-3">
+            <table className="w-full text-sm">
+              <thead className="text-left text-gray-500">
+                <tr>
+                  <th className="py-2">Company</th>
+                  <th className="py-2">Company ID</th>
+                  <th className="py-2">Total</th>
+                  <th className="py-2 text-emerald-700">Free</th>
+                  <th className="py-2 text-blue-700">Paid</th>
+                  <th className="py-2">First Posted</th>
                   <th className="py-2">Last Posted</th>
+                  <th className="py-2">Free Jobs Used (lifetime)</th>
                 </tr>
               </thead>
               <tbody>
                 {jobsByCompany.map((row) => (
-                  <tr key={row.company_id} className="border-b last:border-0">
-                    <td className="py-2 pr-4">
-                      <div className="font-medium text-blue-900">{row.company_name}</div>
-                      {/* If you enabled owner_total_companies_all_time in backend, show it */}
-                      {typeof row.owner_total_companies_all_time === "number" && (
-                        <div className="text-xs text-gray-500">
-                          Owner total companies (all-time): {row.owner_total_companies_all_time}
-                        </div>
-                      )}
-                    </td>
-                    <td className="py-2 pr-4">{row.total_jobs}</td>
-                    <td className="py-2 pr-4">{row.paid_jobs}</td>
-                    <td className="py-2 pr-4">{row.free_jobs}</td>
-                    <td className="py-2 pr-4">{row.free_jobs_used_total}</td>
-                    <td className="py-2 pr-4">{fmtDate(row.first_job_posted_at)}</td>
-                    <td className="py-2">{fmtDate(row.last_job_posted_at)}</td>
+                  <tr key={row.company_id} className="border-t">
+                    <td className="py-2">{row.company_name}</td>
+                    <td className="py-2">{row.company_id}</td>
+                    <td className="py-2 font-semibold">{row.total_jobs}</td>
+                    <td className="py-2">{row.free_jobs}</td>
+                    <td className="py-2">{row.paid_jobs}</td>
+                    <td className="py-2">{row.first_job_posted_at ? new Date(row.first_job_posted_at).toLocaleString() : "-"}</td>
+                    <td className="py-2">{row.last_job_posted_at ? new Date(row.last_job_posted_at).toLocaleString() : "-"}</td>
+                    <td className="py-2">{row.free_jobs_used_total ?? 0}</td>
                   </tr>
                 ))}
+                {jobsByCompany.length === 0 && (
+                  <tr><td className="py-3 text-gray-500" colSpan={8}>No companies found.</td></tr>
+                )}
               </tbody>
             </table>
           </div>
-        )}
+        </section>
       </div>
-    </div>
+    </AuthGuard>
   );
 }
 
-function SummaryStat({ label, value }: { label: string; value: number | undefined }) {
+function SummaryStat({ label, value }: { label: string; value: number }) {
   return (
-    <div className="rounded border p-3 text-center">
-      <div className="text-xs uppercase tracking-wide text-gray-500">{label}</div>
-      <div className="mt-1 text-xl font-semibold text-blue-900">{value ?? 0}</div>
+    <div className="p-3 border rounded-lg bg-gray-50">
+      <div className="text-xs text-gray-500">{label}</div>
+      <div className="text-lg font-semibold text-blue-900">{value}</div>
     </div>
   );
 }
