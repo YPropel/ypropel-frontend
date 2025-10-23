@@ -49,6 +49,8 @@ export default function MembersReport() {
   const [rangeNewSignups, setRangeNewSignups] = useState<number | null>(null);
   const [rangeUniqueGuests, setRangeUniqueGuests] = useState<number | null>(null);
   const [todayUniqueGuests, setTodayUniqueGuests] = useState<number | null>(null);
+  const [urlsOpen, setUrlsOpen] = useState(false); // collapsed by default
+
 
   // per-day/paths
   const [topGuestPaths, setTopGuestPaths] = useState<TopGuestPath[]>([]);
@@ -207,6 +209,7 @@ export default function MembersReport() {
       </section>
 
       {/* Top Guest URLs for selected "To" day */}
+      
       <section className="mb-8">
         <h2 className="text-xl font-semibold mb-2">Top Guest URLs (for {to})</h2>
         {topGuestPaths.length > 0 ? (
