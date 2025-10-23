@@ -209,7 +209,6 @@ export default function MembersReport() {
       </section>
 
       {/* Top Guest URLs for selected "To" day */}
-      
       <section className="mb-8">
         <h2 className="text-xl font-semibold mb-2">Top Guest URLs (for {to})</h2>
         {topGuestPaths.length > 0 ? (
