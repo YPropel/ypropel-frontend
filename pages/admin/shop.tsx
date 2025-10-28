@@ -1,107 +1,135 @@
-import React, { useEffect, useState } from "react";
-import { apiFetch } from "../../apiClient";
+/* pages/admin/shop.tsx */
+/* eslint-disable @next/next/no-img-element */
+import React, { useState } from "react";
+import dynamic from "next/dynamic";
 
-const CATEGORY_SLUG = "dorm-essentials";
+// IMPORTANT: no-SSR so the Cloudinary widget is only touched client-side
+const UploadImageButton = dynamic(
+  () => import("../../components/UploadImageButton"),
+  { ssr: false }
+);
 
 export default function AdminShop() {
-  const [imageUrl, setImageUrl] = useState("");
+  // Read from env (no secrets needed for unsigned)
+  const CLOUD_NAME = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD || "";
+  const UPLOAD_PRESET = process.env.NEXT_PUBLIC_CLOUDINARY_UNSIGNED_PRESET || ""; // must be unsigned
+  const FOLDER = process.env.NEXT_PUBLIC_CLOUDINARY_FOLDER || "ypropel-shop";
+
   const [title, setTitle] = useState("");
-  const [note, setNote] = useState("");
-  const [priceText, setPriceText] = useState("");
-  const [affiliateUrl, setAffiliateUrl] = useState("");
+  const [price, setPrice] = useState<string>("");
+  const [linkUrl, setLinkUrl] = useState("");
+  const [imageUrl, setImageUrl] = useState("");
+  const [publicId, setPublicId] = useState("");
+  const [saving, setSaving] = useState(false);
   const [msg, setMsg] = useState("");
 
-  useEffect(() => {
-    const s = document.createElement("script");
-    s.src = "https://widget.cloudinary.com/v2.0/global/all.js";
-    s.async = true;
-    document.body.appendChild(s);
-  }, []);
+  const canUpload = CLOUD_NAME && UPLOAD_PRESET;
 
-  const openWidget = () => {
-    // @ts-ignore
-    const cloudinary = window.cloudinary;
-    if (!cloudinary) return alert("Cloudinary widget not loaded yet.");
-    const widget = cloudinary.createUploadWidget(
-      {
-        cloudName: process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME,
-        uploadPreset: "ypropel_shop_unsigned",
-        folder: "ypropel/shop",
-        multiple: false,
-        sources: ["local", "url", "camera"],
-      },
-      (error: any, result: any) => {
-        if (!error && result && result.event === "success") {
-          setImageUrl(result.info.secure_url);
-        }
-      }
-    );
-    widget.open();
+  const handleUploaded = (secureUrl: string, pid: string) => {
+    setImageUrl(secureUrl);
+    setPublicId(pid);
+    setMsg("✅ Image uploaded.");
   };
 
-  const saveProduct = async () => {
-    setMsg("");
-    if (!imageUrl || !title || !affiliateUrl) return setMsg("Please add image, title, and affiliate URL.");
-
-    // ensure ?tag= is present (your Amazon Associate tag)
-    if (!/[\?&]tag=/.test(affiliateUrl)) {
-      return setMsg("Affiliate URL must include your Amazon tag (e.g., ?tag=yourtag-20).");
+  const handleSave = async () => {
+    try {
+      setSaving(true);
+      setMsg("");
+      if (!title || !price || !linkUrl || !imageUrl) {
+        setMsg("Please fill in Title, Price, Link URL, and upload an image.");
+        return;
+        }
+      // TODO: call your backend to save the product
+      // await apiFetch("/shop/products", { method: "POST", body: JSON.stringify({ title, price, linkUrl, imageUrl, publicId }) })
+      setMsg("✅ Saved (stub). Replace with backend call.");
+      // clear form
+      setTitle("");
+      setPrice("");
+      setLinkUrl("");
+      setImageUrl("");
+      setPublicId("");
+    } catch (e: any) {
+      setMsg(e?.message || "Failed to save.");
+    } finally {
+      setSaving(false);
     }
-
-    const token = localStorage.getItem("token");
-    const res = await apiFetch("/admin/shop/products", {
-      method: "POST",
-      headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
-      body: JSON.stringify({
-        category_slug: CATEGORY_SLUG,
-        title,
-        note,
-        price_text: priceText,
-        image_url: imageUrl,
-        affiliate_url: affiliateUrl,
-      }),
-    });
-
-    if (!res.ok) {
-      const data = await res.json().catch(() => ({}));
-      return setMsg(data.error || "Failed to save product.");
-    }
-    setMsg("✅ Product saved.");
-    setTitle(""); setNote(""); setPriceText(""); setAffiliateUrl(""); setImageUrl("");
   };
 
   return (
-    <div className="max-w-2xl mx-auto p-6 space-y-4">
-      <h1 className="text-xl font-bold text-blue-900">Admin • Dorm Essentials</h1>
+    <div className="max-w-3xl mx-auto p-6 space-y-6">
+      <h1 className="text-2xl font-bold text-blue-900">Admin: Shop (Dorm Stuff)</h1>
 
-      <div className="space-y-2">
-        <label className="block text-sm">Image</label>
-        <button onClick={openWidget} className="px-3 py-2 bg-blue-900 text-white rounded">Upload Image</button>
-        {imageUrl && <img src={imageUrl} alt="preview" className="w-40 h-40 object-cover rounded border mt-2" />}
+      {!canUpload && (
+        <div className="rounded border border-amber-300 bg-amber-50 p-3 text-amber-900 text-sm">
+          Set <code>NEXT_PUBLIC_CLOUDINARY_CLOUD</code> and{" "}
+          <code>NEXT_PUBLIC_CLOUDINARY_UNSIGNED_PRESET</code> in your frontend env.
+        </div>
+      )}
+
+      <div className="bg-white border rounded p-4 shadow-sm space-y-4">
+        <div>
+          <label className="block text-sm text-gray-600 mb-1">Title</label>
+          <input
+            className="w-full border rounded px-3 py-2"
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+            placeholder="e.g., Extra-long Twin Sheet Set"
+          />
+        </div>
+
+        <div>
+          <label className="block text-sm text-gray-600 mb-1">Price</label>
+          <input
+            className="w-full border rounded px-3 py-2"
+            value={price}
+            onChange={(e) => setPrice(e.target.value)}
+            placeholder="e.g., 24.99"
+          />
+        </div>
+
+        <div>
+          <label className="block text-sm text-gray-600 mb-1">Affiliate Link (Amazon)</label>
+          <input
+            className="w-full border rounded px-3 py-2"
+            value={linkUrl}
+            onChange={(e) => setLinkUrl(e.target.value)}
+            placeholder="https://www.amazon.com/..."
+          />
+        </div>
+
+        <div className="flex items-center gap-3">
+          <UploadImageButton
+            cloudName={CLOUD_NAME}
+            uploadPreset={UPLOAD_PRESET}
+            folder={FOLDER}
+            buttonText="Upload product image"
+            onUploaded={handleUploaded}
+          />
+          {imageUrl && (
+            <div className="flex items-center gap-3">
+              <img
+                src={imageUrl}
+                alt="preview"
+                className="h-16 w-16 object-cover rounded border"
+              />
+              <span className="text-xs text-gray-500 break-all">{publicId}</span>
+            </div>
+          )}
+        </div>
+
+        <div className="pt-2">
+          <button
+            type="button"
+            onClick={handleSave}
+            disabled={saving}
+            className="px-4 py-2 bg-blue-900 text-white rounded hover:bg-blue-950 disabled:opacity-60"
+          >
+            {saving ? "Saving…" : "Save Product"}
+          </button>
+        </div>
+
+        {msg && <p className="text-sm mt-2">{msg}</p>}
       </div>
-
-      <div>
-        <label className="block text-sm">Title</label>
-        <input value={title} onChange={(e)=>setTitle(e.target.value)} className="border rounded w-full px-3 py-2" />
-      </div>
-
-      <div>
-        <label className="block text-sm">Note (optional)</label>
-        <textarea value={note} onChange={(e)=>setNote(e.target.value)} className="border rounded w-full px-3 py-2" />
-      </div>
-
-      <div>
-        <label className="block text-sm">Price label (optional)</label>
-        <input value={priceText} onChange={(e)=>setPriceText(e.target.value)} className="border rounded w-full px-3 py-2" placeholder="e.g., Typically $19–$25" />
-      </div>
-
-      <div>
-        <label className="block text-sm">Amazon Affiliate URL (include ?tag=yourtag-20)</label>
-        <input value={affiliateUrl} onChange={(e)=>setAffiliateUrl(e.target.value)} className="border rounded w-full px-3 py-2" placeholder="https://www.amazon.com/dp/ASIN?tag=yourtag-20" />
-      </div>
-
-      <button onClick={saveProduct} className="px-4 py-2 bg-emerald-600 text-white rounded">Save Product</button>
-      {msg && <p className="text-sm mt-2">{msg}</p>}
     </div>
   );
 }
