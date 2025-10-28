@@ -32,28 +32,70 @@ export default function AdminShop() {
   };
 
   const handleSave = async () => {
-    try {
-      setSaving(true);
-      setMsg("");
-      if (!title || !price || !linkUrl || !imageUrl) {
-        setMsg("Please fill in Title, Price, Link URL, and upload an image.");
-        return;
-        }
-      // TODO: call your backend to save the product
-      // await apiFetch("/shop/products", { method: "POST", body: JSON.stringify({ title, price, linkUrl, imageUrl, publicId }) })
-      setMsg("✅ Saved (stub). Replace with backend call.");
-      // clear form
-      setTitle("");
-      setPrice("");
-      setLinkUrl("");
-      setImageUrl("");
-      setPublicId("");
-    } catch (e: any) {
-      setMsg(e?.message || "Failed to save.");
-    } finally {
-      setSaving(false);
+  try {
+    setSaving(true);
+    setMsg("");
+
+    // basic validation
+    if (!title || !price || !linkUrl || !imageUrl) {
+      setMsg("Please fill in Title, Price, Link URL, and upload an image.");
+      return;
     }
-  };
+    if (!categorySlug) {
+      setMsg("Please choose a category.");
+      return;
+    }
+
+    // admin auth
+    const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
+    if (!token) {
+      setMsg("You must be logged in as an admin.");
+      return;
+    }
+
+    // build payload to match your route
+    const payload = {
+      category_slug: categorySlug,     // e.g. "dorm-essentials"
+      title,                           // product title
+      note,                            // optional description
+      price_text: price,               // shown as text, e.g. "~$19"
+      image_url: imageUrl,             // Cloudinary URL you already captured
+      affiliate_url: linkUrl           // Amazon affiliate link
+    };
+
+    const res = await apiFetch("/admin/shop/products", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`
+      },
+      body: JSON.stringify(payload)
+    });
+
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.error || "Failed to create product");
+    }
+
+    const data = await res.json(); // { success: true, id }
+    setMsg(`✅ Saved! Product ID: ${data.id}`);
+
+    // clear form
+    setTitle("");
+    setPrice("");
+    setLinkUrl("");
+    setImageUrl("");
+    setPublicId("");
+  
+
+    // (optional) navigate or refresh the list
+    // router.push("/shop"); // or reload your admin list
+  } catch (e: any) {
+    setMsg(e?.message || "Failed to save.");
+  } finally {
+    setSaving(false);
+  }
+};
 
   return (
     <div className="max-w-3xl mx-auto p-6 space-y-6">
