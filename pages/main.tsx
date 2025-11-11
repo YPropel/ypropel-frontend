@@ -19,6 +19,32 @@ enum AuthView {
 const GOOGLE_CLIENT_ID =
   "914673158285-2kvn5lcd073aflv4smut843b1jh74k6t.apps.googleusercontent.com";
 
+// Cloudinary static images (from your original page)
+const PITCHPOINT_IMG =
+  "https://res.cloudinary.com/denggbgma/image/upload/pexels-olly-3783839_zcfasg.jpg";
+
+const VIDEOS_IMG =
+  "https://res.cloudinary.com/denggbgma/image/upload/pexels-sam-lion-6001235_bppg12.jpg";
+
+// Demo content arrays (same as your original)
+const newsItems = [
+  { tag: "AI", title: "Resume scanners now prefer concrete metrics", time: "2h ago" },
+  { tag: "Careers", title: "Top 5 internship interview questions this week", time: "6h ago" },
+  { tag: "Productivity", title: "Study sprint: 45/15 beats 25/5 for most students", time: "1d ago" },
+];
+
+const hourlyJobsDemo = [
+  { role: "Lab Assistant (On-Campus)", pay: "$14–$18/hr", location: "Nearby", type: "Part-time" },
+  { role: "Math Tutor (HS Students)", pay: "$18–$22/hr", location: "Remote", type: "Hourly" },
+  { role: "Front Desk (Community Center)", pay: "$13–$16/hr", location: "Local", type: "Evenings" },
+];
+
+const studyCirclesDemo = [
+  { name: "Intro to Python", cadence: "2x/week", members: 124 },
+  { name: "SAT/ACT Verbal", cadence: "3x/week", members: 89 },
+  { name: "UX Portfolio Club", cadence: "Weekly", members: 64 },
+];
+
 // ---------- Types from your routes ----------
 interface Job {
   id: number;
@@ -384,7 +410,7 @@ export default function LandingPage() {
         strategy="beforeInteractive"
       />
 
-      {/* Super-light header: only logo, minimal height */}
+      {/* Simple header: logo only */}
       <header className="bg-white/90 backdrop-blur border-b border-gray-100">
         <div className="mx-auto max-w-6xl px-4 py-2 flex items-center gap-3">
           <img src="/ypropel-logo.png" alt="YPropel" className="h-8 w-8" />
@@ -392,10 +418,48 @@ export default function LandingPage() {
         </div>
       </header>
 
-      {/* Hero – auth card first, original YPropel text, tight padding */}
+      {/* Hero – ORIGINAL YPropel text, signup box on the RIGHT */}
       <section className="bg-gray-50">
         <div className="mx-auto max-w-6xl px-4 py-6 md:py-8 grid md:grid-cols-2 gap-8 items-start">
-          {/* Auth card column FIRST so it's at the top-left */}
+          {/* Left: hero copy */}
+          <div>
+            <h1 className="text-3xl md:text-4xl font-extrabold tracking-tight text-blue-900">
+              Where Students &amp; Graduates{" "}
+              <span className="text-emerald-600">Launch Careers</span>
+            </h1>
+            <p className="mt-4 text-gray-700 text-base md:text-lg">
+              Connect with peers, land real opportunities, and grow your skills
+              — all in one community built for you.
+            </p>
+            <div className="mt-5 flex flex-col sm:flex-row gap-3">
+              <button
+                onClick={scrollToForm}
+                className="w-full sm:w-auto rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white font-semibold px-6 py-3"
+              >
+                Join Free in 60s
+              </button>
+              <button
+                onClick={() => {
+                  setView(AuthView.SignUp);
+                  setTimeout(() => {
+                    const el = document.getElementById("googleSignUpDiv");
+                    el?.scrollIntoView({
+                      behavior: "smooth",
+                      block: "center",
+                    });
+                  }, 0);
+                }}
+                className="w-full sm:w-auto rounded-lg border border-gray-300 hover:border-blue-900 text-blue-900 font-semibold px-6 py-3 bg-white"
+              >
+                Continue with Google
+              </button>
+            </div>
+            <p className="mt-2 text-sm text-gray-500">
+              No spam. Cancel anytime.
+            </p>
+          </div>
+
+          {/* Right: auth card (sign up / sign in box) */}
           <div ref={formRef} className="bg-white rounded-xl shadow-md p-6">
             <div className="flex mb-5 border-b border-gray-200">
               <button
@@ -569,44 +633,6 @@ export default function LandingPage() {
               </form>
             )}
           </div>
-
-          {/* Hero copy column with ORIGINAL YPropel text */}
-          <div>
-            <h1 className="text-3xl md:text-4xl font-extrabold tracking-tight text-blue-900">
-              Where Students &amp; Graduates{" "}
-              <span className="text-emerald-600">Launch Careers</span>
-            </h1>
-            <p className="mt-4 text-gray-700 text-base md:text-lg">
-              Connect with peers, land real opportunities, and grow your skills
-              — all in one community built for you.
-            </p>
-            <div className="mt-5 flex flex-col sm:flex-row gap-3">
-              <button
-                onClick={scrollToForm}
-                className="w-full sm:w-auto rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white font-semibold px-6 py-3"
-              >
-                Join Free in 60s
-              </button>
-              <button
-                onClick={() => {
-                  setView(AuthView.SignUp);
-                  setTimeout(() => {
-                    const el = document.getElementById("googleSignUpDiv");
-                    el?.scrollIntoView({
-                      behavior: "smooth",
-                      block: "center",
-                    });
-                  }, 0);
-                }}
-                className="w-full sm:w-auto rounded-lg border border-gray-300 hover:border-blue-900 text-blue-900 font-semibold px-6 py-3 bg-white"
-              >
-                Continue with Google
-              </button>
-            </div>
-            <p className="mt-2 text-sm text-gray-500">
-              No spam. Cancel anytime.
-            </p>
-          </div>
         </div>
       </section>
 
@@ -617,7 +643,7 @@ export default function LandingPage() {
         </div>
       )}
 
-      {/* Social Proof – keep your simple strip */}
+      {/* Social Proof – same as original */}
       <section className="bg-white">
         <div className="mx-auto max-w-6xl px-4 py-6 grid grid-cols-2 sm:grid-cols-4 gap-6 items-center text-center">
           <div className="text-sm text-gray-500">
@@ -632,7 +658,7 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* Internships / Entry-level / Hourly samples */}
+      {/* Internships / Entry-level / Hourly samples (now vertical list, not horizontal) */}
       <section id="jobs" className="bg-gray-50">
         <div className="mx-auto max-w-6xl px-4 py-8 space-y-6">
           <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-3">
@@ -657,26 +683,27 @@ export default function LandingPage() {
             <p className="text-sm text-gray-500">Loading jobs…</p>
           )}
 
-          <div className="space-y-3">
-            <p className="text-sm text-gray-700">
-              Inside YPropel you&apos;ll find:
-            </p>
-            <ul className="space-y-1 text-sm text-gray-700 list-disc list-inside">
-              <li>Internships across tech, business, and non-profits</li>
-              <li>Entry-level roles for new grads &amp; career switchers</li>
-              <li>Hourly &amp; part-time jobs that fit student schedules</li>
-            </ul>
-            <p className="text-xs text-gray-500">
-              Swipe sideways on mobile (or scroll left/right) to see each
-              category preview.
-            </p>
-          </div>
+          <div className="grid gap-6 md:grid-cols-2 items-start">
+            {/* Left column: explanatory text */}
+            <div className="space-y-3">
+              <p className="text-sm text-gray-700">
+                Inside YPropel you&apos;ll find:
+              </p>
+              <ul className="space-y-1 text-sm text-gray-700 list-disc list-inside">
+                <li>Internships across tech, business, and non-profits</li>
+                <li>Entry-level roles for new grads &amp; career switchers</li>
+                <li>Hourly &amp; part-time jobs that fit student schedules</li>
+              </ul>
+              <p className="text-xs text-gray-500">
+                Scroll the list to preview a few live roles. Create a free
+                account to unlock full details &amp; apply.
+              </p>
+            </div>
 
-          {/* HORIZONTAL scroll container */}
-          <div className="-mx-4 px-4 md:mx-0 md:px-0 overflow-x-auto pb-2">
-            <div className="flex gap-4 min-w-max">
+            {/* Right column: VERTICAL categories with a vertical scrollbar */}
+            <div className="space-y-4 max-h-[480px] overflow-y-auto pr-1">
               {/* Internships block – light green */}
-              <div className="w-80 md:w-96 rounded-xl bg-emerald-50/70 p-3 flex-shrink-0">
+              <div className="rounded-xl bg-emerald-50/70 p-3">
                 <h3 className="text-sm font-semibold text-emerald-900 mb-2">
                   Internships (preview)
                 </h3>
@@ -725,7 +752,7 @@ export default function LandingPage() {
               </div>
 
               {/* Entry-level block – light blue */}
-              <div className="w-80 md:w-96 rounded-xl bg-blue-50/70 p-3 flex-shrink-0">
+              <div className="rounded-xl bg-blue-50/70 p-3">
                 <h3 className="text-sm font-semibold text-blue-900 mb-2">
                   Entry-level roles (preview)
                 </h3>
@@ -775,7 +802,7 @@ export default function LandingPage() {
               </div>
 
               {/* Hourly block – light amber */}
-              <div className="w-80 md:w-96 rounded-xl bg-amber-50/80 p-3 flex-shrink-0">
+              <div className="rounded-xl bg-amber-50/80 p-3">
                 <h3 className="text-sm font-semibold text-amber-900 mb-2">
                   Hourly &amp; part-time (preview)
                 </h3>
@@ -957,6 +984,338 @@ export default function LandingPage() {
               </p>
             )}
           </div>
+        </div>
+      </section>
+
+      {/* -------- OLD SECTIONS: features, circles, news, jobs HS, PitchPoint, videos, why, testimonials, FAQ, final CTA -------- */}
+
+      {/* High-level Features */}
+      <section id="features" className="bg-gray-50">
+        <div className="mx-auto max-w-6xl px-4 py-12 grid grid-cols-1 md:grid-cols-3 gap-6 text-center">
+          {[
+            {
+              icon: "👥",
+              title: "Build Your Network",
+              desc: "Connect with students, mentors, and young professionals.",
+            },
+            {
+              icon: "🎯",
+              title: "Find Opportunities",
+              desc: "Internships, freelance gigs, and entry-level roles tailored to you.",
+            },
+            {
+              icon: "📚",
+              title: "Grow Your Skills",
+              desc: "Career resources, mini-courses, and expert advice.",
+            },
+          ].map((f) => (
+            <div
+              key={f.title}
+              className="p-6 bg-white rounded-xl border shadow-sm hover:shadow-md transition"
+            >
+              <div className="mb-3 text-blue-900 text-4xl">{f.icon}</div>
+              <h3 className="text-lg font-semibold mb-1">{f.title}</h3>
+              <p className="text-gray-700">{f.desc}</p>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* Study Circles / Discussion Board */}
+      <section id="circles" className="bg-white">
+        <div className="mx-auto max-w-6xl px-4 py-12 grid md:grid-cols-2 gap-10 items-start">
+          <div>
+            <h2 className="text-3xl font-bold text-blue-900">
+              Discussion Board &amp; Study Circles
+            </h2>
+            <p className="mt-3 text-gray-700">
+              Collaborate with peers in focused groups. Ask questions, share
+              notes, and keep each other accountable.
+            </p>
+            <ul className="mt-4 space-y-2 text-gray-700 list-disc list-inside">
+              <li>Topic channels for courses, majors, interview prep</li>
+              <li>Study Circles with goals, schedules, and progress tracking</li>
+              <li>Moderated, supportive spaces — no noise, no spam</li>
+            </ul>
+            <button
+              onClick={scrollToForm}
+              className="mt-6 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white font-semibold px-6 py-3"
+            >
+              Join a Study Circle
+            </button>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            {studyCirclesDemo.map((c) => (
+              <div key={c.name} className="p-4 border rounded-xl bg-gray-50">
+                <h3 className="font-semibold text-blue-900">{c.name}</h3>
+                <p className="text-sm text-gray-600 mt-1">Cadence: {c.cadence}</p>
+                <p className="text-sm text-gray-600">Members: {c.members}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Daily News & Updates */}
+      <section id="news" className="bg-gray-50">
+        <div className="mx-auto max-w-6xl px-4 py-12">
+          <h2 className="text-3xl font-bold text-blue-900 text-center">
+            Daily, Relevant &amp; Distraction-Free
+          </h2>
+          <p className="mt-2 text-center text-gray-700">
+            Student-friendly summaries of news that impacts your studies,
+            internships, and early career.
+          </p>
+          <div className="mt-6 grid grid-cols-1 md:grid-cols-3 gap-6">
+            {newsItems.map((n, idx) => (
+              <article
+                key={idx}
+                className="p-6 bg-white border rounded-xl hover:shadow-md transition"
+              >
+                <span className="inline-block text-xs px-2 py-1 bg-emerald-50 text-emerald-700 rounded">
+                  {n.tag}
+                </span>
+                <h3 className="mt-3 font-semibold text-blue-900">{n.title}</h3>
+                <p className="mt-2 text-xs text-gray-500">{n.time}</p>
+                <button
+                  onClick={scrollToForm}
+                  className="mt-4 text-sm font-semibold text-emerald-700 hover:text-emerald-800"
+                >
+                  Get full access →
+                </button>
+              </article>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Hourly Jobs for HS Students (kept as a separate explainer section) */}
+      <section id="jobs-hs" className="bg-white">
+        <div className="mx-auto max-w-6xl px-4 py-12 grid md:grid-cols-2 gap-10 items-start">
+          <div>
+            <h2 className="text-3xl font-bold text-blue-900">
+              Hourly Jobs for High-School Students
+            </h2>
+            <p className="mt-3 text-gray-700">
+              Flexible, student-safe listings to help you earn experience (and
+              money) while in school.
+            </p>
+            <ul className="mt-4 space-y-2 text-gray-700 list-disc list-inside">
+              <li>Curated by relevance and safety</li>
+              <li>Local &amp; remote options with evening/weekend shifts</li>
+              <li>Simple applications + resume tips included</li>
+            </ul>
+            <button
+              onClick={scrollToForm}
+              className="mt-6 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white font-semibold px-6 py-3"
+            >
+              Browse Jobs &amp; Internships
+            </button>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            {hourlyJobsDemo.map((j) => (
+              <div key={j.role} className="p-4 border rounded-xl bg-gray-50">
+                <h3 className="font-semibold text-blue-900">{j.role}</h3>
+                <p className="text-sm text-gray-600 mt-1">{j.pay}</p>
+                <p className="text-sm text-gray-600">
+                  {j.location} • {j.type}
+                </p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* PitchPoint Video Hub */}
+      <section id="pitchpoint" className="bg-gray-50">
+        <div className="mx-auto max-w-6xl px-4 py-12 grid md:grid-cols-2 gap-10 items-center">
+          <div>
+            <h2 className="text-3xl font-bold text-blue-900">
+              PitchPoint: Your Video Elevator Pitch
+            </h2>
+            <p className="mt-3 text-gray-700">
+              Record a short video to showcase your skills, projects, and story —
+              then share it with employers and universities.
+            </p>
+            <ul className="mt-4 space-y-2 text-gray-700 list-disc list-inside">
+              <li>Clean, distraction-free viewer page</li>
+              <li>Auto-generated cover + easy sharing</li>
+              <li>Tips &amp; examples to nail your pitch</li>
+            </ul>
+            <button
+              onClick={scrollToForm}
+              className="mt-6 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white font-semibold px-6 py-3"
+            >
+              Create My Pitch
+            </button>
+          </div>
+          <div className="aspect-square bg-white border rounded-xl overflow-hidden">
+            <img
+              src={PITCHPOINT_IMG}
+              alt="PitchPoint preview"
+              className="w-full h-full object-cover"
+              loading="lazy"
+            />
+          </div>
+        </div>
+      </section>
+
+      {/* Educational Videos (Distraction-Free) */}
+      <section id="videos" className="bg-white">
+        <div className="mx-auto max-w-6xl px-4 py-12 grid md:grid-cols-2 gap-10 items-start">
+          <div>
+            <h2 className="text-3xl font-bold text-blue-900">
+              Educational Videos without the Noise
+            </h2>
+            <p className="mt-3 text-gray-700">
+              We curate the best how-tos and lectures from around the web and
+              present them in a focused player — no comments, no autoplay rabbit
+              holes, just learning.
+            </p>
+            <ul className="mt-4 space-y-2 text-gray-700 list-disc list-inside">
+              <li>Topic playlists: coding, design, AI, career prep</li>
+              <li>Time-boxed modules with notes &amp; key takeaways</li>
+              <li>Save to your queue; discuss in Study Circles</li>
+            </ul>
+            <button
+              onClick={scrollToForm}
+              className="mt-6 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white font-semibold px-6 py-3"
+            >
+              Start Learning
+            </button>
+          </div>
+          <div className="aspect-video bg-gray-50 border rounded-xl grid place-items-center text-gray-400">
+            <span className="text-sm">Video player preview</span>
+          </div>
+        </div>
+      </section>
+
+      {/* Why We're Different */}
+      <section id="why" className="bg-gray-50">
+        <div className="mx-auto max-w-6xl px-4 py-12">
+          <h2 className="text-3xl font-bold text-blue-900 text-center">
+            What Makes YPropel Different
+          </h2>
+          <div className="mt-8 grid grid-cols-1 md:grid-cols-3 gap-6">
+            {[
+              {
+                title: "Built for Students",
+                desc: "Everything targets your stage — not mid-career noise.",
+              },
+              {
+                title: "Distraction-Free",
+                desc: "Curated news & videos, clean viewing, zero spam.",
+              },
+              {
+                title: "Action First",
+                desc: "Study Circles, Internships & jobs, and PitchPoint to get results fast.",
+              },
+            ].map((b) => (
+              <div key={b.title} className="p-6 bg-white border rounded-xl">
+                <h3 className="font-semibold text-blue-900">{b.title}</h3>
+                <p className="mt-2 text-gray-700">{b.desc}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Testimonials */}
+      <section id="community" className="bg-white">
+        <div className="mx-auto max-w-6xl px-4 py-12">
+          <h2 className="text-2xl font-bold text-blue-900 text-center">
+            What Members Say
+          </h2>
+          <div className="mt-6 grid grid-cols-1 md:grid-cols-3 gap-6">
+            {[
+              {
+                name: "Sara, CS Student",
+                quote: "I landed my first paid internship through YPropel in 3 weeks.",
+              },
+              {
+                name: "Leo, Grad",
+                quote: "Finally a platform that’s not overwhelming—super targeted for us.",
+              },
+              {
+                name: "Amira, HS Senior",
+                quote: "The community helped me choose a major and build a starter portfolio.",
+              },
+            ].map((t) => (
+              <div key={t.name} className="p-6 rounded-xl border bg-gray-50">
+                <p className="text-gray-800 italic">“{t.quote}”</p>
+                <p className="mt-3 text-sm font-semibold text-blue-900">
+                  {t.name}
+                </p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Expanded FAQ */}
+      <section id="faq" className="bg-gray-50">
+        <div className="mx-auto max-w-4xl px-4 py-12">
+          <h2 className="text-2xl font-bold text-blue-900 text-center">FAQ</h2>
+          <div className="mt-6 divide-y divide-gray-200 border rounded-xl bg-white">
+            {[
+              {
+                q: "Is YPropel free?",
+                a: "Yes. You can join free and upgrade later if you want more features.",
+              },
+              {
+                q: "Who is YPropel for?",
+                a: "High school & university students, recent grads, and early-career professionals.",
+              },
+              {
+                q: "How long does sign-up take?",
+                a: "Less than 60 seconds. Continue with Google for the fastest start.",
+              },
+              {
+                q: "What are Study Circles?",
+                a: "Small, goal-oriented groups with cadence, shared resources, and progress tracking.",
+              },
+              {
+                q: "What is PitchPoint?",
+                a: "A clean video hub to host your short pitch—share it with employers and universities.",
+              },
+              {
+                q: "Do you list hourly jobs for HS students?",
+                a: "Yes. Curated, student-safe roles with simple applications.",
+              },
+              {
+                q: "How is YPropel different from other platforms?",
+                a: "We remove distractions, target student needs only, and help you act: circles, jobs, pitch videos, and curated learning.",
+              },
+            ].map((item) => (
+              <details key={item.q} className="p-5 group">
+                <summary className="cursor-pointer font-semibold text-blue-900 flex justify-between items-center">
+                  {item.q}{" "}
+                  <span className="text-gray-400 group-open:rotate-180 transition">
+                    ⌄
+                  </span>
+                </summary>
+                <p className="mt-2 text-gray-700">{item.a}</p>
+              </details>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Final CTA */}
+      <section className="bg-blue-900">
+        <div className="mx-auto max-w-6xl px-4 py-12 text-center text-white">
+          <h2 className="text-3xl font-extrabold">
+            Ready to launch your future?
+          </h2>
+          <p className="mt-2 text-blue-100">
+            Join the student &amp; graduate community built to help you succeed.
+          </p>
+          <button
+            onClick={scrollToForm}
+            className="mt-6 inline-flex items-center justify-center rounded-lg bg-emerald-600 hover:bg-emerald-700 px-6 py-3 font-semibold"
+          >
+            Join YPropel Free
+          </button>
         </div>
       </section>
 
