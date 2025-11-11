@@ -28,15 +28,42 @@ const VIDEOS_IMG =
 
 // Demo content arrays (same as your original)
 const newsItems = [
-  { tag: "AI", title: "Resume scanners now prefer concrete metrics", time: "2h ago" },
-  { tag: "Careers", title: "Top 5 internship interview questions this week", time: "6h ago" },
-  { tag: "Productivity", title: "Study sprint: 45/15 beats 25/5 for most students", time: "1d ago" },
+  {
+    tag: "AI",
+    title: "Resume scanners now prefer concrete metrics",
+    time: "2h ago",
+  },
+  {
+    tag: "Careers",
+    title: "Top 5 internship interview questions this week",
+    time: "6h ago",
+  },
+  {
+    tag: "Productivity",
+    title: "Study sprint: 45/15 beats 25/5 for most students",
+    time: "1d ago",
+  },
 ];
 
 const hourlyJobsDemo = [
-  { role: "Lab Assistant (On-Campus)", pay: "$14–$18/hr", location: "Nearby", type: "Part-time" },
-  { role: "Math Tutor (HS Students)", pay: "$18–$22/hr", location: "Remote", type: "Hourly" },
-  { role: "Front Desk (Community Center)", pay: "$13–$16/hr", location: "Local", type: "Evenings" },
+  {
+    role: "Lab Assistant (On-Campus)",
+    pay: "$14–$18/hr",
+    location: "Nearby",
+    type: "Part-time",
+  },
+  {
+    role: "Math Tutor (HS Students)",
+    pay: "$18–$22/hr",
+    location: "Remote",
+    type: "Hourly",
+  },
+  {
+    role: "Front Desk (Community Center)",
+    pay: "$13–$16/hr",
+    location: "Local",
+    type: "Evenings",
+  },
 ];
 
 const studyCirclesDemo = [
@@ -418,7 +445,7 @@ export default function LandingPage() {
         </div>
       </header>
 
-      {/* Hero – ORIGINAL YPropel text, signup box on the RIGHT */}
+      {/* Hero – ORIGINAL YPropel text, signup box on the RIGHT, no extra buttons on the left */}
       <section className="bg-gray-50">
         <div className="mx-auto max-w-6xl px-4 py-6 md:py-8 grid md:grid-cols-2 gap-8 items-start">
           {/* Left: hero copy */}
@@ -431,32 +458,7 @@ export default function LandingPage() {
               Connect with peers, land real opportunities, and grow your skills
               — all in one community built for you.
             </p>
-            <div className="mt-5 flex flex-col sm:flex-row gap-3">
-              <button
-                onClick={scrollToForm}
-                className="w-full sm:w-auto rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white font-semibold px-6 py-3"
-              >
-                Join Free in 60s
-              </button>
-              <button
-                onClick={() => {
-                  setView(AuthView.SignUp);
-                  setTimeout(() => {
-                    const el = document.getElementById("googleSignUpDiv");
-                    el?.scrollIntoView({
-                      behavior: "smooth",
-                      block: "center",
-                    });
-                  }, 0);
-                }}
-                className="w-full sm:w-auto rounded-lg border border-gray-300 hover:border-blue-900 text-blue-900 font-semibold px-6 py-3 bg-white"
-              >
-                Continue with Google
-              </button>
-            </div>
-            <p className="mt-2 text-sm text-gray-500">
-              No spam. Cancel anytime.
-            </p>
+            {/* Buttons + "No spam" line removed per request */}
           </div>
 
           {/* Right: auth card (sign up / sign in box) */}
@@ -557,8 +559,7 @@ export default function LandingPage() {
                   ></div>
                 </div>
                 <p className="mt-3 text-center text-xs text-gray-500">
-                  By joining you agree to our Terms &amp; Privacy. No spam.
-                  Cancel anytime.
+                  By joining you agree to our Terms &amp; Privacy.
                 </p>
               </>
             )}
@@ -643,22 +644,7 @@ export default function LandingPage() {
         </div>
       )}
 
-      {/* Social Proof – same as original */}
-      <section className="bg-white">
-        <div className="mx-auto max-w-6xl px-4 py-6 grid grid-cols-2 sm:grid-cols-4 gap-6 items-center text-center">
-          <div className="text-sm text-gray-500">
-            Trusted by{" "}
-            <span className="font-semibold text-blue-900">2,000+</span> students
-          </div>
-          <div className="text-sm text-gray-500">Internships posted weekly</div>
-          <div className="text-sm text-gray-500">
-            Mentors &amp; peers worldwide
-          </div>
-          <div className="text-sm text-gray-500">Fast, supportive community</div>
-        </div>
-      </section>
-
-      {/* Internships / Entry-level / Hourly samples (now vertical list, not horizontal) */}
+      {/* Internships / Entry-level / Hourly samples (vertical scroll section, keep as before) */}
       <section id="jobs" className="bg-gray-50">
         <div className="mx-auto max-w-6xl px-4 py-8 space-y-6">
           <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-3">
@@ -987,6 +973,21 @@ export default function LandingPage() {
         </div>
       </section>
 
+      {/* Social Proof – moved BELOW the newly added jobs/articles/job-fairs sections */}
+      <section className="bg-white">
+        <div className="mx-auto max-w-6xl px-4 py-6 grid grid-cols-2 sm:grid-cols-4 gap-6 items-center text-center">
+          <div className="text-sm text-gray-500">
+            Trusted by{" "}
+            <span className="font-semibold text-blue-900">2,000+</span> students
+          </div>
+          <div className="text-sm text-gray-500">Internships posted weekly</div>
+          <div className="text-sm text-gray-500">
+            Mentors &amp; peers worldwide
+          </div>
+          <div className="text-sm text-gray-500">Fast, supportive community</div>
+        </div>
+      </section>
+
       {/* -------- OLD SECTIONS: features, circles, news, jobs HS, PitchPoint, videos, why, testimonials, FAQ, final CTA -------- */}
 
       {/* High-level Features */}
@@ -1089,7 +1090,7 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* Hourly Jobs for HS Students (kept as a separate explainer section) */}
+      {/* Hourly Jobs for HS Students */}
       <section id="jobs-hs" className="bg-white">
         <div className="mx-auto max-w-6xl px-4 py-12 grid md:grid-cols-2 gap-10 items-start">
           <div>
@@ -1230,15 +1231,18 @@ export default function LandingPage() {
             {[
               {
                 name: "Sara, CS Student",
-                quote: "I landed my first paid internship through YPropel in 3 weeks.",
+                quote:
+                  "I landed my first paid internship through YPropel in 3 weeks.",
               },
               {
                 name: "Leo, Grad",
-                quote: "Finally a platform that’s not overwhelming—super targeted for us.",
+                quote:
+                  "Finally a platform that’s not overwhelming—super targeted for us.",
               },
               {
                 name: "Amira, HS Senior",
-                quote: "The community helped me choose a major and build a starter portfolio.",
+                quote:
+                  "The community helped me choose a major and build a starter portfolio.",
               },
             ].map((t) => (
               <div key={t.name} className="p-6 rounded-xl border bg-gray-50">
