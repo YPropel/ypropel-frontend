@@ -19,13 +19,6 @@ enum AuthView {
 const GOOGLE_CLIENT_ID =
   "914673158285-2kvn5lcd073aflv4smut843b1jh74k6t.apps.googleusercontent.com";
 
-// Cloudinary static images
-const PITCHPOINT_IMG =
-  "https://res.cloudinary.com/denggbgma/image/upload/pexels-olly-3783839_zcfasg.jpg";
-
-const VIDEOS_IMG =
-  "https://res.cloudinary.com/denggbgma/image/upload/pexels-sam-lion-6001235_bppg12.jpg";
-
 // ------------ Types based on your routes ------------- //
 interface Job {
   id: number;
@@ -60,19 +53,6 @@ interface JobFair {
   [key: string]: any;
 }
 
-interface MiniCourse {
-  id: number;
-  title?: string;
-  category?: string;
-  level?: string;
-  duration_minutes?: number;
-  short_description?: string;
-  description?: string;
-  [key: string]: any;
-}
-
-type ExploreTab = "jobs" | "articles" | "jobFairs" | "miniCourses";
-
 export default function LandingPage() {
   const [view, setView] = useState<AuthView>(AuthView.SignUp); // default to Sign Up
   const [loginData, setLoginData] = useState({ email: "", password: "" });
@@ -91,10 +71,8 @@ export default function LandingPage() {
   const [jobs, setJobs] = useState<Job[]>([]);
   const [articles, setArticles] = useState<Article[]>([]);
   const [jobFairs, setJobFairs] = useState<JobFair[]>([]);
-  const [miniCourses, setMiniCourses] = useState<MiniCourse[]>([]);
   const [loadingContent, setLoadingContent] = useState(false);
   const [contentError, setContentError] = useState<string | null>(null);
-  const [exploreTab, setExploreTab] = useState<ExploreTab>("jobs");
 
   //----------
   // ---- Redirect helpers ----
@@ -143,11 +121,10 @@ export default function LandingPage() {
       setLoadingContent(true);
       setContentError(null);
       try {
-        const [jobsRes, articlesRes, fairsRes, coursesRes] = await Promise.all([
+        const [jobsRes, articlesRes, fairsRes] = await Promise.all([
           apiFetch("/jobs"),
           apiFetch("/articles"),
           apiFetch("/job-fairs"),
-          apiFetch("/mini-courses"),
         ]);
 
         if (jobsRes.ok) {
@@ -169,13 +146,6 @@ export default function LandingPage() {
           setJobFairs(fairsJson || []);
         } else {
           console.error("Failed to fetch job fairs");
-        }
-
-        if (coursesRes.ok) {
-          const coursesJson = await coursesRes.json();
-          setMiniCourses(coursesJson || []);
-        } else {
-          console.error("Failed to fetch mini courses");
         }
       } catch (err) {
         console.error("Error loading preview content:", err);
@@ -372,7 +342,6 @@ export default function LandingPage() {
 
   // When user clicks any locked preview card
   const handleLockedClick = () => {
-    setView(AuthView.SignUp);
     scrollToForm();
   };
 
@@ -394,6 +363,31 @@ export default function LandingPage() {
     return text.slice(0, length) + "…";
   };
 
+  // ---- Job grouping: internships, entry-level, hourly ----
+  const normType = (job: Job) =>
+    (job.job_type || "").toString().trim().toLowerCase();
+
+  const internships = jobs.filter((j) => normType(j).includes("intern"));
+  const entryLevel = jobs.filter((j) =>
+    normType(j).includes("entry")
+  );
+  const hourly = jobs.filter((j) => {
+    const t = normType(j);
+    return (
+      t.includes("hour") ||
+      t.includes("part-time") ||
+      t.includes("part time")
+    );
+  });
+
+  // fallback: if a group is empty, just slice from all jobs
+  const fallbackJobs = (arr: Job[], count: number) =>
+    (arr.length > 0 ? arr : jobs).slice(0, count);
+
+  const internshipSample = fallbackJobs(internships, 3);
+  const entryLevelSample = fallbackJobs(entryLevel, 3);
+  const hourlySample = fallbackJobs(hourly, 3);
+
   return (
     <>
       <Script
@@ -403,49 +397,41 @@ export default function LandingPage() {
 
       {/* Sticky Header */}
       <header className="sticky top-0 z-40 bg-white/80 backdrop-blur border-b border-gray-100">
-        <div className="mx-auto max-w-6xl px-4 py-3">
-          {/* Logo row */}
+        <div className="mx-auto max-w-6xl px-4 py-3 flex items-center justify-between">
+          {/* Logo */}
           <div className="flex items-center gap-3">
             <img src="/ypropel-logo.png" alt="YPropel" className="h-9 w-9" />
             <span className="font-semibold text-blue-900">YPropel</span>
           </div>
 
-          {/* Nav row (now below the logo) */}
-          <nav
-            className="hidden md:flex flex-wrap gap-6 text-sm text-gray-700 mt-2"
-            role="navigation"
-            aria-label="Primary"
-          >
-            <a href="#explore" className="hover:text-blue-900">
-              Explore
+          {/* Simple nav */}
+          <nav className="hidden md:flex gap-5 text-sm text-gray-700">
+            <a href="#jobs" className="hover:text-blue-900">
+              Jobs
             </a>
-            <a href="#pitchpoint" className="hover:text-blue-900">
-              PitchPoint
+            <a href="#articles" className="hover:text-blue-900">
+              Articles
             </a>
-            <a href="#videos" className="hover:text-blue-900">
-              Videos
-            </a>
-            <a href="#why" className="hover:text-blue-900">
-              Why Us
-            </a>
-            <a href="#faq" className="hover:text-blue-900">
-              FAQ
+            <a href="#job-fairs" className="hover:text-blue-900">
+              Job Fairs
             </a>
           </nav>
         </div>
       </header>
 
-      {/* Hero */}
+      {/* Hero + Auth */}
       <section className="bg-gray-50">
-        <div className="mx-auto max-w-6xl px-4 py-12 md:py-16 grid md:grid-cols-2 gap-10 items-center">
+        <div className="mx-auto max-w-6xl px-4 py-10 md:py-14 grid md:grid-cols-2 gap-10 items-start">
           <div>
-            <h1 className="text-4xl md:text-5xl font-extrabold tracking-tight text-blue-900">
-              Where Students &amp; Graduates{" "}
-              <span className="text-emerald-600">Launch Careers</span>
+            <h1 className="text-3xl md:text-4xl lg:text-5xl font-extrabold tracking-tight text-blue-900">
+              Internships. Entry-level roles. Hourly jobs.
+              <br />
+              <span className="text-emerald-600">All in one student hub.</span>
             </h1>
-            <p className="mt-4 text-gray-700 text-lg">
-              Discover real internships, articles, job fairs, and mini-courses
-              curated for you. Create a free account to unlock full access.
+            <p className="mt-4 text-gray-700 text-base md:text-lg">
+              Browse real opportunities, articles, and job fairs tailored to
+              students and recent grads. Create a free account to unlock full
+              details &amp; apply.
             </p>
             <div className="mt-6 flex flex-col sm:flex-row gap-3">
               <button
@@ -655,514 +641,306 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* Social Proof */}
-      <section className="bg-white">
-        <div className="mx-auto max-w-6xl px-4 py-6 grid grid-cols-2 sm:grid-cols-4 gap-6 items-center text-center">
-          <div className="text-sm text-gray-500">
-            Trusted by{" "}
-            <span className="font-semibold text-blue-900">2,000+</span>{" "}
-            students
-          </div>
-          <div className="text-sm text-gray-500">Internships posted weekly</div>
-          <div className="text-sm text-gray-500">Mentors &amp; peers worldwide</div>
-          <div className="text-sm text-gray-500">Fast, supportive community</div>
+      {/* Content loading error (global) */}
+      {contentError && (
+        <div className="bg-red-50 text-red-700 text-sm text-center py-2">
+          {contentError}
         </div>
-      </section>
+      )}
 
-      {/* Explore YPropel: Live previews + Create account */}
-      <section id="explore" className="bg-gray-50">
-        <div className="mx-auto max-w-6xl px-4 py-12 space-y-6">
-          <div className="text-center">
-            <h2 className="text-2xl md:text-3xl font-bold text-blue-900">
-              See what&apos;s inside YPropel
-            </h2>
-            <p className="mt-2 text-sm md:text-base text-gray-700">
-              Live previews of jobs, articles, job fairs, and mini-courses.{" "}
-              <span className="font-semibold">
-                Create a free account to unlock full details.
-              </span>
-            </p>
+      {/* Internships / Entry-level / Hourly samples */}
+      <section id="jobs" className="bg-white">
+        <div className="mx-auto max-w-6xl px-4 py-10 space-y-6">
+          <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-3">
+            <div>
+              <h2 className="text-2xl md:text-3xl font-bold text-blue-900">
+                Sample jobs inside YPropel
+              </h2>
+              <p className="mt-1 text-sm text-gray-700">
+                A quick look at internships, entry-level roles, and hourly jobs
+                curated for students &amp; new grads.
+              </p>
+            </div>
+            <button
+              onClick={scrollToForm}
+              className="inline-flex items-center justify-center rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-semibold px-5 py-2.5"
+            >
+              Create free account to see all jobs
+            </button>
           </div>
 
-          {/* Tabs */}
-          <div className="flex flex-wrap justify-center gap-2 text-xs sm:text-sm">
-            {[
-              { id: "jobs", label: "Jobs & Internships" },
-              { id: "articles", label: "Articles" },
-              { id: "jobFairs", label: "Job Fairs" },
-              { id: "miniCourses", label: "Mini-Courses (Premium)" },
-            ].map((tab) => (
-              <button
-                key={tab.id}
-                onClick={() => setExploreTab(tab.id as ExploreTab)}
-                className={`px-4 py-2 rounded-full border text-sm ${
-                  exploreTab === tab.id
-                    ? "bg-blue-900 text-white border-blue-900"
-                    : "bg-white text-gray-700 border-gray-300 hover:border-blue-900"
-                }`}
-              >
-                {tab.label}
-              </button>
-            ))}
-          </div>
+          {loadingContent && (
+            <p className="text-sm text-gray-500">Loading jobs…</p>
+          )}
 
-          {/* Mobile: stacked, Desktop: 2 columns (content + create account) */}
-          <div className="grid gap-6 md:grid-cols-3 items-start">
-            {/* Left: preview content (2/3 on desktop) */}
-            <div className="md:col-span-2 space-y-4">
-              {loadingContent && (
-                <div className="text-sm text-gray-500">Loading content…</div>
-              )}
-              {contentError && (
-                <div className="text-sm text-red-500">{contentError}</div>
-              )}
+          <div className="grid gap-5 md:grid-cols-3">
+            {/* Internships */}
+            <div className="space-y-3">
+              <h3 className="text-sm font-semibold text-blue-900">
+                Internships (preview)
+              </h3>
+              {internshipSample.slice(0, 3).map((job) => {
+                const title = job.title || job.position_name || "Internship";
+                const company = job.company || "Company";
+                const locationParts = [
+                  job.city,
+                  job.state,
+                  job.country,
+                ].filter(Boolean);
+                const location = locationParts.join(", ") || "Location";
+                const posted = formatDate(job.posted_at);
 
-              {/* Jobs & Internships */}
-              {exploreTab === "jobs" && !loadingContent && (
-                <div className="space-y-3">
-                  <div className="flex items-center justify-between">
-                    <h3 className="text-sm font-semibold text-blue-900">
-                      Featured Jobs &amp; Internships (preview)
-                    </h3>
-                    <button
-                      onClick={handleLockedClick}
-                      className="text-xs font-semibold text-emerald-700 hover:text-emerald-800"
-                    >
-                      Unlock all →
-                    </button>
-                  </div>
-                  <div className="grid gap-3 sm:grid-cols-2">
-                    {(jobs || []).slice(0, 4).map((job) => {
-                      const title = job.title || job.position_name || "Job";
-                      const company = job.company || "Company";
-                      const locationParts = [
-                        job.city,
-                        job.state,
-                        job.country,
-                      ].filter(Boolean);
-                      const location =
-                        locationParts.join(", ") || "Location";
-                      const posted = formatDate(job.posted_at);
-
-                      return (
-                        <button
-                          key={job.id}
-                          onClick={handleLockedClick}
-                          className="w-full text-left p-4 rounded-xl border bg-white hover:border-emerald-500 hover:shadow-sm transition cursor-pointer"
-                        >
-                          <div className="text-sm font-semibold text-blue-900">
-                            {title}
-                          </div>
-                          <div className="mt-1 text-xs text-gray-600">
-                            {company}
-                          </div>
-                          <div className="mt-1 text-xs text-gray-500">
-                            {location}
-                          </div>
-                          {job.job_type && (
-                            <div className="mt-1 inline-block text-[11px] px-2 py-1 rounded-full bg-blue-50 text-blue-700">
-                              {job.job_type}
-                            </div>
-                          )}
-                          <div className="mt-2 text-[11px] text-gray-400">
-                            {posted
-                              ? `Posted ${posted}.`
-                              : "Posted recently."}{" "}
-                            Create a free account to see full description &amp;
-                            apply.
-                          </div>
-                        </button>
-                      );
-                    })}
-                    {jobs.length === 0 && !loadingContent && (
-                      <p className="text-sm text-gray-500">
-                        No jobs available yet. Check back soon!
-                      </p>
-                    )}
-                  </div>
-                </div>
-              )}
-
-              {/* Articles */}
-              {exploreTab === "articles" && !loadingContent && (
-                <div className="space-y-3">
-                  <div className="flex items-center justify-between">
-                    <h3 className="text-sm font-semibold text-blue-900">
-                      Career articles &amp; resources (preview)
-                    </h3>
-                    <button
-                      onClick={handleLockedClick}
-                      className="text-xs font-semibold text-emerald-700 hover:text-emerald-800"
-                    >
-                      Read more →
-                    </button>
-                  </div>
-                  <div className="grid gap-3 sm:grid-cols-3">
-                    {(articles || []).slice(0, 6).map((article) => (
-                      <button
-                        key={article.id}
-                        onClick={handleLockedClick}
-                        className="w-full text-left p-4 rounded-xl border bg-white hover:border-emerald-500 hover:shadow-sm transition cursor-pointer flex flex-col"
-                      >
-                        {article.cover_image && (
-                          <div className="mb-2 h-24 w-full rounded-md overflow-hidden bg-gray-100">
-                            <img
-                              src={article.cover_image}
-                              alt={article.title}
-                              className="w-full h-full object-cover"
-                            />
-                          </div>
-                        )}
-                        <h4 className="text-sm font-semibold text-blue-900 line-clamp-2">
-                          {article.title}
-                        </h4>
-                        <p className="mt-2 text-xs text-gray-600 line-clamp-3 flex-1">
-                          {truncate(article.content, 120)}
-                        </p>
-                        <div className="mt-2 text-[11px] text-gray-400">
-                          Create a free account to read the full article and
-                          save it.
-                        </div>
-                      </button>
-                    ))}
-                    {articles.length === 0 && !loadingContent && (
-                      <p className="text-sm text-gray-500">
-                        No articles published yet. Check back soon!
-                      </p>
-                    )}
-                  </div>
-                </div>
-              )}
-
-              {/* Job Fairs */}
-              {exploreTab === "jobFairs" && !loadingContent && (
-                <div className="space-y-3">
-                  <div className="flex items-center justify-between">
-                    <h3 className="text-sm font-semibold text-blue-900">
-                      Job Fairs &amp; Events (preview)
-                    </h3>
-                    <button
-                      onClick={handleLockedClick}
-                      className="text-xs font-semibold text-emerald-700 hover:text-emerald-800"
-                    >
-                      View details →
-                    </button>
-                  </div>
-                  <div className="space-y-3">
-                    {(jobFairs || []).slice(0, 4).map((fair) => {
-                      const name =
-                        fair.name || fair.title || "Job Fair / Event";
-                      const date = formatDate(fair.start_datetime);
-                      const location =
-                        fair.location || "Online / Location TBA";
-
-                      return (
-                        <button
-                          key={fair.id}
-                          onClick={handleLockedClick}
-                          className="w-full text-left p-4 rounded-xl border bg-white hover:border-emerald-500 hover:shadow-sm transition cursor-pointer"
-                        >
-                          <div className="text-sm font-semibold text-blue-900">
-                            {name}
-                          </div>
-                          <div className="mt-1 text-xs text-gray-600">
-                            {location}
-                          </div>
-                          <div className="mt-1 text-xs text-gray-500">
-                            {date || "Upcoming"}
-                          </div>
-                          <p className="mt-2 text-xs text-gray-600 line-clamp-2">
-                            {truncate(
-                              fair.description as string,
-                              140
-                            ) ||
-                              "Create a free account to see full event details, schedule, and how to register."}
-                          </p>
-                          <div className="mt-2 text-[11px] text-gray-400">
-                            Sign up to save this event and get reminders.
-                          </div>
-                        </button>
-                      );
-                    })}
-                    {jobFairs.length === 0 && !loadingContent && (
-                      <p className="text-sm text-gray-500">
-                        No job fairs listed yet. New events will appear here.
-                      </p>
-                    )}
-                  </div>
-                </div>
-              )}
-
-              {/* Mini Courses */}
-              {exploreTab === "miniCourses" && !loadingContent && (
-                <div className="space-y-3">
-                  <div className="flex items-center justify-between">
-                    <h3 className="text-sm font-semibold text-blue-900">
-                      Mini-courses (premium preview)
-                    </h3>
-                    <button
-                      onClick={handleLockedClick}
-                      className="text-xs font-semibold text-emerald-700 hover:text-emerald-800"
-                    >
-                      Unlock courses →
-                    </button>
-                  </div>
-                  <div className="grid gap-3 sm:grid-cols-2">
-                    {(miniCourses || []).slice(0, 4).map((course) => (
-                      <button
-                        key={course.id}
-                        onClick={handleLockedClick}
-                        className="w-full text-left p-4 rounded-xl border bg-white hover:border-emerald-500 hover:shadow-sm transition cursor-pointer"
-                      >
-                        <h4 className="text-sm font-semibold text-blue-900 line-clamp-2">
-                          {course.title || "Mini-course"}
-                        </h4>
-                        <div className="mt-1 text-xs text-gray-600">
-                          {course.category && (
-                            <span>{course.category}</span>
-                          )}
-                          {course.level && (
-                            <span className="ml-1 text-gray-500">
-                              • {course.level}
-                            </span>
-                          )}
-                        </div>
-                        {course.duration_minutes && (
-                          <div className="mt-1 text-xs text-gray-500">
-                            ~{course.duration_minutes} min
-                          </div>
-                        )}
-                        <p className="mt-2 text-xs text-gray-600 line-clamp-3">
-                          {truncate(
-                            (course.short_description ||
-                              course.description) as string,
-                            140
-                          )}
-                        </p>
-                        <div className="mt-2 text-[11px] text-gray-400">
-                          Create a free account to see the full course and track
-                          your progress.
-                        </div>
-                      </button>
-                    ))}
-                    {miniCourses.length === 0 && !loadingContent && (
-                      <p className="text-sm text-gray-500">
-                        Mini-courses are coming soon.
-                      </p>
-                    )}
-                  </div>
-                </div>
+                return (
+                  <button
+                    key={`intern-${job.id}`}
+                    onClick={handleLockedClick}
+                    className="w-full text-left p-4 rounded-xl border bg-gray-50 hover:border-emerald-500 hover:bg-white hover:shadow-sm transition cursor-pointer"
+                  >
+                    <div className="text-sm font-semibold text-blue-900">
+                      {title}
+                    </div>
+                    <div className="mt-1 text-xs text-gray-600">{company}</div>
+                    <div className="mt-1 text-xs text-gray-500">
+                      {location}
+                    </div>
+                    <div className="mt-2 text-[11px] text-gray-400">
+                      {posted
+                        ? `Posted ${posted}.`
+                        : "Posted recently."}{" "}
+                      Create a free account to see full description &amp; apply.
+                    </div>
+                  </button>
+                );
+              })}
+              {internshipSample.length === 0 && !loadingContent && (
+                <p className="text-xs text-gray-500">
+                  No internships available yet. New ones will appear here.
+                </p>
               )}
             </div>
 
-            {/* Right: Create account panel (always visible) */}
-            <aside className="flex flex-col justify-between rounded-2xl bg-blue-900 text-white p-5">
-              <div>
-                <h3 className="text-lg font-semibold">
-                  Create your free YPropel account
-                </h3>
-                <p className="mt-2 text-sm text-blue-100">
-                  Unlock full job details, save opportunities, join Study
-                  Circles, and access distraction-free videos &amp; resources.
-                </p>
-                <ul className="mt-3 space-y-1 text-xs text-blue-100">
-                  <li>• See complete job &amp; internship descriptions</li>
-                  <li>• Read full articles &amp; career guides</li>
-                  <li>• Discover job fairs &amp; events that fit you</li>
-                  <li>• Try premium mini-courses and PitchPoint</li>
-                </ul>
-              </div>
+            {/* Entry Level */}
+            <div className="space-y-3">
+              <h3 className="text-sm font-semibold text-blue-900">
+                Entry-level roles (preview)
+              </h3>
+              {entryLevelSample.slice(0, 3).map((job) => {
+                const title = job.title || job.position_name || "Entry-level";
+                const company = job.company || "Company";
+                const locationParts = [
+                  job.city,
+                  job.state,
+                  job.country,
+                ].filter(Boolean);
+                const location = locationParts.join(", ") || "Location";
+                const posted = formatDate(job.posted_at);
 
-              <div className="mt-4 space-y-2">
-                <button
-                  onClick={scrollToForm}
-                  className="w-full rounded-lg bg-emerald-500 hover:bg-emerald-400 text-blue-950 font-semibold py-2.5 text-sm"
-                >
-                  Join Free in 60s
-                </button>
-                <button
-                  onClick={() => {
-                    setView(AuthView.SignUp);
-                    setTimeout(() => {
-                      const el = document.getElementById("googleSignUpDiv");
-                      el?.scrollIntoView({
-                        behavior: "smooth",
-                        block: "center",
-                      });
-                    }, 0);
-                  }}
-                  className="w-full rounded-lg bg-white/10 border border-white/40 hover:bg-white/20 text-sm font-semibold"
-                >
-                  Continue with Google
-                </button>
-                <p className="mt-1 text-[11px] text-blue-100">
-                  No spam. Cancel anytime.
+                return (
+                  <button
+                    key={`entry-${job.id}`}
+                    onClick={handleLockedClick}
+                    className="w-full text-left p-4 rounded-xl border bg-gray-50 hover:border-emerald-500 hover:bg-white hover:shadow-sm transition cursor-pointer"
+                  >
+                    <div className="text-sm font-semibold text-blue-900">
+                      {title}
+                    </div>
+                    <div className="mt-1 text-xs text-gray-600">{company}</div>
+                    <div className="mt-1 text-xs text-gray-500">
+                      {location}
+                    </div>
+                    <div className="mt-2 text-[11px] text-gray-400">
+                      {posted
+                        ? `Posted ${posted}.`
+                        : "Posted recently."}{" "}
+                      Create a free account to see full description &amp; apply.
+                    </div>
+                  </button>
+                );
+              })}
+              {entryLevelSample.length === 0 && !loadingContent && (
+                <p className="text-xs text-gray-500">
+                  No entry-level roles available yet.
                 </p>
-              </div>
-            </aside>
+              )}
+            </div>
+
+            {/* Hourly Jobs */}
+            <div className="space-y-3">
+              <h3 className="text-sm font-semibold text-blue-900">
+                Hourly &amp; part-time (preview)
+              </h3>
+              {hourlySample.slice(0, 3).map((job) => {
+                const title =
+                  job.title || job.position_name || "Hourly / part-time job";
+                const company = job.company || "Company";
+                const locationParts = [
+                  job.city,
+                  job.state,
+                  job.country,
+                ].filter(Boolean);
+                const location = locationParts.join(", ") || "Location";
+                const posted = formatDate(job.posted_at);
+
+                return (
+                  <button
+                    key={`hourly-${job.id}`}
+                    onClick={handleLockedClick}
+                    className="w-full text-left p-4 rounded-xl border bg-gray-50 hover:border-emerald-500 hover:bg-white hover:shadow-sm transition cursor-pointer"
+                  >
+                    <div className="text-sm font-semibold text-blue-900">
+                      {title}
+                    </div>
+                    <div className="mt-1 text-xs text-gray-600">{company}</div>
+                    <div className="mt-1 text-xs text-gray-500">
+                      {location}
+                    </div>
+                    <div className="mt-2 text-[11px] text-gray-400">
+                      {posted
+                        ? `Posted ${posted}.`
+                        : "Posted recently."}{" "}
+                      Create a free account to see full description &amp; apply.
+                    </div>
+                  </button>
+                );
+              })}
+              {hourlySample.length === 0 && !loadingContent && (
+                <p className="text-xs text-gray-500">
+                  No hourly / part-time jobs listed yet.
+                </p>
+              )}
+            </div>
           </div>
         </div>
       </section>
 
-      {/* PitchPoint Video Hub */}
-      <section id="pitchpoint" className="bg-gray-50">
-        <div className="mx-auto max-w-6xl px-4 py-12 grid md:grid-cols-2 gap-10 items-center">
-          <div>
-            <h2 className="text-3xl font-bold text-blue-900">
-              PitchPoint: Your Video Elevator Pitch
-            </h2>
-            <p className="mt-3 text-gray-700">
-              Record a short video to showcase your skills, projects, and story
-              — then share it with employers and universities.
-            </p>
-            <ul className="mt-4 space-y-2 text-gray-700 list-disc list-inside">
-              <li>Clean, distraction-free viewer page</li>
-              <li>Auto-generated cover + easy sharing</li>
-              <li>Tips &amp; examples to nail your pitch</li>
-            </ul>
+      {/* Last added articles */}
+      <section id="articles" className="bg-gray-50">
+        <div className="mx-auto max-w-6xl px-4 py-10 space-y-6">
+          <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-3">
+            <div>
+              <h2 className="text-2xl md:text-3xl font-bold text-blue-900">
+                Latest articles
+              </h2>
+              <p className="mt-1 text-sm text-gray-700">
+                New career tips, study advice, and early-career stories from
+                inside YPropel.
+              </p>
+            </div>
             <button
               onClick={scrollToForm}
-              className="mt-6 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white font-semibold px-6 py-3"
+              className="inline-flex items-center justify-center rounded-lg bg-blue-900 hover:bg-blue-950 text-white text-sm font-semibold px-5 py-2.5"
             >
-              Create My Pitch
+              Create free account to read all
             </button>
           </div>
 
-          <div className="aspect-square bg-white border rounded-xl overflow-hidden">
-            <img
-              src={PITCHPOINT_IMG}
-              alt="PitchPoint preview"
-              className="w-full h-full object-cover"
-              loading="lazy"
-            />
+          {loadingContent && (
+            <p className="text-sm text-gray-500">Loading articles…</p>
+          )}
+
+          <div className="grid gap-5 md:grid-cols-3">
+            {(articles || []).slice(0, 3).map((article) => (
+              <button
+                key={article.id}
+                onClick={handleLockedClick}
+                className="text-left rounded-xl border bg-white hover:border-emerald-500 hover:shadow-sm transition cursor-pointer flex flex-col overflow-hidden"
+              >
+                {article.cover_image && (
+                  <div className="h-32 w-full bg-gray-100 overflow-hidden">
+                    <img
+                      src={article.cover_image}
+                      alt={article.title}
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+                )}
+                <div className="p-4 flex flex-col flex-1">
+                  <h3 className="text-sm font-semibold text-blue-900 line-clamp-2">
+                    {article.title}
+                  </h3>
+                  <p className="mt-2 text-xs text-gray-600 line-clamp-3 flex-1">
+                    {truncate(article.content, 130)}
+                  </p>
+                  <div className="mt-3 text-[11px] text-gray-400">
+                    Create a free account to read the full article and save it.
+                  </div>
+                </div>
+              </button>
+            ))}
+            {articles.length === 0 && !loadingContent && (
+              <p className="text-xs text-gray-500">
+                No articles published yet. New ones will appear here.
+              </p>
+            )}
           </div>
         </div>
       </section>
 
-      {/* Educational Videos (Distraction-Free) */}
-      <section id="videos" className="bg-white">
-        <div className="mx-auto max-w-6xl px-4 py-12 grid md:grid-cols-2 gap-10 items-start">
-          <div>
-            <h2 className="text-3xl font-bold text-blue-900">
-              Educational Videos without the Noise
-            </h2>
-            <p className="mt-3 text-gray-700">
-              We curate the best how-tos and lectures from around the web and
-              present them in a focused player — no comments, no autoplay rabbit
-              holes, just learning.
-            </p>
-            <ul className="mt-4 space-y-2 text-gray-700 list-disc list-inside">
-              <li>Topic playlists: coding, design, AI, career prep</li>
-              <li>Time-boxed modules with notes &amp; key takeaways</li>
-              <li>Save to your queue; discuss in Study Circles</li>
-            </ul>
+      {/* Last added job fairs */}
+      <section id="job-fairs" className="bg-white">
+        <div className="mx-auto max-w-6xl px-4 py-10 space-y-6">
+          <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-3">
+            <div>
+              <h2 className="text-2xl md:text-3xl font-bold text-blue-900">
+                Latest job fairs &amp; events
+              </h2>
+              <p className="mt-1 text-sm text-gray-700">
+                See a sample of the events YPropel members track to meet
+                employers and universities.
+              </p>
+            </div>
             <button
               onClick={scrollToForm}
-              className="mt-6 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white font-semibold px-6 py-3"
+              className="inline-flex items-center justify-center rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-semibold px-5 py-2.5"
             >
-              Start Learning
+              Create free account to view all events
             </button>
           </div>
-          <div className="aspect-video bg-gray-50 border rounded-xl grid place-items-center text-gray-400">
-            <span className="text-sm">Video player preview</span>
+
+          {loadingContent && (
+            <p className="text-sm text-gray-500">Loading job fairs…</p>
+          )}
+
+          <div className="grid gap-5 md:grid-cols-3">
+            {(jobFairs || []).slice(0, 3).map((fair) => {
+              const name = fair.name || fair.title || "Job Fair / Event";
+              const location = fair.location || "Online / TBD";
+              const date = formatDate(fair.start_datetime);
+
+              return (
+                <button
+                  key={fair.id}
+                  onClick={handleLockedClick}
+                  className="text-left rounded-xl border bg-gray-50 hover:border-emerald-500 hover:bg-white hover:shadow-sm transition cursor-pointer p-4 flex flex-col"
+                >
+                  <h3 className="text-sm font-semibold text-blue-900 line-clamp-2">
+                    {name}
+                  </h3>
+                  <p className="mt-1 text-xs text-gray-600">{location}</p>
+                  <p className="mt-1 text-xs text-gray-500">
+                    {date || "Upcoming"}
+                  </p>
+                  <p className="mt-2 text-xs text-gray-600 line-clamp-3 flex-1">
+                    {truncate(fair.description as string, 120) ||
+                      "Create a free account to see full event details, schedule, and how to register."}
+                  </p>
+                  <div className="mt-3 text-[11px] text-gray-400">
+                    Sign up to save this event and get reminders.
+                  </div>
+                </button>
+              );
+            })}
+            {jobFairs.length === 0 && !loadingContent && (
+              <p className="text-xs text-gray-500">
+                No job fairs listed yet. New events will appear here.
+              </p>
+            )}
           </div>
         </div>
       </section>
 
-      {/* Why We're Different */}
-      <section id="why" className="bg-gray-50">
-        <div className="mx-auto max-w-6xl px-4 py-12">
-          <h2 className="text-3xl font-bold text-blue-900 text-center">
-            What Makes YPropel Different
-          </h2>
-          <div className="mt-8 grid grid-cols-1 md:grid-cols-3 gap-6">
-            {[
-              {
-                title: "Built for Students",
-                desc: "Everything targets your stage — not mid-career noise.",
-              },
-              {
-                title: "Distraction-Free",
-                desc: "Curated news & videos, clean viewing, zero spam.",
-              },
-              {
-                title: "Action First",
-                desc: "Study Circles, jobs, job fairs, and PitchPoint to get results fast.",
-              },
-            ].map((b) => (
-              <div key={b.title} className="p-6 bg-white border rounded-xl">
-                <h3 className="font-semibold text-blue-900">{b.title}</h3>
-                <p className="mt-2 text-gray-700">{b.desc}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* FAQ */}
-      <section id="faq" className="bg-white">
-        <div className="mx-auto max-w-4xl px-4 py-12">
-          <h2 className="text-2xl font-bold text-blue-900 text-center">FAQ</h2>
-          <div className="mt-6 divide-y divide-gray-200 border rounded-xl bg-gray-50">
-            {[
-              {
-                q: "Is YPropel free?",
-                a: "Yes. You can join free and upgrade later if you want more features.",
-              },
-              {
-                q: "Who is YPropel for?",
-                a: "High school & university students, recent grads, and early-career professionals.",
-              },
-              {
-                q: "How long does sign-up take?",
-                a: "Less than 60 seconds. Continue with Google for the fastest start.",
-              },
-              {
-                q: "What can I access with a free account?",
-                a: "You can browse jobs & internships, read articles, see job fairs, and start using PitchPoint and Study Circles.",
-              },
-              {
-                q: "What are mini-courses?",
-                a: "Short, focused lessons on topics like tech, careers, and productivity. Some are included in premium plans.",
-              },
-              {
-                q: "How is YPropel different from other platforms?",
-                a: "We remove distractions, target student needs only, and help you act quickly: jobs, job fairs, pitch videos, curated learning, and community.",
-              },
-            ].map((item) => (
-              <details key={item.q} className="p-5 group">
-                <summary className="cursor-pointer font-semibold text-blue-900 flex justify-between items-center">
-                  {item.q}{" "}
-                  <span className="text-gray-400 group-open:rotate-180 transition">
-                    ⌄
-                  </span>
-                </summary>
-                <p className="mt-2 text-gray-700">{item.a}</p>
-              </details>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Final CTA */}
-      <section className="bg-blue-900">
-        <div className="mx-auto max-w-6xl px-4 py-12 text-center text-white">
-          <h2 className="text-3xl font-extrabold">
-            Ready to launch your future?
-          </h2>
-          <p className="mt-2 text-blue-100">
-            Join the student &amp; graduate community built to help you succeed.
-          </p>
-          <button
-            onClick={scrollToForm}
-            className="mt-6 inline-flex items-center justify-center rounded-lg bg-emerald-600 hover:bg-emerald-700 px-6 py-3 font-semibold"
-          >
-            Join YPropel Free
-          </button>
-        </div>
-      </section>
-
-      <footer className="bg-white">
+      {/* Simple footer */}
+      <footer className="bg-gray-50">
         <div className="mx-auto max-w-6xl px-4 py-6 text-xs text-gray-500 flex flex-col sm:flex-row gap-2 sm:gap-6 justify-between">
           <p>© {new Date().getFullYear()} YPropel. All rights reserved.</p>
           <div className="flex gap-4">
