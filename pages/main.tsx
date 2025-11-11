@@ -19,12 +19,6 @@ enum AuthView {
 const GOOGLE_CLIENT_ID =
   "914673158285-2kvn5lcd073aflv4smut843b1jh74k6t.apps.googleusercontent.com";
 
-// Cloudinary static images
-const PITCHPOINT_IMG =
-  "https://res.cloudinary.com/denggbgma/image/upload/pexels-olly-3783839_zcfasg.jpg";
-const VIDEOS_IMG =
-  "https://res.cloudinary.com/denggbgma/image/upload/pexels-sam-lion-6001235_bppg12.jpg";
-
 // ---------- Types from your routes ----------
 interface Job {
   id: number;
@@ -390,7 +384,7 @@ export default function LandingPage() {
         strategy="beforeInteractive"
       />
 
-      {/* Sticky Header – EXACTLY your previous header */}
+      {/* Sticky Header – same style as before */}
       <header className="sticky top-0 z-40 bg-white/80 backdrop-blur border-b border-gray-100">
         <div className="mx-auto max-w-6xl px-4 py-3">
           {/* Logo row */}
@@ -418,24 +412,24 @@ export default function LandingPage() {
         </div>
       </header>
 
-      {/* Hero – your original hero/auth layout */}
+      {/* Hero – smaller, higher on the page */}
       <section className="bg-gray-50">
-        <div className="mx-auto max-w-6xl px-4 py-12 md:py-16 grid md:grid-cols-2 gap-10 items-center">
+        <div className="mx-auto max-w-6xl px-4 py-8 md:py-10 grid md:grid-cols-2 gap-8 items-start">
           <div>
-            <h1 className="text-4xl md:text-5xl font-extrabold tracking-tight text-blue-900">
-              Where Students &amp; Graduates{" "}
-              <span className="text-emerald-600">Launch Careers</span>
+            <h1 className="text-3xl md:text-4xl font-extrabold tracking-tight text-blue-900">
+              Internships. Entry-level roles. Hourly jobs.
             </h1>
-            <p className="mt-4 text-gray-700 text-lg">
-              Connect with peers, land real opportunities, and grow your skills
-              — all in one community built for you.
+            <p className="mt-3 text-base md:text-lg text-gray-700">
+              Browse real opportunities, articles, and job fairs tailored to
+              students and recent grads. Create a free account to unlock full
+              details &amp; apply.
             </p>
-            <div className="mt-6 flex flex-col sm:flex-row gap-3">
+            <div className="mt-5 flex flex-col sm:flex-row gap-3">
               <button
                 onClick={scrollToForm}
                 className="w-full sm:w-auto rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white font-semibold px-6 py-3"
               >
-                Join Free in 60s
+                Join free
               </button>
               <button
                 onClick={() => {
@@ -453,16 +447,13 @@ export default function LandingPage() {
                 Continue with Google
               </button>
             </div>
-            <p className="mt-3 text-sm text-gray-500">
+            <p className="mt-2 text-sm text-gray-500">
               No spam. Cancel anytime.
             </p>
           </div>
 
           {/* Auth Card */}
-          <div
-            ref={formRef}
-            className="bg-white rounded-xl shadow-md p-6"
-          >
+          <div ref={formRef} className="bg-white rounded-xl shadow-md p-6">
             <div className="flex mb-5 border-b border-gray-200">
               <button
                 onClick={() => setView(AuthView.SignUp)}
@@ -660,7 +651,7 @@ export default function LandingPage() {
 
       {/* Internships / Entry-level / Hourly samples */}
       <section id="jobs" className="bg-gray-50">
-        <div className="mx-auto max-w-6xl px-4 py-10 space-y-6">
+        <div className="mx-auto max-w-6xl px-4 py-8 space-y-6">
           <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-3">
             <div>
               <h2 className="text-2xl md:text-3xl font-bold text-blue-900">
@@ -675,7 +666,7 @@ export default function LandingPage() {
               onClick={scrollToForm}
               className="inline-flex items-center justify-center rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-semibold px-5 py-2.5"
             >
-              Create free account to see all jobs
+              Explore all jobs → sign up
             </button>
           </div>
 
@@ -683,141 +674,183 @@ export default function LandingPage() {
             <p className="text-sm text-gray-500">Loading jobs…</p>
           )}
 
-          <div className="grid gap-5 md:grid-cols-3">
-            {/* Internships */}
+          {/* Left: short description, Right: scrollable jobs */}
+          <div className="grid gap-6 md:grid-cols-2 items-start">
+            {/* Left column: short bullets */}
             <div className="space-y-3">
-              <h3 className="text-sm font-semibold text-blue-900">
-                Internships (preview)
-              </h3>
-              {internshipSample.slice(0, 3).map((job) => {
-                const title = job.title || job.position_name || "Internship";
-                const company = job.company || "Company";
-                const locationParts = [
-                  job.city,
-                  job.state,
-                  job.country,
-                ].filter(Boolean);
-                const location = locationParts.join(", ") || "Location";
-                const posted = formatDate(job.posted_at);
-
-                return (
-                  <button
-                    key={`intern-${job.id}`}
-                    onClick={handleLockedClick}
-                    className="w-full text-left p-4 rounded-xl border bg-white hover:border-emerald-500 hover:shadow-sm transition cursor-pointer"
-                  >
-                    <div className="text-sm font-semibold text-blue-900">
-                      {title}
-                    </div>
-                    <div className="mt-1 text-xs text-gray-600">{company}</div>
-                    <div className="mt-1 text-xs text-gray-500">
-                      {location}
-                    </div>
-                    <div className="mt-2 text-[11px] text-gray-400">
-                      {posted
-                        ? `Posted ${posted}.`
-                        : "Posted recently."}{" "}
-                      Create a free account to see full description &amp; apply.
-                    </div>
-                  </button>
-                );
-              })}
-              {internshipSample.length === 0 && !loadingContent && (
-                <p className="text-xs text-gray-500">
-                  No internships available yet. New ones will appear here.
-                </p>
-              )}
+              <p className="text-sm text-gray-700">
+                Inside YPropel you&apos;ll find:
+              </p>
+              <ul className="space-y-1 text-sm text-gray-700 list-disc list-inside">
+                <li>Internships across tech, business, and non-profits</li>
+                <li>Entry-level roles for new grads &amp; career switchers</li>
+                <li>Hourly &amp; part-time jobs that fit student schedules</li>
+              </ul>
+              <p className="text-xs text-gray-500">
+                Click any preview below to sign up and see full details.
+              </p>
             </div>
 
-            {/* Entry Level */}
-            <div className="space-y-3">
-              <h3 className="text-sm font-semibold text-blue-900">
-                Entry-level roles (preview)
-              </h3>
-              {entryLevelSample.slice(0, 3).map((job) => {
-                const title = job.title || job.position_name || "Entry-level";
-                const company = job.company || "Company";
-                const locationParts = [
-                  job.city,
-                  job.state,
-                  job.country,
-                ].filter(Boolean);
-                const location = locationParts.join(", ") || "Location";
-                const posted = formatDate(job.posted_at);
+            {/* Right column: scrollable jobs list with scrollbar on the right */}
+            <div className="md:max-h-[420px] rounded-2xl border bg-white overflow-y-auto pr-2">
+              <div className="space-y-4 p-4">
+                {/* Internships block – light green */}
+                <div className="rounded-xl bg-emerald-50/70 p-3">
+                  <h3 className="text-sm font-semibold text-emerald-900 mb-2">
+                    Internships (preview)
+                  </h3>
+                  {internshipSample.slice(0, 3).map((job) => {
+                    const title = job.title || job.position_name || "Internship";
+                    const company = job.company || "Company";
+                    const locationParts = [
+                      job.city,
+                      job.state,
+                      job.country,
+                    ].filter(Boolean);
+                    const location = locationParts.join(", ") || "Location";
+                    const posted = formatDate(job.posted_at);
 
-                return (
-                  <button
-                    key={`entry-${job.id}`}
-                    onClick={handleLockedClick}
-                    className="w-full text-left p-4 rounded-xl border bg-white hover:border-emerald-500 hover:shadow-sm transition cursor-pointer"
-                  >
-                    <div className="text-sm font-semibold text-blue-900">
-                      {title}
-                    </div>
-                    <div className="mt-1 text-xs text-gray-600">{company}</div>
-                    <div className="mt-1 text-xs text-gray-500">
-                      {location}
-                    </div>
-                    <div className="mt-2 text-[11px] text-gray-400">
-                      {posted
-                        ? `Posted ${posted}.`
-                        : "Posted recently."}{" "}
-                      Create a free account to see full description &amp; apply.
-                    </div>
-                  </button>
-                );
-              })}
-              {entryLevelSample.length === 0 && !loadingContent && (
-                <p className="text-xs text-gray-500">
-                  No entry-level roles available yet.
-                </p>
-              )}
-            </div>
+                    return (
+                      <div
+                        key={`intern-${job.id}`}
+                        className="mb-3 last:mb-0 rounded-lg border border-emerald-100 bg-white p-3"
+                      >
+                        <div className="text-sm font-semibold text-blue-900">
+                          {title}
+                        </div>
+                        <div className="mt-1 text-xs text-gray-600">
+                          {company}
+                        </div>
+                        <div className="mt-1 text-xs text-gray-500">
+                          {location}
+                        </div>
+                        <div className="mt-1 text-[11px] text-gray-400">
+                          {posted
+                            ? `Posted ${posted}.`
+                            : "Posted recently."}
+                        </div>
+                        <button
+                          onClick={handleLockedClick}
+                          className="mt-2 inline-flex items-center rounded-full bg-emerald-600 hover:bg-emerald-700 text-white text-[11px] font-semibold px-3 py-1"
+                        >
+                          Apply → sign up
+                        </button>
+                      </div>
+                    );
+                  })}
+                  {internshipSample.length === 0 && !loadingContent && (
+                    <p className="text-xs text-gray-500">
+                      No internships available yet.
+                    </p>
+                  )}
+                </div>
 
-            {/* Hourly Jobs */}
-            <div className="space-y-3">
-              <h3 className="text-sm font-semibold text-blue-900">
-                Hourly &amp; part-time (preview)
-              </h3>
-              {hourlySample.slice(0, 3).map((job) => {
-                const title =
-                  job.title || job.position_name || "Hourly / part-time job";
-                const company = job.company || "Company";
-                const locationParts = [
-                  job.city,
-                  job.state,
-                  job.country,
-                ].filter(Boolean);
-                const location = locationParts.join(", ") || "Location";
-                const posted = formatDate(job.posted_at);
+                {/* Entry-level block – light blue */}
+                <div className="rounded-xl bg-blue-50/70 p-3">
+                  <h3 className="text-sm font-semibold text-blue-900 mb-2">
+                    Entry-level roles (preview)
+                  </h3>
+                  {entryLevelSample.slice(0, 3).map((job) => {
+                    const title =
+                      job.title || job.position_name || "Entry-level role";
+                    const company = job.company || "Company";
+                    const locationParts = [
+                      job.city,
+                      job.state,
+                      job.country,
+                    ].filter(Boolean);
+                    const location = locationParts.join(", ") || "Location";
+                    const posted = formatDate(job.posted_at);
 
-                return (
-                  <button
-                    key={`hourly-${job.id}`}
-                    onClick={handleLockedClick}
-                    className="w-full text-left p-4 rounded-xl border bg-white hover:border-emerald-500 hover:shadow-sm transition cursor-pointer"
-                  >
-                    <div className="text-sm font-semibold text-blue-900">
-                      {title}
-                    </div>
-                    <div className="mt-1 text-xs text-gray-600">{company}</div>
-                    <div className="mt-1 text-xs text-gray-500">
-                      {location}
-                    </div>
-                    <div className="mt-2 text-[11px] text-gray-400">
-                      {posted
-                        ? `Posted ${posted}.`
-                        : "Posted recently."}{" "}
-                      Create a free account to see full description &amp; apply.
-                    </div>
-                  </button>
-                );
-              })}
-              {hourlySample.length === 0 && !loadingContent && (
-                <p className="text-xs text-gray-500">
-                  No hourly / part-time jobs listed yet.
-                </p>
-              )}
+                    return (
+                      <div
+                        key={`entry-${job.id}`}
+                        className="mb-3 last:mb-0 rounded-lg border border-blue-100 bg-white p-3"
+                      >
+                        <div className="text-sm font-semibold text-blue-900">
+                          {title}
+                        </div>
+                        <div className="mt-1 text-xs text-gray-600">
+                          {company}
+                        </div>
+                        <div className="mt-1 text-xs text-gray-500">
+                          {location}
+                        </div>
+                        <div className="mt-1 text-[11px] text-gray-400">
+                          {posted
+                            ? `Posted ${posted}.`
+                            : "Posted recently."}
+                        </div>
+                        <button
+                          onClick={handleLockedClick}
+                          className="mt-2 inline-flex items-center rounded-full bg-blue-900 hover:bg-blue-950 text-white text-[11px] font-semibold px-3 py-1"
+                        >
+                          Apply → sign up
+                        </button>
+                      </div>
+                    );
+                  })}
+                  {entryLevelSample.length === 0 && !loadingContent && (
+                    <p className="text-xs text-gray-500">
+                      No entry-level roles available yet.
+                    </p>
+                  )}
+                </div>
+
+                {/* Hourly block – light amber */}
+                <div className="rounded-xl bg-amber-50/80 p-3">
+                  <h3 className="text-sm font-semibold text-amber-900 mb-2">
+                    Hourly &amp; part-time (preview)
+                  </h3>
+                  {hourlySample.slice(0, 3).map((job) => {
+                    const title =
+                      job.title ||
+                      job.position_name ||
+                      "Hourly / part-time job";
+                    const company = job.company || "Company";
+                    const locationParts = [
+                      job.city,
+                      job.state,
+                      job.country,
+                    ].filter(Boolean);
+                    const location = locationParts.join(", ") || "Location";
+                    const posted = formatDate(job.posted_at);
+
+                    return (
+                      <div
+                        key={`hourly-${job.id}`}
+                        className="mb-3 last:mb-0 rounded-lg border border-amber-100 bg-white p-3"
+                      >
+                        <div className="text-sm font-semibold text-blue-900">
+                          {title}
+                        </div>
+                        <div className="mt-1 text-xs text-gray-600">
+                          {company}
+                        </div>
+                        <div className="mt-1 text-xs text-gray-500">
+                          {location}
+                        </div>
+                        <div className="mt-1 text-[11px] text-gray-400">
+                          {posted
+                            ? `Posted ${posted}.`
+                            : "Posted recently."}
+                        </div>
+                        <button
+                          onClick={handleLockedClick}
+                          className="mt-2 inline-flex items-center rounded-full bg-amber-500 hover:bg-amber-600 text-white text-[11px] font-semibold px-3 py-1"
+                        >
+                          Apply → sign up
+                        </button>
+                      </div>
+                    );
+                  })}
+                  {hourlySample.length === 0 && !loadingContent && (
+                    <p className="text-xs text-gray-500">
+                      No hourly / part-time jobs listed yet.
+                    </p>
+                  )}
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -840,7 +873,7 @@ export default function LandingPage() {
               onClick={scrollToForm}
               className="inline-flex items-center justify-center rounded-lg bg-blue-900 hover:bg-blue-950 text-white text-sm font-semibold px-5 py-2.5"
             >
-              Create free account to read all
+              Read all → sign up
             </button>
           </div>
 
@@ -850,10 +883,9 @@ export default function LandingPage() {
 
           <div className="grid gap-5 md:grid-cols-3">
             {(articles || []).slice(0, 3).map((article) => (
-              <button
+              <div
                 key={article.id}
-                onClick={handleLockedClick}
-                className="text-left rounded-xl border bg-gray-50 hover:border-emerald-500 hover:bg-white hover:shadow-sm transition cursor-pointer flex flex-col overflow-hidden"
+                className="text-left rounded-xl border bg-gray-50 hover:border-emerald-500 hover:bg-white hover:shadow-sm transition flex flex-col overflow-hidden"
               >
                 {article.cover_image && (
                   <div className="h-32 w-full bg-gray-100 overflow-hidden">
@@ -871,11 +903,14 @@ export default function LandingPage() {
                   <p className="mt-2 text-xs text-gray-600 line-clamp-3 flex-1">
                     {truncate(article.content, 130)}
                   </p>
-                  <div className="mt-3 text-[11px] text-gray-400">
-                    Create a free account to read the full article and save it.
-                  </div>
+                  <button
+                    onClick={handleLockedClick}
+                    className="mt-3 inline-flex items-center rounded-full bg-blue-900 hover:bg-blue-950 text-white text-[11px] font-semibold px-3 py-1 self-start"
+                  >
+                    Read article → sign up
+                  </button>
                 </div>
-              </button>
+              </div>
             ))}
             {articles.length === 0 && !loadingContent && (
               <p className="text-xs text-gray-500">
@@ -903,7 +938,7 @@ export default function LandingPage() {
               onClick={scrollToForm}
               className="inline-flex items-center justify-center rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-semibold px-5 py-2.5"
             >
-              Create free account to view all events
+              View all events → sign up
             </button>
           </div>
 
@@ -949,7 +984,7 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* Footer – keep simple & clean */}
+      {/* Footer – simple & clean */}
       <footer className="bg-white">
         <div className="mx-auto max-w-6xl px-4 py-6 text-xs text-gray-500 flex flex-col sm:flex-row gap-2 sm:gap-6 justify-between">
           <p>© {new Date().getFullYear()} YPropel. All rights reserved.</p>
