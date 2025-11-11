@@ -19,14 +19,14 @@ enum AuthView {
 const GOOGLE_CLIENT_ID =
   "914673158285-2kvn5lcd073aflv4smut843b1jh74k6t.apps.googleusercontent.com";
 
-// Cloudinary static images (from your original page)
+// Cloudinary static images
 const PITCHPOINT_IMG =
   "https://res.cloudinary.com/denggbgma/image/upload/pexels-olly-3783839_zcfasg.jpg";
 
 const VIDEOS_IMG =
   "https://res.cloudinary.com/denggbgma/image/upload/pexels-sam-lion-6001235_bppg12.jpg";
 
-// Demo content arrays (same as your original)
+// Demo content arrays
 const newsItems = [
   {
     tag: "AI",
@@ -107,7 +107,8 @@ interface JobFair {
 }
 
 export default function LandingPage() {
-  const [view, setView] = useState<AuthView>(AuthView.SignUp); // default to Sign Up for conversion
+  // 👇 Default to LOGIN tab now
+  const [view, setView] = useState<AuthView>(AuthView.Login);
   const [loginData, setLoginData] = useState({ email: "", password: "" });
   const [signUpData, setSignUpData] = useState({
     name: "",
@@ -134,7 +135,6 @@ export default function LandingPage() {
     const fromQuery = qs.get("redirect");
     const fromSession = sessionStorage.getItem("returnTo");
     const candidate = fromQuery || fromSession || "/";
-    // prevent open redirects: only allow same-site relative paths
     return candidate.startsWith("/") ? candidate : "/";
   };
 
@@ -408,7 +408,7 @@ export default function LandingPage() {
     return text.slice(0, length) + "…";
   };
 
-  // ---- Job grouping: internships, entry-level, hourly ----
+  // ---- Job grouping helpers ----
   const normType = (job: Job) =>
     (job.job_type || "").toString().trim().toLowerCase();
 
@@ -430,6 +430,46 @@ export default function LandingPage() {
   const entryLevelSample = fallbackJobs(entryLevel, 3);
   const hourlySample = fallbackJobs(hourly, 3);
 
+  const jobSamples: Job[] = [
+    ...internshipSample,
+    ...entryLevelSample,
+    ...hourlySample,
+  ].slice(0, 9); // up to 9 cards if available
+
+  const getJobCategoryStyling = (job: Job) => {
+    const t = normType(job);
+    if (t.includes("intern")) {
+      return {
+        label: "Internship",
+        card: "border-emerald-100 bg-emerald-50/80",
+        pill: "bg-emerald-100 text-emerald-800",
+      };
+    }
+    if (t.includes("entry")) {
+      return {
+        label: "Entry-level",
+        card: "border-blue-100 bg-blue-50/80",
+        pill: "bg-blue-100 text-blue-800",
+      };
+    }
+    if (
+      t.includes("hour") ||
+      t.includes("part-time") ||
+      t.includes("part time")
+    ) {
+      return {
+        label: "Hourly / Part-time",
+        card: "border-amber-100 bg-amber-50/80",
+        pill: "bg-amber-100 text-amber-800",
+      };
+    }
+    return {
+      label: "Job",
+      card: "border-gray-200 bg-white",
+      pill: "bg-gray-100 text-gray-700",
+    };
+  };
+
   return (
     <>
       <Script
@@ -445,7 +485,7 @@ export default function LandingPage() {
         </div>
       </header>
 
-      {/* Hero – ORIGINAL YPropel text, signup box on the RIGHT, no extra buttons on the left */}
+      {/* Hero – ORIGINAL YPropel text, signup/login box on the RIGHT */}
       <section className="bg-gray-50">
         <div className="mx-auto max-w-6xl px-4 py-6 md:py-8 grid md:grid-cols-2 gap-8 items-start">
           {/* Left: hero copy */}
@@ -458,10 +498,9 @@ export default function LandingPage() {
               Connect with peers, land real opportunities, and grow your skills
               — all in one community built for you.
             </p>
-            {/* Buttons + "No spam" line removed per request */}
           </div>
 
-          {/* Right: auth card (sign up / sign in box) */}
+          {/* Right: auth card */}
           <div ref={formRef} className="bg-white rounded-xl shadow-md p-6">
             <div className="flex mb-5 border-b border-gray-200">
               <button
@@ -644,17 +683,16 @@ export default function LandingPage() {
         </div>
       )}
 
-      {/* Internships / Entry-level / Hourly samples (vertical scroll section, keep as before) */}
+      {/* Jobs – sideways scroll row, cards styled like articles/job fairs, with category colors */}
       <section id="jobs" className="bg-gray-50">
-        <div className="mx-auto max-w-6xl px-4 py-8 space-y-6">
+        <div className="mx-auto max-w-6xl px-4 py-10 space-y-6">
           <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-3">
             <div>
               <h2 className="text-2xl md:text-3xl font-bold text-blue-900">
                 Internships, entry-level &amp; hourly jobs
               </h2>
               <p className="mt-1 text-sm text-gray-700">
-                A quick sample of the opportunities inside YPropel. Create a
-                free account to unlock full details &amp; apply.
+                Today&apos;s jobs on YPropel.
               </p>
             </div>
             <button
@@ -669,181 +707,67 @@ export default function LandingPage() {
             <p className="text-sm text-gray-500">Loading jobs…</p>
           )}
 
-          <div className="grid gap-6 md:grid-cols-2 items-start">
-            {/* Left column: explanatory text */}
-            <div className="space-y-3">
-              <p className="text-sm text-gray-700">
-                Inside YPropel you&apos;ll find:
-              </p>
-              <ul className="space-y-1 text-sm text-gray-700 list-disc list-inside">
-                <li>Internships across tech, business, and non-profits</li>
-                <li>Entry-level roles for new grads &amp; career switchers</li>
-                <li>Hourly &amp; part-time jobs that fit student schedules</li>
-              </ul>
-              <p className="text-xs text-gray-500">
-                Scroll the list to preview a few live roles. Create a free
-                account to unlock full details &amp; apply.
-              </p>
-            </div>
+          <p className="text-xs text-gray-500">
+            Swipe sideways on mobile (or scroll left/right) to see more jobs.
+          </p>
 
-            {/* Right column: VERTICAL categories with a vertical scrollbar */}
-            <div className="space-y-4 max-h-[480px] overflow-y-auto pr-1">
-              {/* Internships block – light green */}
-              <div className="rounded-xl bg-emerald-50/70 p-3">
-                <h3 className="text-sm font-semibold text-emerald-900 mb-2">
-                  Internships (preview)
-                </h3>
-                {internshipSample.slice(0, 3).map((job) => {
-                  const title = job.title || job.position_name || "Internship";
-                  const company = job.company || "Company";
-                  const locationParts = [
-                    job.city,
-                    job.state,
-                    job.country,
-                  ].filter(Boolean);
-                  const location = locationParts.join(", ") || "Location";
-                  const posted = formatDate(job.posted_at);
+          {/* Horizontal scroll container with job cards */}
+          <div className="-mx-4 px-4 md:mx-0 md:px-0 overflow-x-auto pb-2">
+            <div className="flex gap-4 min-w-max">
+              {jobSamples.map((job) => {
+                const title =
+                  job.title ||
+                  job.position_name ||
+                  "Opportunity for students & grads";
+                const company = job.company || "Company";
+                const locationParts = [
+                  job.city,
+                  job.state,
+                  job.country,
+                ].filter(Boolean);
+                const location = locationParts.join(", ") || "Location";
+                const posted = formatDate(job.posted_at);
+                const style = getJobCategoryStyling(job);
 
-                  return (
-                    <div
-                      key={`intern-${job.id}`}
-                      className="mb-3 last:mb-0 rounded-lg border border-emerald-100 bg-white p-3"
+                return (
+                  <div
+                    key={job.id}
+                    className={`w-80 md:w-72 lg:w-80 text-left rounded-xl border ${style.card} hover:shadow-sm transition p-4 flex-shrink-0 flex flex-col`}
+                  >
+                    <span
+                      className={`inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-semibold ${style.pill}`}
                     >
-                      <div className="text-sm font-semibold text-blue-900">
-                        {title}
-                      </div>
-                      <div className="mt-1 text-xs text-gray-600">
-                        {company}
-                      </div>
-                      <div className="mt-1 text-xs text-gray-500">
-                        {location}
-                      </div>
-                      <div className="mt-1 text-[11px] text-gray-400">
-                        {posted ? `Posted ${posted}.` : "Posted recently."}
-                      </div>
-                      <button
-                        onClick={handleLockedClick}
-                        className="mt-2 inline-flex items-center rounded-full bg-emerald-600 hover:bg-emerald-700 text-white text-[11px] font-semibold px-3 py-1"
-                      >
-                        Apply → sign up
-                      </button>
-                    </div>
-                  );
-                })}
-                {internshipSample.length === 0 && !loadingContent && (
-                  <p className="text-xs text-gray-500">
-                    No internships available yet.
-                  </p>
-                )}
-              </div>
-
-              {/* Entry-level block – light blue */}
-              <div className="rounded-xl bg-blue-50/70 p-3">
-                <h3 className="text-sm font-semibold text-blue-900 mb-2">
-                  Entry-level roles (preview)
-                </h3>
-                {entryLevelSample.slice(0, 3).map((job) => {
-                  const title =
-                    job.title || job.position_name || "Entry-level role";
-                  const company = job.company || "Company";
-                  const locationParts = [
-                    job.city,
-                    job.state,
-                    job.country,
-                  ].filter(Boolean);
-                  const location = locationParts.join(", ") || "Location";
-                  const posted = formatDate(job.posted_at);
-
-                  return (
-                    <div
-                      key={`entry-${job.id}`}
-                      className="mb-3 last:mb-0 rounded-lg border border-blue-100 bg-white p-3"
+                      {style.label}
+                    </span>
+                    <h3 className="mt-2 text-sm font-semibold text-blue-900 line-clamp-2">
+                      {title}
+                    </h3>
+                    <p className="mt-1 text-xs text-gray-600">{company}</p>
+                    <p className="mt-1 text-xs text-gray-500">{location}</p>
+                    <p className="mt-1 text-[11px] text-gray-400">
+                      {posted ? `Posted ${posted}` : "Posted recently"}
+                    </p>
+                    <button
+                      onClick={handleLockedClick}
+                      className="mt-3 inline-flex items-center rounded-full bg-blue-900 hover:bg-blue-950 text-white text-[11px] font-semibold px-3 py-1 self-start"
                     >
-                      <div className="text-sm font-semibold text-blue-900">
-                        {title}
-                      </div>
-                      <div className="mt-1 text-xs text-gray-600">
-                        {company}
-                      </div>
-                      <div className="mt-1 text-xs text-gray-500">
-                        {location}
-                      </div>
-                      <div className="mt-1 text-[11px] text-gray-400">
-                        {posted ? `Posted ${posted}.` : "Posted recently."}
-                      </div>
-                      <button
-                        onClick={handleLockedClick}
-                        className="mt-2 inline-flex items-center rounded-full bg-blue-900 hover:bg-blue-950 text-white text-[11px] font-semibold px-3 py-1"
-                      >
-                        Apply → sign up
-                      </button>
-                    </div>
-                  );
-                })}
-                {entryLevelSample.length === 0 && !loadingContent && (
-                  <p className="text-xs text-gray-500">
-                    No entry-level roles available yet.
-                  </p>
-                )}
-              </div>
+                      Apply → sign up
+                    </button>
+                  </div>
+                );
+              })}
 
-              {/* Hourly block – light amber */}
-              <div className="rounded-xl bg-amber-50/80 p-3">
-                <h3 className="text-sm font-semibold text-amber-900 mb-2">
-                  Hourly &amp; part-time (preview)
-                </h3>
-                {hourlySample.slice(0, 3).map((job) => {
-                  const title =
-                    job.title ||
-                    job.position_name ||
-                    "Hourly / part-time job";
-                  const company = job.company || "Company";
-                  const locationParts = [
-                    job.city,
-                    job.state,
-                    job.country,
-                  ].filter(Boolean);
-                  const location = locationParts.join(", ") || "Location";
-                  const posted = formatDate(job.posted_at);
-
-                  return (
-                    <div
-                      key={`hourly-${job.id}`}
-                      className="mb-3 last:mb-0 rounded-lg border border-amber-100 bg-white p-3"
-                    >
-                      <div className="text-sm font-semibold text-blue-900">
-                        {title}
-                      </div>
-                      <div className="mt-1 text-xs text-gray-600">
-                        {company}
-                      </div>
-                      <div className="mt-1 text-xs text-gray-500">
-                        {location}
-                      </div>
-                      <div className="mt-1 text-[11px] text-gray-400">
-                        {posted ? `Posted ${posted}.` : "Posted recently."}
-                      </div>
-                      <button
-                        onClick={handleLockedClick}
-                        className="mt-2 inline-flex items-center rounded-full bg-amber-500 hover:bg-amber-600 text-white text-[11px] font-semibold px-3 py-1"
-                      >
-                        Apply → sign up
-                      </button>
-                    </div>
-                  );
-                })}
-                {hourlySample.length === 0 && !loadingContent && (
-                  <p className="text-xs text-gray-500">
-                    No hourly / part-time jobs listed yet.
-                  </p>
-                )}
-              </div>
+              {jobSamples.length === 0 && !loadingContent && (
+                <p className="text-xs text-gray-500">
+                  No jobs available yet. New opportunities will appear here.
+                </p>
+              )}
             </div>
           </div>
         </div>
       </section>
 
-      {/* Last added articles */}
+      {/* Last added articles (unchanged design) */}
       <section id="articles" className="bg-white">
         <div className="mx-auto max-w-6xl px-4 py-10 space-y-6">
           <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-3">
@@ -908,7 +832,7 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* Last added job fairs */}
+      {/* Last added job fairs (unchanged design) */}
       <section id="job-fairs" className="bg-gray-50">
         <div className="mx-auto max-w-6xl px-4 py-10 space-y-6">
           <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-3">
@@ -973,7 +897,21 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* Social Proof – moved BELOW the newly added jobs/articles/job-fairs sections */}
+      {/* "Inside YPropel you'll find..." BELOW the 3 new sections */}
+      <section className="bg-white">
+        <div className="mx-auto max-w-6xl px-4 py-6">
+          <h3 className="text-sm font-semibold text-blue-900 mb-2">
+            Inside YPropel you&apos;ll find:
+          </h3>
+          <ul className="space-y-1 text-sm text-gray-700 list-disc list-inside">
+            <li>Internships across tech, business, and non-profits</li>
+            <li>Entry-level roles for new grads &amp; career switchers</li>
+            <li>Hourly &amp; part-time jobs that fit student schedules</li>
+          </ul>
+        </div>
+      </section>
+
+      {/* Social Proof BELOW bullets */}
       <section className="bg-white">
         <div className="mx-auto max-w-6xl px-4 py-6 grid grid-cols-2 sm:grid-cols-4 gap-6 items-center text-center">
           <div className="text-sm text-gray-500">
@@ -988,7 +926,7 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* -------- OLD SECTIONS: features, circles, news, jobs HS, PitchPoint, videos, why, testimonials, FAQ, final CTA -------- */}
+      {/* -------- Existing below-the-fold sections -------- */}
 
       {/* High-level Features */}
       <section id="features" className="bg-gray-50">
