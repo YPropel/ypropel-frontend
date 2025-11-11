@@ -107,7 +107,7 @@ interface JobFair {
 }
 
 export default function LandingPage() {
-  // 👇 Default to LOGIN tab now
+  // ✅ Default to LOGIN tab now
   const [view, setView] = useState<AuthView>(AuthView.Login);
   const [loginData, setLoginData] = useState({ email: "", password: "" });
   const [signUpData, setSignUpData] = useState({
@@ -430,46 +430,6 @@ export default function LandingPage() {
   const entryLevelSample = fallbackJobs(entryLevel, 3);
   const hourlySample = fallbackJobs(hourly, 3);
 
-  const jobSamples: Job[] = [
-    ...internshipSample,
-    ...entryLevelSample,
-    ...hourlySample,
-  ].slice(0, 9); // up to 9 cards if available
-
-  const getJobCategoryStyling = (job: Job) => {
-    const t = normType(job);
-    if (t.includes("intern")) {
-      return {
-        label: "Internship",
-        card: "border-emerald-100 bg-emerald-50/80",
-        pill: "bg-emerald-100 text-emerald-800",
-      };
-    }
-    if (t.includes("entry")) {
-      return {
-        label: "Entry-level",
-        card: "border-blue-100 bg-blue-50/80",
-        pill: "bg-blue-100 text-blue-800",
-      };
-    }
-    if (
-      t.includes("hour") ||
-      t.includes("part-time") ||
-      t.includes("part time")
-    ) {
-      return {
-        label: "Hourly / Part-time",
-        card: "border-amber-100 bg-amber-50/80",
-        pill: "bg-amber-100 text-amber-800",
-      };
-    }
-    return {
-      label: "Job",
-      card: "border-gray-200 bg-white",
-      pill: "bg-gray-100 text-gray-700",
-    };
-  };
-
   return (
     <>
       <Script
@@ -485,7 +445,7 @@ export default function LandingPage() {
         </div>
       </header>
 
-      {/* Hero – ORIGINAL YPropel text, signup/login box on the RIGHT */}
+      {/* Hero – left: title + paragraph only; right: auth card */}
       <section className="bg-gray-50">
         <div className="mx-auto max-w-6xl px-4 py-6 md:py-8 grid md:grid-cols-2 gap-8 items-start">
           {/* Left: hero copy */}
@@ -502,19 +462,8 @@ export default function LandingPage() {
 
           {/* Right: auth card */}
           <div ref={formRef} className="bg-white rounded-xl shadow-md p-6">
+            {/* ✅ Login tab on the LEFT, Sign Up on the RIGHT */}
             <div className="flex mb-5 border-b border-gray-200">
-              <button
-                onClick={() => setView(AuthView.SignUp)}
-                className={`flex-1 py-3 text-center font-semibold ${
-                  view === AuthView.SignUp
-                    ? "border-b-4 border-blue-900 text-blue-900"
-                    : "text-gray-500 hover:text-gray-700"
-                }`}
-                type="button"
-                aria-current={view === AuthView.SignUp}
-              >
-                Sign Up
-              </button>
               <button
                 onClick={() => setView(AuthView.Login)}
                 className={`flex-1 py-3 text-center font-semibold ${
@@ -526,6 +475,18 @@ export default function LandingPage() {
                 aria-current={view === AuthView.Login}
               >
                 Log In
+              </button>
+              <button
+                onClick={() => setView(AuthView.SignUp)}
+                className={`flex-1 py-3 text-center font-semibold ${
+                  view === AuthView.SignUp
+                    ? "border-b-4 border-blue-900 text-blue-900"
+                    : "text-gray-500 hover:text-gray-700"
+                }`}
+                type="button"
+                aria-current={view === AuthView.SignUp}
+              >
+                Sign Up
               </button>
             </div>
 
@@ -683,7 +644,7 @@ export default function LandingPage() {
         </div>
       )}
 
-      {/* Jobs – sideways scroll row, cards styled like articles/job fairs, with category colors */}
+      {/* Jobs – 3 categories stacked vertically BEFORE articles */}
       <section id="jobs" className="bg-gray-50">
         <div className="mx-auto max-w-6xl px-4 py-10 space-y-6">
           <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-3">
@@ -707,67 +668,180 @@ export default function LandingPage() {
             <p className="text-sm text-gray-500">Loading jobs…</p>
           )}
 
-          <p className="text-xs text-gray-500">
-            Swipe sideways on mobile (or scroll left/right) to see more jobs.
-          </p>
+          {/* 3 vertical rows: internships, entry-level, hourly */}
+          <div className="space-y-4">
+            {/* Internships block – light green */}
+            <div className="rounded-xl bg-emerald-50/80 p-4">
+              <h3 className="text-sm font-semibold text-emerald-900 mb-3">
+                Internships (preview)
+              </h3>
+              <div className="grid gap-3 md:grid-cols-3">
+                {internshipSample.slice(0, 3).map((job) => {
+                  const title =
+                    job.title || job.position_name || "Internship opportunity";
+                  const company = job.company || "Company";
+                  const locationParts = [
+                    job.city,
+                    job.state,
+                    job.country,
+                  ].filter(Boolean);
+                  const location = locationParts.join(", ") || "Location";
+                  const posted = formatDate(job.posted_at);
 
-          {/* Horizontal scroll container with job cards */}
-          <div className="-mx-4 px-4 md:mx-0 md:px-0 overflow-x-auto pb-2">
-            <div className="flex gap-4 min-w-max">
-              {jobSamples.map((job) => {
-                const title =
-                  job.title ||
-                  job.position_name ||
-                  "Opportunity for students & grads";
-                const company = job.company || "Company";
-                const locationParts = [
-                  job.city,
-                  job.state,
-                  job.country,
-                ].filter(Boolean);
-                const location = locationParts.join(", ") || "Location";
-                const posted = formatDate(job.posted_at);
-                const style = getJobCategoryStyling(job);
-
-                return (
-                  <div
-                    key={job.id}
-                    className={`w-80 md:w-72 lg:w-80 text-left rounded-xl border ${style.card} hover:shadow-sm transition p-4 flex-shrink-0 flex flex-col`}
-                  >
-                    <span
-                      className={`inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-semibold ${style.pill}`}
+                  return (
+                    <div
+                      key={`intern-${job.id}`}
+                      className="rounded-lg border border-emerald-100 bg-white p-3 flex flex-col"
                     >
-                      {style.label}
-                    </span>
-                    <h3 className="mt-2 text-sm font-semibold text-blue-900 line-clamp-2">
-                      {title}
-                    </h3>
-                    <p className="mt-1 text-xs text-gray-600">{company}</p>
-                    <p className="mt-1 text-xs text-gray-500">{location}</p>
-                    <p className="mt-1 text-[11px] text-gray-400">
-                      {posted ? `Posted ${posted}` : "Posted recently"}
-                    </p>
-                    <button
-                      onClick={handleLockedClick}
-                      className="mt-3 inline-flex items-center rounded-full bg-blue-900 hover:bg-blue-950 text-white text-[11px] font-semibold px-3 py-1 self-start"
-                    >
-                      Apply → sign up
-                    </button>
-                  </div>
-                );
-              })}
+                      <div className="text-xs font-semibold inline-flex items-center px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 self-start">
+                        Internship
+                      </div>
+                      <div className="mt-2 text-sm font-semibold text-blue-900 line-clamp-2">
+                        {title}
+                      </div>
+                      <div className="mt-1 text-xs text-gray-600">
+                        {company}
+                      </div>
+                      <div className="mt-1 text-xs text-gray-500">
+                        {location}
+                      </div>
+                      <div className="mt-1 text-[11px] text-gray-400">
+                        {posted ? `Posted ${posted}` : "Posted recently"}
+                      </div>
+                      <button
+                        onClick={handleLockedClick}
+                        className="mt-3 inline-flex items-center rounded-full bg-emerald-600 hover:bg-emerald-700 text-white text-[11px] font-semibold px-3 py-1 self-start"
+                      >
+                        Apply → sign up
+                      </button>
+                    </div>
+                  );
+                })}
+                {internshipSample.length === 0 && !loadingContent && (
+                  <p className="text-xs text-gray-500">
+                    No internships listed yet. New roles will appear here.
+                  </p>
+                )}
+              </div>
+            </div>
 
-              {jobSamples.length === 0 && !loadingContent && (
-                <p className="text-xs text-gray-500">
-                  No jobs available yet. New opportunities will appear here.
-                </p>
-              )}
+            {/* Entry-level block – light blue */}
+            <div className="rounded-xl bg-blue-50/80 p-4">
+              <h3 className="text-sm font-semibold text-blue-900 mb-3">
+                Entry-level roles (preview)
+              </h3>
+              <div className="grid gap-3 md:grid-cols-3">
+                {entryLevelSample.slice(0, 3).map((job) => {
+                  const title =
+                    job.title || job.position_name || "Entry-level role";
+                  const company = job.company || "Company";
+                  const locationParts = [
+                    job.city,
+                    job.state,
+                    job.country,
+                  ].filter(Boolean);
+                  const location = locationParts.join(", ") || "Location";
+                  const posted = formatDate(job.posted_at);
+
+                  return (
+                    <div
+                      key={`entry-${job.id}`}
+                      className="rounded-lg border border-blue-100 bg-white p-3 flex flex-col"
+                    >
+                      <div className="text-xs font-semibold inline-flex items-center px-2 py-0.5 rounded-full bg-blue-100 text-blue-800 self-start">
+                        Entry-level
+                      </div>
+                      <div className="mt-2 text-sm font-semibold text-blue-900 line-clamp-2">
+                        {title}
+                      </div>
+                      <div className="mt-1 text-xs text-gray-600">
+                        {company}
+                      </div>
+                      <div className="mt-1 text-xs text-gray-500">
+                        {location}
+                      </div>
+                      <div className="mt-1 text-[11px] text-gray-400">
+                        {posted ? `Posted ${posted}` : "Posted recently"}
+                      </div>
+                      <button
+                        onClick={handleLockedClick}
+                        className="mt-3 inline-flex items-center rounded-full bg-blue-900 hover:bg-blue-950 text-white text-[11px] font-semibold px-3 py-1 self-start"
+                      >
+                        Apply → sign up
+                      </button>
+                    </div>
+                  );
+                })}
+                {entryLevelSample.length === 0 && !loadingContent && (
+                  <p className="text-xs text-gray-500">
+                    No entry-level roles yet. New opportunities will appear
+                    here.
+                  </p>
+                )}
+              </div>
+            </div>
+
+            {/* Hourly block – light amber */}
+            <div className="rounded-xl bg-amber-50/80 p-4">
+              <h3 className="text-sm font-semibold text-amber-900 mb-3">
+                Hourly &amp; part-time (preview)
+              </h3>
+              <div className="grid gap-3 md:grid-cols-3">
+                {hourlySample.slice(0, 3).map((job) => {
+                  const title =
+                    job.title ||
+                    job.position_name ||
+                    "Hourly / part-time job";
+                  const company = job.company || "Company";
+                  const locationParts = [
+                    job.city,
+                    job.state,
+                    job.country,
+                  ].filter(Boolean);
+                  const location = locationParts.join(", ") || "Location";
+                  const posted = formatDate(job.posted_at);
+
+                  return (
+                    <div
+                      key={`hourly-${job.id}`}
+                      className="rounded-lg border border-amber-100 bg-white p-3 flex flex-col"
+                    >
+                      <div className="text-xs font-semibold inline-flex items-center px-2 py-0.5 rounded-full bg-amber-100 text-amber-800 self-start">
+                        Hourly / Part-time
+                      </div>
+                      <div className="mt-2 text-sm font-semibold text-blue-900 line-clamp-2">
+                        {title}
+                      </div>
+                      <div className="mt-1 text-xs text-gray-600">
+                        {company}
+                      </div>
+                      <div className="mt-1 text-xs text-gray-500">
+                        {location}
+                      </div>
+                      <div className="mt-1 text-[11px] text-gray-400">
+                        {posted ? `Posted ${posted}` : "Posted recently"}
+                      </div>
+                      <button
+                        onClick={handleLockedClick}
+                        className="mt-3 inline-flex items-center rounded-full bg-amber-500 hover:bg-amber-600 text-white text-[11px] font-semibold px-3 py-1 self-start"
+                      >
+                        Apply → sign up
+                      </button>
+                    </div>
+                  );
+                })}
+                {hourlySample.length === 0 && !loadingContent && (
+                  <p className="text-xs text-gray-500">
+                    No hourly / part-time jobs yet. New roles will appear here.
+                  </p>
+                )}
+              </div>
             </div>
           </div>
         </div>
       </section>
 
-      {/* Last added articles (unchanged design) */}
+      {/* Last added articles */}
       <section id="articles" className="bg-white">
         <div className="mx-auto max-w-6xl px-4 py-10 space-y-6">
           <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-3">
@@ -832,7 +906,7 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* Last added job fairs (unchanged design) */}
+      {/* Last added job fairs */}
       <section id="job-fairs" className="bg-gray-50">
         <div className="mx-auto max-w-6xl px-4 py-10 space-y-6">
           <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-3">
