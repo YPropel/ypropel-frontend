@@ -614,38 +614,35 @@ export default function LandingPage() {
         strategy="beforeInteractive"
       />
 
-      {/* Hero – no top bar, just hero with floating card */}
-      <section className="relative bg-gray-50">
+      {/* Hero – no top bar, 2-column grid, centered larger logo */}
+      <section className="bg-gray-50">
         <div className="mx-auto max-w-6xl px-4 pt-6 pb-8 md:pt-8 md:pb-10">
-          <div className="max-w-2xl">
-            <h1 className="text-3xl md:text-4xl font-extrabold tracking-tight text-blue-900">
-              Where Students &amp; Graduates{" "}
-              <span className="text-emerald-600">Launch Careers</span>
-            </h1>
-            <p className="mt-4 text-gray-700 text-base md:text-lg">
-              Connect with peers, land real opportunities, and grow your skills
-              — all in one community built for you.
-            </p>
-            {/* Medium logo under the slogan */}
-            <img
-              src="/ypropel-logo.png"
-              alt="YPropel"
-              className="mt-4 h-12 w-auto"
-            />
-          </div>
-        </div>
+          <div className="md:grid md:grid-cols-[minmax(0,2fr)_minmax(0,1fr)] md:gap-8 items-start">
+            {/* Left: title + slogan + centered logo */}
+            <div className="max-w-2xl">
+              <h1 className="text-3xl md:text-4xl font-extrabold tracking-tight text-blue-900">
+                Where Students &amp; Graduates{" "}
+                <span className="text-emerald-600">Launch Careers</span>
+              </h1>
+              <p className="mt-4 text-gray-700 text-base md:text-lg">
+                Connect with peers, land real opportunities, and grow your
+                skills — all in one community built for you.
+              </p>
+              <div className="mt-5 flex justify-center md:justify-start">
+                <img
+                  src="/ypropel-logo.png"
+                  alt="YPropel"
+                  className="h-16 w-auto md:h-20"
+                />
+              </div>
+            </div>
 
-        {/* Desktop / tablet: small floating card pushed further to the top-right */}
-        <div className="hidden md:block absolute top-4 right-4 md:top-6 md:right-10">
-          <div className="w-[340px] bg-white rounded-xl shadow-lg p-5">
-            {renderAuthCard()}
-          </div>
-        </div>
-
-        {/* Mobile: card full width below title */}
-        <div className="md:hidden px-4 pb-6">
-          <div className="bg-white rounded-xl shadow-md p-5">
-            {renderAuthCard()}
+            {/* Right: auth card, top-aligned, not overlapping content */}
+            <div className="mt-6 md:mt-0">
+              <div className="bg-white rounded-xl shadow-lg p-5 w-full md:w-[340px] md:ml-auto">
+                {renderAuthCard()}
+              </div>
+            </div>
           </div>
         </div>
       </section>
@@ -933,12 +930,12 @@ export default function LandingPage() {
                 and universities.
               </p>
             </div>
-            <button
-              onClick={scrollToForm}
-              className="inline-flex items-center justify-center rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-semibold px-5 py-2.5"
-            >
-              View all events → sign up
-            </button>
+          <button
+            onClick={scrollToForm}
+            className="inline-flex items-center justify-center rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-semibold px-5 py-2.5"
+          >
+            View all events → sign up
+          </button>
           </div>
 
           {loadingContent && (
