@@ -614,17 +614,9 @@ export default function LandingPage() {
         strategy="beforeInteractive"
       />
 
-      {/* Simple header: logo only */}
-      <header className="bg-white/90 backdrop-blur border-b border-gray-100">
-        <div className="mx-auto max-w-6xl px-4 py-2 flex items-center gap-3">
-          <img src="/ypropel-logo.png" alt="YPropel" className="h-8 w-8" />
-          <span className="font-semibold text-blue-900 text-sm">YPropel</span>
-        </div>
-      </header>
-
-      {/* Hero – title left, small auth card top-right */}
+      {/* Hero – no top bar, just hero with floating card */}
       <section className="relative bg-gray-50">
-        <div className="mx-auto max-w-6xl px-4 py-8 md:py-10">
+        <div className="mx-auto max-w-6xl px-4 pt-6 pb-8 md:pt-8 md:pb-10">
           <div className="max-w-2xl">
             <h1 className="text-3xl md:text-4xl font-extrabold tracking-tight text-blue-900">
               Where Students &amp; Graduates{" "}
@@ -634,11 +626,17 @@ export default function LandingPage() {
               Connect with peers, land real opportunities, and grow your skills
               — all in one community built for you.
             </p>
+            {/* Medium logo under the slogan */}
+            <img
+              src="/ypropel-logo.png"
+              alt="YPropel"
+              className="mt-4 h-12 w-auto"
+            />
           </div>
         </div>
 
-        {/* Desktop / tablet: small floating card top-right */}
-        <div className="hidden md:block absolute top-6 right-8">
+        {/* Desktop / tablet: small floating card pushed further to the top-right */}
+        <div className="hidden md:block absolute top-4 right-4 md:top-6 md:right-10">
           <div className="w-[340px] bg-white rounded-xl shadow-lg p-5">
             {renderAuthCard()}
           </div>
