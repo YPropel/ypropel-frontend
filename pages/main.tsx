@@ -107,7 +107,7 @@ interface JobFair {
 }
 
 export default function LandingPage() {
-  // ✅ Default to LOGIN tab now
+  // Default to LOGIN tab
   const [view, setView] = useState<AuthView>(AuthView.Login);
   const [loginData, setLoginData] = useState({ email: "", password: "" });
   const [signUpData, setSignUpData] = useState({
@@ -127,6 +127,9 @@ export default function LandingPage() {
   const [jobFairs, setJobFairs] = useState<JobFair[]>([]);
   const [loadingContent, setLoadingContent] = useState(false);
   const [contentError, setContentError] = useState<string | null>(null);
+
+  // NEW: auth modal state
+  const [showAuthModal, setShowAuthModal] = useState(false);
 
   // ---- Redirect helpers ----
   const getRedirectTarget = () => {
@@ -275,10 +278,15 @@ export default function LandingPage() {
   // ---------- Initialize Google button per view ----------
   useEffect(() => {
     if (typeof window !== "undefined" && window.google) {
-      const loginDiv = document.getElementById("googleSignInDiv");
-      const signUpDiv = document.getElementById("googleSignUpDiv");
-      if (loginDiv) loginDiv.innerHTML = "";
-      if (signUpDiv) signUpDiv.innerHTML = "";
+      const loginDivs = document.querySelectorAll<HTMLElement>(
+        "[data-google-signin]"
+      );
+      const signUpDivs = document.querySelectorAll<HTMLElement>(
+        "[data-google-signup]"
+      );
+
+      loginDivs.forEach((div) => (div.innerHTML = ""));
+      signUpDivs.forEach((div) => (div.innerHTML = ""));
 
       window.google.accounts.id.initialize({
         client_id: GOOGLE_CLIENT_ID,
@@ -286,10 +294,16 @@ export default function LandingPage() {
       });
 
       const opts = { theme: "outline", size: "large", width: 280 };
-      if (view === AuthView.Login && loginDiv)
-        window.google.accounts.id.renderButton(loginDiv, opts);
-      if (view === AuthView.SignUp && signUpDiv)
-        window.google.accounts.id.renderButton(signUpDiv, opts);
+
+      if (view === AuthView.Login) {
+        loginDivs.forEach((div) =>
+          window.google.accounts.id.renderButton(div, opts)
+        );
+      } else if (view === AuthView.SignUp) {
+        signUpDivs.forEach((div) =>
+          window.google.accounts.id.renderButton(div, opts)
+        );
+      }
     }
   }, [view]);
 
@@ -375,16 +389,10 @@ export default function LandingPage() {
   };
 
   // ---------- Helpers ----------
+  // NOW: instead of scrolling, open the modal
   const scrollToForm = () => {
     setView(AuthView.SignUp);
-    setTimeout(
-      () =>
-        formRef.current?.scrollIntoView({
-          behavior: "smooth",
-          block: "start",
-        }),
-      0
-    );
+    setShowAuthModal(true);
   };
 
   const handleLockedClick = () => {
@@ -430,6 +438,183 @@ export default function LandingPage() {
   const entryLevelSample = fallbackJobs(entryLevel, 3);
   const hourlySample = fallbackJobs(hourly, 3);
 
+  // Reusable auth card (used in hero and modal)
+  const renderAuthCard = () => (
+    <>
+      {/* Tabs: Login left, Sign Up right */}
+      <div className="flex mb-5 border-b border-gray-200">
+        <button
+          onClick={() => setView(AuthView.Login)}
+          className={`flex-1 py-3 text-center font-semibold ${
+            view === AuthView.Login
+              ? "border-b-4 border-blue-900 text-blue-900"
+              : "text-gray-500 hover:text-gray-700"
+          }`}
+          type="button"
+          aria-current={view === AuthView.Login}
+        >
+          Log In
+        </button>
+        <button
+          onClick={() => setView(AuthView.SignUp)}
+          className={`flex-1 py-3 text-center font-semibold ${
+            view === AuthView.SignUp
+              ? "border-b-4 border-blue-900 text-blue-900"
+              : "text-gray-500 hover:text-gray-700"
+          }`}
+          type="button"
+          aria-current={view === AuthView.SignUp}
+        >
+          Sign Up
+        </button>
+      </div>
+
+      {view === AuthView.SignUp && (
+        <>
+          <form onSubmit={handleSignUp} className="space-y-3">
+            <input
+              type="text"
+              name="name"
+              placeholder="Full name"
+              value={signUpData.name}
+              onChange={handleChange}
+              required
+              className="w-full p-3 border border-gray-300 rounded"
+            />
+            <input
+              type="email"
+              name="email"
+              placeholder="Email address"
+              value={signUpData.email}
+              onChange={handleChange}
+              required
+              className="w-full p-3 border border-gray-300 rounded"
+            />
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <input
+                type="password"
+                name="password"
+                placeholder="Create a password"
+                value={signUpData.password}
+                onChange={handleChange}
+                required
+                className="w-full p-3 border border-gray-300 rounded"
+              />
+              <input
+                type="password"
+                name="confirmPassword"
+                placeholder="Confirm password"
+                value={signUpData.confirmPassword}
+                onChange={handleChange}
+                required
+                className="w-full p-3 border border-gray-300 rounded"
+              />
+            </div>
+            <select
+              name="experienceLevel"
+              value={signUpData.experienceLevel}
+              onChange={handleChange}
+              required
+              className="w-full p-3 border border-gray-300 rounded"
+            >
+              <option value="">Select your level of experience</option>
+              {experienceLevels.map((level) => (
+                <option key={level} value={level}>
+                  {level}
+                </option>
+              ))}
+            </select>
+            <button
+              type="submit"
+              className="w-full bg-blue-900 hover:bg-blue-950 text-white py-3 rounded font-semibold"
+            >
+              Create my account
+            </button>
+          </form>
+          <div className="mt-4">
+            <div
+              data-google-signup
+              className="flex justify-center"
+            ></div>
+          </div>
+          <p className="mt-3 text-center text-xs text-gray-500">
+            By joining you agree to our Terms &amp; Privacy.
+          </p>
+        </>
+      )}
+
+      {view === AuthView.Login && (
+        <>
+          <form onSubmit={handleLogin} className="space-y-3">
+            <input
+              type="email"
+              name="email"
+              placeholder="Email address"
+              value={loginData.email}
+              onChange={handleChange}
+              required
+              className="w-full p-3 border border-gray-300 rounded"
+            />
+            <input
+              type="password"
+              name="password"
+              placeholder="Password"
+              value={loginData.password}
+              onChange={handleChange}
+              required
+              className="w-full p-3 border border-gray-300 rounded"
+            />
+            <button
+              type="submit"
+              className="w-full bg-blue-900 hover:bg-blue-950 text-white py-3 rounded font-semibold"
+            >
+              Log In
+            </button>
+          </form>
+          <div
+            className="mt-4 text-center text-sm text-blue-700 hover:underline cursor-pointer"
+            onClick={() => setView(AuthView.ForgotPassword)}
+          >
+            Forgot Password?
+          </div>
+          <div
+            data-google-signin
+            className="mt-4 flex justify-center"
+          ></div>
+        </>
+      )}
+
+      {view === AuthView.ForgotPassword && (
+        <form onSubmit={handleForgotPassword} className="space-y-3">
+          <input
+            type="email"
+            placeholder="Enter your email address"
+            value={forgotEmail}
+            onChange={handleChange}
+            required
+            className="w-full p-3 border border-gray-300 rounded"
+          />
+          <button
+            type="submit"
+            className="w-full bg-blue-900 hover:bg-blue-950 text-white py-3 rounded font-semibold"
+          >
+            Send Reset Link
+          </button>
+          <div className="text-center text-sm mt-2">
+            Remember your password?{" "}
+            <button
+              className="text-blue-700 hover:underline font-semibold"
+              onClick={() => setView(AuthView.Login)}
+              type="button"
+            >
+              Log In
+            </button>
+          </div>
+        </form>
+      )}
+    </>
+  );
+
   return (
     <>
       <Script
@@ -462,177 +647,7 @@ export default function LandingPage() {
 
           {/* Right: auth card */}
           <div ref={formRef} className="bg-white rounded-xl shadow-md p-6">
-            {/* ✅ Login tab on the LEFT, Sign Up on the RIGHT */}
-            <div className="flex mb-5 border-b border-gray-200">
-              <button
-                onClick={() => setView(AuthView.Login)}
-                className={`flex-1 py-3 text-center font-semibold ${
-                  view === AuthView.Login
-                    ? "border-b-4 border-blue-900 text-blue-900"
-                    : "text-gray-500 hover:text-gray-700"
-                }`}
-                type="button"
-                aria-current={view === AuthView.Login}
-              >
-                Log In
-              </button>
-              <button
-                onClick={() => setView(AuthView.SignUp)}
-                className={`flex-1 py-3 text-center font-semibold ${
-                  view === AuthView.SignUp
-                    ? "border-b-4 border-blue-900 text-blue-900"
-                    : "text-gray-500 hover:text-gray-700"
-                }`}
-                type="button"
-                aria-current={view === AuthView.SignUp}
-              >
-                Sign Up
-              </button>
-            </div>
-
-            {view === AuthView.SignUp && (
-              <>
-                <form onSubmit={handleSignUp} className="space-y-3">
-                  <input
-                    type="text"
-                    name="name"
-                    placeholder="Full name"
-                    value={signUpData.name}
-                    onChange={handleChange}
-                    required
-                    className="w-full p-3 border border-gray-300 rounded"
-                  />
-                  <input
-                    type="email"
-                    name="email"
-                    placeholder="Email address"
-                    value={signUpData.email}
-                    onChange={handleChange}
-                    required
-                    className="w-full p-3 border border-gray-300 rounded"
-                  />
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                    <input
-                      type="password"
-                      name="password"
-                      placeholder="Create a password"
-                      value={signUpData.password}
-                      onChange={handleChange}
-                      required
-                      className="w-full p-3 border border-gray-300 rounded"
-                    />
-                    <input
-                      type="password"
-                      name="confirmPassword"
-                      placeholder="Confirm password"
-                      value={signUpData.confirmPassword}
-                      onChange={handleChange}
-                      required
-                      className="w-full p-3 border border-gray-300 rounded"
-                    />
-                  </div>
-                  <select
-                    name="experienceLevel"
-                    value={signUpData.experienceLevel}
-                    onChange={handleChange}
-                    required
-                    className="w-full p-3 border border-gray-300 rounded"
-                  >
-                    <option value="">Select your level of experience</option>
-                    {experienceLevels.map((level) => (
-                      <option key={level} value={level}>
-                        {level}
-                      </option>
-                    ))}
-                  </select>
-                  <button
-                    type="submit"
-                    className="w-full bg-blue-900 hover:bg-blue-950 text-white py-3 rounded font-semibold"
-                  >
-                    Create my account
-                  </button>
-                </form>
-                <div className="mt-4">
-                  <div
-                    id="googleSignUpDiv"
-                    className="flex justify-center"
-                  ></div>
-                </div>
-                <p className="mt-3 text-center text-xs text-gray-500">
-                  By joining you agree to our Terms &amp; Privacy.
-                </p>
-              </>
-            )}
-
-            {view === AuthView.Login && (
-              <>
-                <form onSubmit={handleLogin} className="space-y-3">
-                  <input
-                    type="email"
-                    name="email"
-                    placeholder="Email address"
-                    value={loginData.email}
-                    onChange={handleChange}
-                    required
-                    className="w-full p-3 border border-gray-300 rounded"
-                  />
-                  <input
-                    type="password"
-                    name="password"
-                    placeholder="Password"
-                    value={loginData.password}
-                    onChange={handleChange}
-                    required
-                    className="w-full p-3 border border-gray-300 rounded"
-                  />
-                  <button
-                    type="submit"
-                    className="w-full bg-blue-900 hover:bg-blue-950 text-white py-3 rounded font-semibold"
-                  >
-                    Log In
-                  </button>
-                </form>
-                <div
-                  className="mt-4 text-center text-sm text-blue-700 hover:underline cursor-pointer"
-                  onClick={() => setView(AuthView.ForgotPassword)}
-                >
-                  Forgot Password?
-                </div>
-                <div
-                  id="googleSignInDiv"
-                  className="mt-4 flex justify-center"
-                ></div>
-              </>
-            )}
-
-            {view === AuthView.ForgotPassword && (
-              <form onSubmit={handleForgotPassword} className="space-y-3">
-                <input
-                  type="email"
-                  placeholder="Enter your email address"
-                  value={forgotEmail}
-                  onChange={handleChange}
-                  required
-                  className="w-full p-3 border border-gray-300 rounded"
-                />
-                <button
-                  type="submit"
-                  className="w-full bg-blue-900 hover:bg-blue-950 text-white py-3 rounded font-semibold"
-                >
-                  Send Reset Link
-                </button>
-                <div className="text-center text-sm mt-2">
-                  Remember your password?{" "}
-                  <button
-                    className="text-blue-700 hover:underline font-semibold"
-                    onClick={() => setView(AuthView.Login)}
-                    type="button"
-                  >
-                    Log In
-                  </button>
-                </div>
-              </form>
-            )}
+            {renderAuthCard()}
           </div>
         </div>
       </section>
@@ -649,11 +664,13 @@ export default function LandingPage() {
         <div className="mx-auto max-w-6xl px-4 py-10 space-y-6">
           <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-3">
             <div>
+              {/* 🔹 new title text */}
               <h2 className="text-2xl md:text-3xl font-bold text-blue-900">
-                Internships, entry-level &amp; hourly jobs
+                Latest jobs on YPropel
               </h2>
               <p className="mt-1 text-sm text-gray-700">
-                Today&apos;s jobs on YPropel.
+                Internships, entry-level roles, and hourly jobs for students &
+                recent grads.
               </p>
             </div>
             <button
@@ -1334,6 +1351,26 @@ export default function LandingPage() {
           </button>
         </div>
       </section>
+
+      {/* Auth modal popup */}
+      {showAuthModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4">
+          <div className="relative w-full max-w-md bg-white rounded-2xl shadow-xl p-6">
+            <button
+              type="button"
+              onClick={() => setShowAuthModal(false)}
+              className="absolute right-3 top-3 text-gray-400 hover:text-gray-600 text-xl leading-none"
+              aria-label="Close"
+            >
+              ×
+            </button>
+            <h2 className="mb-3 text-lg font-semibold text-blue-900 text-center">
+              Create a free YPropel account
+            </h2>
+            {renderAuthCard()}
+          </div>
+        </div>
+      )}
 
       {/* Footer – simple & clean */}
       <footer className="bg-white">
