@@ -615,37 +615,44 @@ export default function LandingPage() {
       />
 
       {/* Hero – no top bar, 2-column grid, centered larger logo */}
-      <section className="bg-gray-50">
-        <div className="mx-auto max-w-6xl px-4 pt-6 pb-8 md:pt-8 md:pb-10">
-          <div className="md:grid md:grid-cols-[minmax(0,2fr)_minmax(0,1fr)] md:gap-8 items-start">
-            {/* Left: title + slogan + centered logo */}
-            <div className="max-w-2xl">
-              <h1 className="text-3xl md:text-4xl font-extrabold tracking-tight text-blue-900">
-                Where Students &amp; Graduates{" "}
-                <span className="text-emerald-600">Launch Careers</span>
-              </h1>
-              <p className="mt-4 text-gray-700 text-base md:text-lg">
-                Connect with peers, land real opportunities, and grow your
-                skills — all in one community built for you.
-              </p>
-              <div className="mt-5 flex justify-center md:justify-start">
-                <img
-                  src="/ypropel-logo.png"
-                  alt="YPropel"
-                  className="h-16 w-auto md:h-20"
-                />
-              </div>
-            </div>
+     {/* Hero – centered larger logo, raised section */}
+<section className="bg-gray-50">
+  <div className="mx-auto max-w-6xl px-4 pt-4 pb-8 md:pt-6 md:pb-10">
+    <div className="md:grid md:grid-cols-[minmax(0,2fr)_minmax(0,1fr)] md:gap-8 items-start">
 
-            {/* Right: auth card, top-aligned, not overlapping content */}
-            <div className="mt-6 md:mt-0">
-              <div className="bg-white rounded-xl shadow-lg p-5 w-full md:w-[340px] md:ml-auto">
-                {renderAuthCard()}
-              </div>
-            </div>
-          </div>
+      {/* LEFT SIDE – Title, Slogan, Centered Big Logo */}
+      <div className="max-w-2xl text-center md:text-left">
+        <h1 className="text-3xl md:text-4xl font-extrabold tracking-tight text-blue-900">
+          Where Students &amp; Graduates{" "}
+          <span className="text-emerald-600">Launch Careers</span>
+        </h1>
+
+        <p className="mt-3 text-gray-700 text-base md:text-lg">
+          Connect with peers, land real opportunities, and grow your skills —
+          all in one community built for you.
+        </p>
+
+        {/* BIGGER & PERFECTLY CENTERED LOGO */}
+        <div className="mt-6 flex justify-center md:justify-start">
+          <img
+            src="/ypropel-logo.png"
+            alt="YPropel"
+            className="h-24 w-auto md:h-28 lg:h-32"
+          />
         </div>
-      </section>
+      </div>
+
+      {/* RIGHT SIDE – Auth Card */}
+      <div className="mt-8 md:mt-0 md:flex md:justify-end">
+        <div className="bg-white rounded-xl shadow-lg p-5 w-full md:w-[340px]">
+          {renderAuthCard()}
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
 
       {/* Global content error bar if needed */}
       {contentError && (
@@ -663,8 +670,8 @@ export default function LandingPage() {
                 Latest jobs on YPropel
               </h2>
               <p className="mt-1 text-sm text-gray-700">
-                Internships, entry-level roles, and hourly jobs for students &
-                recent grads.
+                Internships, entry-level roles, and hourly jobs for students,
+                recent grads and young professionals.
               </p>
             </div>
             <button
@@ -684,7 +691,7 @@ export default function LandingPage() {
             {/* Internships block – light green */}
             <div className="rounded-xl bg-emerald-50/80 p-4">
               <h3 className="text-sm font-semibold text-emerald-900 mb-3">
-                Internships (preview)
+                Internships 
               </h3>
               <div className="grid gap-3 md:grid-cols-3">
                 {internshipSample.slice(0, 3).map((job) => {
@@ -739,7 +746,7 @@ export default function LandingPage() {
             {/* Entry-level block – light blue */}
             <div className="rounded-xl bg-blue-50/80 p-4">
               <h3 className="text-sm font-semibold text-blue-900 mb-3">
-                Entry-level roles (preview)
+                Entry-level roles
               </h3>
               <div className="grid gap-3 md:grid-cols-3">
                 {entryLevelSample.slice(0, 3).map((job) => {
@@ -795,7 +802,7 @@ export default function LandingPage() {
             {/* Hourly block – light amber */}
             <div className="rounded-xl bg-amber-50/80 p-4">
               <h3 className="text-sm font-semibold text-amber-900 mb-3">
-                Hourly &amp; part-time (preview)
+                Hourly &amp; part-time 
               </h3>
               <div className="grid gap-3 md:grid-cols-3">
                 {hourlySample.slice(0, 3).map((job) => {
