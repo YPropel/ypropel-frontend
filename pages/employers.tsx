@@ -60,7 +60,7 @@ function EmailChip({ withLink = false }: { withLink?: boolean }) {
       {withLink && (
         <span className="text-gray-600">
           •{" "}
-          <a href={mailto} className="underline hover:text-blue-900">
+          <a href={mailto} className="text-white underline hover:text-white">
             Claim our special offer, Add 2 more free jobs  - Contact Us →
           </a>
         </span>
@@ -288,8 +288,8 @@ export default function EmployersLandingPage() {
                 Then, pay per qualified applicant
               </h3>
               <ul className="mt-3 space-y-2 text-gray-700 list-disc list-inside">
-                <li>$20/applicant list price</li>
-                <li>Volume discounts: $16 (50+/mo), $12 (200+/mo)</li>
+                
+                <li>Volume discounts</li>
                 <li>Billed weekly based on delivered applicants</li>
               </ul>
             </div>
@@ -298,9 +298,9 @@ export default function EmployersLandingPage() {
             <div className="p-6 border rounded-xl bg-gray-50">
               <h3 className="text-xl font-semibold text-blue-900">Optional add-ons</h3>
               <ul className="mt-3 space-y-2 text-gray-700 list-disc list-inside">
-                <li>Resume Access + Search: $99/month</li>
-                <li>Boosted Distribution (newsletter + featured): from $149/role</li>
-                <li>Priority Screening (human review): $6/applicant</li>
+                <li>Resume Access + Search</li>
+                <li>Boosted Distribution (newsletter + featured)</li>
+                <li>Priority Screening (human review)</li>
               </ul>
             </div>
           </div>
