@@ -5,7 +5,7 @@ declare global {
   }
 }
 
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useRouter } from "next/router";
 import Script from "next/script";
 import { apiFetch } from "../apiClient";
@@ -119,7 +119,6 @@ export default function LandingPage() {
   });
   const [forgotEmail, setForgotEmail] = useState("");
   const router = useRouter();
-  const formRef = useRef<HTMLDivElement>(null);
 
   // Content state
   const [jobs, setJobs] = useState<Job[]>([]);
@@ -128,7 +127,7 @@ export default function LandingPage() {
   const [loadingContent, setLoadingContent] = useState(false);
   const [contentError, setContentError] = useState<string | null>(null);
 
-  // NEW: auth modal state
+  // Auth modal state
   const [showAuthModal, setShowAuthModal] = useState(false);
 
   // ---- Redirect helpers ----
@@ -389,7 +388,6 @@ export default function LandingPage() {
   };
 
   // ---------- Helpers ----------
-  // NOW: instead of scrolling, open the modal
   const scrollToForm = () => {
     setView(AuthView.SignUp);
     setShowAuthModal(true);
@@ -438,7 +436,7 @@ export default function LandingPage() {
   const entryLevelSample = fallbackJobs(entryLevel, 3);
   const hourlySample = fallbackJobs(hourly, 3);
 
-  // Reusable auth card (used in hero and modal)
+  // Reusable auth card (hero + modal)
   const renderAuthCard = () => (
     <>
       {/* Tabs: Login left, Sign Up right */}
@@ -532,10 +530,7 @@ export default function LandingPage() {
             </button>
           </form>
           <div className="mt-4">
-            <div
-              data-google-signup
-              className="flex justify-center"
-            ></div>
+            <div data-google-signup className="flex justify-center"></div>
           </div>
           <p className="mt-3 text-center text-xs text-gray-500">
             By joining you agree to our Terms &amp; Privacy.
@@ -577,10 +572,7 @@ export default function LandingPage() {
           >
             Forgot Password?
           </div>
-          <div
-            data-google-signin
-            className="mt-4 flex justify-center"
-          ></div>
+          <div data-google-signin className="mt-4 flex justify-center"></div>
         </>
       )}
 
@@ -630,11 +622,10 @@ export default function LandingPage() {
         </div>
       </header>
 
-      {/* Hero – left: title + paragraph only; right: auth card */}
-      <section className="bg-gray-50">
-        <div className="mx-auto max-w-6xl px-4 py-6 md:py-8 grid md:grid-cols-2 gap-8 items-start">
-          {/* Left: hero copy */}
-          <div>
+      {/* Hero – title left, small auth card top-right */}
+      <section className="relative bg-gray-50">
+        <div className="mx-auto max-w-6xl px-4 py-8 md:py-10">
+          <div className="max-w-2xl">
             <h1 className="text-3xl md:text-4xl font-extrabold tracking-tight text-blue-900">
               Where Students &amp; Graduates{" "}
               <span className="text-emerald-600">Launch Careers</span>
@@ -644,9 +635,18 @@ export default function LandingPage() {
               — all in one community built for you.
             </p>
           </div>
+        </div>
 
-          {/* Right: auth card */}
-          <div ref={formRef} className="bg-white rounded-xl shadow-md p-6">
+        {/* Desktop / tablet: small floating card top-right */}
+        <div className="hidden md:block absolute top-6 right-8">
+          <div className="w-[340px] bg-white rounded-xl shadow-lg p-5">
+            {renderAuthCard()}
+          </div>
+        </div>
+
+        {/* Mobile: card full width below title */}
+        <div className="md:hidden px-4 pb-6">
+          <div className="bg-white rounded-xl shadow-md p-5">
             {renderAuthCard()}
           </div>
         </div>
@@ -664,7 +664,6 @@ export default function LandingPage() {
         <div className="mx-auto max-w-6xl px-4 py-10 space-y-6">
           <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-3">
             <div>
-              {/* 🔹 new title text */}
               <h2 className="text-2xl md:text-3xl font-bold text-blue-900">
                 Latest jobs on YPropel
               </h2>
