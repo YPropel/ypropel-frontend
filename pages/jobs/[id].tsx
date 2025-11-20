@@ -24,8 +24,8 @@ type Job = {
 };
 
 function JobDetailsInner() {
-  const { query } = useRouter();
-  const { id } = query;
+  const router = useRouter();
+  const { id } = router.query;
   const [job, setJob] = useState<Job | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -46,26 +46,46 @@ function JobDetailsInner() {
     })();
   }, [id]);
 
-  // 🔹 Track interest when user clicks "Apply Now"
-  const handleApplyClick = () => {
+  // 🔹 Helper to record interest on this job
+  const recordInterest = async () => {
     if (!job) return;
     if (typeof window === "undefined") return;
 
     const token = localStorage.getItem("token");
-    if (!token) {
-      // AuthGuard should guarantee login, but be safe
-      return;
-    }
+    if (!token) return; // AuthGuard should prevent this anyway
 
-    // Fire-and-forget; don't block navigation
-    apiFetch(`/jobs/${job.id}/interest`, {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    }).catch((err) => {
+    try {
+      await apiFetch(`/jobs/${job.id}/interest`, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+    } catch (err) {
       console.error("Failed to record job interest:", err);
-    });
+    }
+  };
+
+  // 🔹 External apply: record interest then open new tab
+  const handleExternalApply = async (
+    e: React.MouseEvent<HTMLAnchorElement, MouseEvent>
+  ) => {
+    e.preventDefault();
+    await recordInterest();
+    if (job?.apply_url) {
+      window.open(job.apply_url, "_blank", "noopener,noreferrer");
+    }
+  };
+
+  // 🔹 Internal apply: record interest then router.push
+  const handleInternalApply = async (
+    e: React.MouseEvent<HTMLAnchorElement, MouseEvent>
+  ) => {
+    e.preventDefault();
+    await recordInterest();
+    if (job) {
+      router.push(`/apply?jobId=${job.id}`);
+    }
   };
 
   if (loading)
@@ -124,19 +144,19 @@ function JobDetailsInner() {
                   href={job.apply_url}
                   target="_blank"
                   rel="noopener noreferrer"
-                  onClick={handleApplyClick}  // 🔹 record interest
+                  onClick={handleExternalApply} // 🔹 record interest + open new tab
                   className="inline-flex items-center rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white font-semibold px-5 py-3"
                 >
                   Apply Now
                 </a>
               ) : (
-                <Link
+                <a
                   href={`/apply?jobId=${job.id}`}
-                  onClick={handleApplyClick}   // 🔹 record interest
+                  onClick={handleInternalApply} // 🔹 record interest + navigate
                   className="inline-flex items-center rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white font-semibold px-5 py-3"
                 >
                   Apply Now
-                </Link>
+                </a>
               )}
             </div>
           </header>
