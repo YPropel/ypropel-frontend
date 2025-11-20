@@ -29,6 +29,7 @@ function JobDetailsInner() {
   const [job, setJob] = useState<Job | null>(null);
   const [loading, setLoading] = useState(true);
 
+  // 1️⃣ Load the job
   useEffect(() => {
     if (!id) return;
     (async () => {
@@ -46,8 +47,8 @@ function JobDetailsInner() {
     })();
   }, [id]);
 
-  // 🔹 Helper to record interest on this job
-  const recordInterest = async () => {
+  // 2️⃣ Once job is loaded, record interest ONE time
+  useEffect(() => {
     if (!job) return;
     if (typeof window === "undefined") return;
 
@@ -57,35 +58,21 @@ function JobDetailsInner() {
       return;
     }
 
-    try {
-      console.log("Sending interest for job", job.id);
-      const res = await apiFetch(`/jobs/${job.id}/interest`, {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-      console.log("Interest response status:", res.status);
-    } catch (err) {
-      console.error("Failed to record job interest:", err);
-    }
-  };
-
-  // 🔹 External apply: record interest then open new tab
-  const handleExternalApply = async () => {
-    await recordInterest();
-    if (job?.apply_url) {
-      window.open(job.apply_url, "_blank", "noopener,noreferrer");
-    }
-  };
-
-  // 🔹 Internal apply: record interest then router.push
-  const handleInternalApply = async () => {
-    await recordInterest();
-    if (job) {
-      router.push(`/apply?jobId=${job.id}`);
-    }
-  };
+    (async () => {
+      try {
+        console.log("Recording interest for job", job.id);
+        const res = await apiFetch(`/jobs/${job.id}/interest`, {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        console.log("Interest response status:", res.status);
+      } catch (err) {
+        console.error("Failed to record job interest:", err);
+      }
+    })();
+  }, [job]);
 
   if (loading)
     return (
@@ -139,21 +126,21 @@ function JobDetailsInner() {
 
             <div className="mt-6 flex flex-wrap gap-3">
               {job.apply_url ? (
-                <button
-                  type="button"
-                  onClick={handleExternalApply}
+                <a
+                  href={job.apply_url}
+                  target="_blank"
+                  rel="noopener noreferrer"
                   className="inline-flex items-center rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white font-semibold px-5 py-3"
                 >
                   Apply Now
-                </button>
+                </a>
               ) : (
-                <button
-                  type="button"
-                  onClick={handleInternalApply}
+                <Link
+                  href={`/apply?jobId=${job.id}`}
                   className="inline-flex items-center rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white font-semibold px-5 py-3"
                 >
                   Apply Now
-                </button>
+                </Link>
               )}
             </div>
           </header>
