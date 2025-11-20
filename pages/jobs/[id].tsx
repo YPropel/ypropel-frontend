@@ -52,25 +52,27 @@ function JobDetailsInner() {
     if (typeof window === "undefined") return;
 
     const token = localStorage.getItem("token");
-    if (!token) return; // AuthGuard should prevent this anyway
+    if (!token) {
+      console.warn("No token found when recording job interest");
+      return;
+    }
 
     try {
-      await apiFetch(`/jobs/${job.id}/interest`, {
+      console.log("Sending interest for job", job.id);
+      const res = await apiFetch(`/jobs/${job.id}/interest`, {
         method: "POST",
         headers: {
           Authorization: `Bearer ${token}`,
         },
       });
+      console.log("Interest response status:", res.status);
     } catch (err) {
       console.error("Failed to record job interest:", err);
     }
   };
 
   // 🔹 External apply: record interest then open new tab
-  const handleExternalApply = async (
-    e: React.MouseEvent<HTMLAnchorElement, MouseEvent>
-  ) => {
-    e.preventDefault();
+  const handleExternalApply = async () => {
     await recordInterest();
     if (job?.apply_url) {
       window.open(job.apply_url, "_blank", "noopener,noreferrer");
@@ -78,10 +80,7 @@ function JobDetailsInner() {
   };
 
   // 🔹 Internal apply: record interest then router.push
-  const handleInternalApply = async (
-    e: React.MouseEvent<HTMLAnchorElement, MouseEvent>
-  ) => {
-    e.preventDefault();
+  const handleInternalApply = async () => {
     await recordInterest();
     if (job) {
       router.push(`/apply?jobId=${job.id}`);
@@ -140,23 +139,21 @@ function JobDetailsInner() {
 
             <div className="mt-6 flex flex-wrap gap-3">
               {job.apply_url ? (
-                <a
-                  href={job.apply_url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  onClick={handleExternalApply} // 🔹 record interest + open new tab
+                <button
+                  type="button"
+                  onClick={handleExternalApply}
                   className="inline-flex items-center rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white font-semibold px-5 py-3"
                 >
                   Apply Now
-                </a>
+                </button>
               ) : (
-                <a
-                  href={`/apply?jobId=${job.id}`}
-                  onClick={handleInternalApply} // 🔹 record interest + navigate
+                <button
+                  type="button"
+                  onClick={handleInternalApply}
                   className="inline-flex items-center rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white font-semibold px-5 py-3"
                 >
                   Apply Now
-                </a>
+                </button>
               )}
             </div>
           </header>
