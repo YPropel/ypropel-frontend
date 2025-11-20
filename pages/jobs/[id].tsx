@@ -46,20 +46,57 @@ function JobDetailsInner() {
     })();
   }, [id]);
 
-  if (loading) return <div className="min-h-screen grid place-items-center text-gray-500">Loading job…</div>;
-  if (!job)   return <div className="min-h-screen grid place-items-center text-gray-500">Job not found.</div>;
+  // 🔹 Track interest when user clicks "Apply Now"
+  const handleApplyClick = () => {
+    if (!job) return;
+    if (typeof window === "undefined") return;
+
+    const token = localStorage.getItem("token");
+    if (!token) {
+      // AuthGuard should guarantee login, but be safe
+      return;
+    }
+
+    // Fire-and-forget; don't block navigation
+    apiFetch(`/jobs/${job.id}/interest`, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    }).catch((err) => {
+      console.error("Failed to record job interest:", err);
+    });
+  };
+
+  if (loading)
+    return (
+      <div className="min-h-screen grid place-items-center text-gray-500">
+        Loading job…
+      </div>
+    );
+  if (!job)
+    return (
+      <div className="min-h-screen grid place-items-center text-gray-500">
+        Job not found.
+      </div>
+    );
 
   return (
     <>
       <Head>
         <title>{`${job.title}${job.company ? " — " + job.company : ""} | YPropel`}</title>
-        <meta name="description" content={`Apply for ${job.title}${job.company ? " at " + job.company : ""} on YPropel`} />
+        <meta
+          name="description"
+          content={`Apply for ${job.title}${job.company ? " at " + job.company : ""} on YPropel`}
+        />
       </Head>
 
       <main className="min-h-screen bg-gray-50">
         <div className="mx-auto max-w-4xl px-4 py-8">
           <div className="mb-6">
-            <Link href="/jobs" className="text-sm text-blue-700 hover:underline">← Back to jobs</Link>
+            <Link href="/jobs" className="text-sm text-blue-700 hover:underline">
+              ← Back to jobs
+            </Link>
           </div>
 
           <header className="bg-white border rounded-xl p-6 shadow-sm">
@@ -69,11 +106,15 @@ function JobDetailsInner() {
               {job.location && <span>{job.location}</span>}
               {job.salary && <span>• {job.salary}</span>}
               {(job.city || job.state || job.country) && (
-                <span>• {[job.city, job.state, job.country].filter(Boolean).join(", ")}</span>
+                <span>
+                  • {[job.city, job.state, job.country].filter(Boolean).join(", ")}
+                </span>
               )}
               {job.category && <span>• {job.category}</span>}
               {job.posted_at && (
-                <span className="text-gray-500 text-sm">• Posted {new Date(job.posted_at).toLocaleDateString()}</span>
+                <span className="text-gray-500 text-sm">
+                  • Posted {new Date(job.posted_at).toLocaleDateString()}
+                </span>
               )}
             </div>
 
@@ -83,6 +124,7 @@ function JobDetailsInner() {
                   href={job.apply_url}
                   target="_blank"
                   rel="noopener noreferrer"
+                  onClick={handleApplyClick}  // 🔹 record interest
                   className="inline-flex items-center rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white font-semibold px-5 py-3"
                 >
                   Apply Now
@@ -90,6 +132,7 @@ function JobDetailsInner() {
               ) : (
                 <Link
                   href={`/apply?jobId=${job.id}`}
+                  onClick={handleApplyClick}   // 🔹 record interest
                   className="inline-flex items-center rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white font-semibold px-5 py-3"
                 >
                   Apply Now
