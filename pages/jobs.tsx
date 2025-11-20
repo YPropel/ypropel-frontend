@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useRouter } from "next/router";
 import Link from "next/link";
 import AuthGuard from "../components/AuthGuard"; // adjust path if needed
-import { apiFetch } from "../apiClient"; 
+import { apiFetch } from "../apiClient";
 
 type Job = {
   id: number;
@@ -39,7 +39,7 @@ function JobsPageContent() {
   const [category, setCategory] = useState<string>("");
   const [location, setLocation] = useState<string>("");
 
-  // Update this type to reflect the new state object structure
+  // State, country, city, category options
   const [states, setStates] = useState<{ name: string; abbreviation: string }[]>([]);
   const [countries, setCountries] = useState<string[]>([]);
   const [cities, setCities] = useState<string[]>([]);
@@ -52,6 +52,24 @@ function JobsPageContent() {
 
   // Compute other job types for links (exclude current)
   const otherJobTypes = JOB_TYPES.filter((jt) => jt.value !== type);
+
+  // 🔹 Helper: record interest when user applies from the list
+  const recordInterest = async (jobId: number) => {
+    if (typeof window === "undefined") return;
+    const token = localStorage.getItem("token");
+    if (!token) return;
+
+    try {
+      await apiFetch(`/jobs/${jobId}/interest`, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+    } catch (err) {
+      console.error("Failed to record job interest from list:", err);
+    }
+  };
 
   // Fetch job categories for filter drop down
   useEffect(() => {
@@ -290,10 +308,10 @@ function JobsPageContent() {
                 <div className="flex justify-between items-center">
                   <div>
                     <h2 className="text-xl font-semibold">
-                        <Link href={`/jobs/${job.id}`} className="text-blue-900 hover:underline">
-                          {job.title}
-                        </Link>
-                      </h2>
+                      <Link href={`/jobs/${job.id}`} className="text-blue-900 hover:underline">
+                        {job.title}
+                      </Link>
+                    </h2>
                     <p className="text-gray-700">
                       <strong>Company:</strong> {job.company}
                     </p>
@@ -348,6 +366,11 @@ function JobsPageContent() {
                         href={job.apply_url}
                         target="_blank"
                         rel="noopener noreferrer"
+                        onClick={async (e) => {
+                          e.preventDefault();
+                          await recordInterest(job.id); // 🔹 record interest from list view
+                          window.open(job.apply_url!, "_blank", "noopener,noreferrer");
+                        }}
                         className="inline-block bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition"
                       >
                         Apply Now
