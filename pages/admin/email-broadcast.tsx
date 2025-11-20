@@ -33,39 +33,54 @@ export default function AdminEmailBroadcastPage() {
     }
   }, []);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setError(null);
-    setResult(null);
+ const handleSubmit = async (e: React.FormEvent) => {
+  e.preventDefault();
+  setError(null);
+  setResult(null);
 
-    if (!subject.trim() || !htmlBody.trim()) {
-      setError("Subject and message body are required.");
-      return;
+  if (!subject.trim() || !htmlBody.trim()) {
+    setError("Subject and message body are required.");
+    return;
+  }
+
+  if (typeof window === "undefined") {
+    setError("This action must be performed in the browser.");
+    return;
+  }
+
+  const token = localStorage.getItem("token");
+  if (!token) {
+    setError("You must be logged in as an admin to send emails. Please log in again.");
+    return;
+  }
+
+  try {
+    setIsSending(true);
+
+    const res = await apiFetch("/admin/email/broadcast", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({ subject, htmlBody }),
+    });
+
+    if (!res.ok) {
+      const data = await res.json().catch(() => ({}));
+      throw new Error(data.error || "Failed to send broadcast email.");
     }
 
-    try {
-      setIsSending(true);
+    const data = await res.json();
+    setResult(data);
+  } catch (err: any) {
+    setError(err.message || "Unexpected error while sending broadcast.");
+  } finally {
+    setIsSending(false);
+  }
+};
 
-      const res = await apiFetch("/admin/email/broadcast", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ subject, htmlBody }),
-      });
-
-      if (!res.ok) {
-        const data = await res.json().catch(() => ({}));
-        throw new Error(data.error || "Failed to send broadcast email.");
-      }
-
-      const data = await res.json();
-      setResult(data);
-    } catch (err: any) {
-      setError(err.message || "Unexpected error while sending broadcast.");
-    } finally {
-      setIsSending(false);
-    }
-  };
-
+//------
   if (isAdmin === null) {
     // still checking role
     return (
