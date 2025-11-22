@@ -181,7 +181,7 @@ const PathfinderPage: React.FC = () => {
     }));
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
+    const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     setError(null);
@@ -263,7 +263,7 @@ const PathfinderPage: React.FC = () => {
         freeTextConcerns: form.freeTextConcerns || undefined,
       };
 
-      // IMPORTANT: path should match backend route: /api/pathfinder
+      // Use the same apiFetch helper as in other files
       const response = await apiFetch("/api/pathfinder", {
         method: "POST",
         headers: {
@@ -278,8 +278,7 @@ const PathfinderPage: React.FC = () => {
       }
 
       const data = await response.json();
-      setResult(data.recommendation || data); // backend returns {id, input, recommendation,...}
-
+      setResult(data.recommendation || data);
     } catch (err: any) {
       console.error("Error submitting pathfinder:", err);
       setError(err.message || "Something went wrong");
@@ -287,6 +286,7 @@ const PathfinderPage: React.FC = () => {
       setLoading(false);
     }
   };
+
 
   return (
     <AuthGuard>
