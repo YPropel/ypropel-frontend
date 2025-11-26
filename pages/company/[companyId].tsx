@@ -73,7 +73,7 @@ const CompanyDetailsPage = () => {
 
   const handleAddJob = () => {
     if (!companyId) return;
-    router.push(`/PostJob?companyId=${companyId}`);
+    router.push(`/postjob?companyId=${companyId}`);
   };
 
   const handleDeleteCompany = async () => {
@@ -86,14 +86,15 @@ const CompanyDetailsPage = () => {
     }
 
     try {
-      const response = await apiFetch("/companies/delete", {
+        const response = await apiFetch("/companies/delete", {
         method: "DELETE",
-        body: JSON.stringify({ companyId, userId }),
+        body: JSON.stringify({ companyId }),
         headers: {
           "Content-Type": "application/json",
           "Authorization": `Bearer ${token}`,
         },
       });
+
 
       if (response.ok) {
         alert("Company deleted successfully");

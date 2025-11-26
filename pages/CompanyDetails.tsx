@@ -52,14 +52,15 @@ const CompanyDetailsPage = () => {
     }
 
     try {
-      const response = await apiFetch("/companies/delete", {
+          const response = await apiFetch("/companies/delete", {
         method: "DELETE",
-        body: JSON.stringify({ companyId, userId }), // Send companyId and userId for validation
+        body: JSON.stringify({ companyId }),
         headers: {
           "Content-Type": "application/json",
           "Authorization": `Bearer ${token}`,
         },
       });
+
 
       if (response.ok) {
         alert("Company deleted successfully");
@@ -107,7 +108,10 @@ const CompanyDetailsPage = () => {
           <strong>Industry:</strong> {company.industry}
         </div>
         <div>
-          {company.logoUrl && <img src={company.logoUrl} alt="Company Logo" />}
+        <div>
+  {company.logo_url && <img src={company.logo_url} alt="Company Logo" />}
+</div>
+
         </div>
       </div>
       

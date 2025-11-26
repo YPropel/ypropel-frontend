@@ -37,11 +37,11 @@ const CreateCompany = () => {
     return;
   }
 
-  const userId = localStorage.getItem("userId");
-  if (!userId) {
-    setError("User is not logged in.");
-    return;
-  }
+        const token = localStorage.getItem("token");
+        if (!token) {
+          setError("User is not logged in.");
+          return;
+        }
 
   try {
     const formData = new FormData();
@@ -49,7 +49,6 @@ const CreateCompany = () => {
     formData.append("description", description);
     formData.append("location", location);
     formData.append("industry", industry);
-    formData.append("userId", userId);
 
     if (logo) {
       formData.append("logo", logo); // key must match backend: .single("logo")
