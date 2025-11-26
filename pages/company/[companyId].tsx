@@ -77,36 +77,40 @@ const CompanyDetailsPage = () => {
   };
 
   const handleDeleteCompany = async () => {
-    const token = localStorage.getItem("token");
-    const userId = localStorage.getItem("userId");
+  const token = localStorage.getItem("token");
 
-    if (!token || !userId) {
-      setError("User is not logged in.");
-      return;
+  if (!token) {
+    setError("User is not logged in.");
+    return;
+  }
+
+  if (!companyId) {
+    setError("Company ID is missing.");
+    return;
+  }
+
+  try {
+    const response = await apiFetch("/companies/delete", {
+      method: "DELETE",
+      body: JSON.stringify({ companyId }),  // ✅ only companyId
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${token}`,  // ✅ so authenticateToken passes
+      },
+    });
+
+    if (response.ok) {
+      alert("Company deleted successfully");
+      router.push("/dashboard"); // or /CreateCompany, up to you
+    } else {
+      const errorData = await response.json();
+      setError(errorData.error || "Failed to delete company");
     }
+  } catch {
+    setError("Something went wrong. Please try again later.");
+  }
+};
 
-    try {
-        const response = await apiFetch("/companies/delete", {
-        method: "DELETE",
-        body: JSON.stringify({ companyId }),
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": `Bearer ${token}`,
-        },
-      });
-
-
-      if (response.ok) {
-        alert("Company deleted successfully");
-        router.push("/dashboard");
-      } else {
-        const errorData = await response.json();
-        setError(errorData.error || "Failed to delete company");
-      }
-    } catch {
-      setError("Something went wrong. Please try again later.");
-    }
-  };
 
   const handleCancelSubscription = async () => {
     const token = localStorage.getItem("token");
