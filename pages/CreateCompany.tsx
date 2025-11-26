@@ -37,11 +37,11 @@ const CreateCompany = () => {
     return;
   }
 
-        const token = localStorage.getItem("token");
-        if (!token) {
-          setError("User is not logged in.");
-          return;
-        }
+  const token = localStorage.getItem("token");
+  if (!token) {
+    setError("User is not logged in.");
+    return;
+  }
 
   try {
     const formData = new FormData();
@@ -57,7 +57,10 @@ const CreateCompany = () => {
     const response = await apiFetch("/companies", {
       method: "POST",
       body: formData,
-      // DO NOT set Content-Type manually for FormData
+      headers: {
+        Authorization: `Bearer ${token}`, // 👈 send JWT so authenticateToken passes
+        // ❌ do NOT set "Content-Type" here for FormData
+      },
     });
 
     if (response.ok) {
