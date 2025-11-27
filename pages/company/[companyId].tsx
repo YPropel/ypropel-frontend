@@ -11,9 +11,14 @@ const CompanyDetailsPage = () => {
   const [loggedInUserId, setLoggedInUserId] = useState<string | null>(null);
   const [cancelLoading, setCancelLoading] = useState(false);
 
+  // Get logged-in user id (for ownership checks)
   useEffect(() => {
-    const userId = localStorage.getItem("userId");
-    setLoggedInUserId(userId);
+    try {
+      const userId = localStorage.getItem("userId");
+      setLoggedInUserId(userId);
+    } catch {
+      // ignore
+    }
   }, []);
 
   // Fetch company details
@@ -32,6 +37,15 @@ const CompanyDetailsPage = () => {
         if (response.ok) {
           const companyData = await response.json();
           setCompany(companyData);
+
+          // ✅ Remember this company ID for later (PostJob page will use this)
+          if (companyData?.id) {
+            try {
+              localStorage.setItem("companyId", String(companyData.id));
+            } catch {
+              // ignore localStorage errors
+            }
+          }
         } else {
           const errorData = await response.json();
           setError(errorData.error || "Failed to fetch company details");
@@ -64,53 +78,52 @@ const CompanyDetailsPage = () => {
           setIsPremium(!!userData.is_company_premium);
         }
       } catch {
-        // silently fail or handle if needed
+        // silently fail
       }
     };
 
     fetchUserPremiumStatus();
   }, []);
 
+  // ✅ Go to PostJob WITHOUT putting companyId in the URL
   const handleAddJob = () => {
-    if (!companyId) return;
-    router.push(`/postjob?companyId=${companyId}`);
+    router.push("/PostJob"); // or "/postjob" depending on your file name
   };
 
   const handleDeleteCompany = async () => {
-  const token = localStorage.getItem("token");
+    const token = localStorage.getItem("token");
 
-  if (!token) {
-    setError("User is not logged in.");
-    return;
-  }
-
-  if (!companyId) {
-    setError("Company ID is missing.");
-    return;
-  }
-
-  try {
-    const response = await apiFetch("/companies/delete", {
-      method: "DELETE",
-      body: JSON.stringify({ companyId }),  // ✅ only companyId
-      headers: {
-        "Content-Type": "application/json",
-        "Authorization": `Bearer ${token}`,  // ✅ so authenticateToken passes
-      },
-    });
-
-    if (response.ok) {
-      alert("Company deleted successfully");
-      router.push("/dashboard"); // or /CreateCompany, up to you
-    } else {
-      const errorData = await response.json();
-      setError(errorData.error || "Failed to delete company");
+    if (!token) {
+      setError("User is not logged in.");
+      return;
     }
-  } catch {
-    setError("Something went wrong. Please try again later.");
-  }
-};
 
+    if (!companyId) {
+      setError("Company ID is missing.");
+      return;
+    }
+
+    try {
+      const response = await apiFetch("/companies/delete", {
+        method: "DELETE",
+        body: JSON.stringify({ companyId }), // only companyId; backend uses req.user for auth
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`,
+        },
+      });
+
+      if (response.ok) {
+        alert("Company deleted successfully");
+        router.push("/dashboard"); // or "/CreateCompany" if you prefer
+      } else {
+        const errorData = await response.json();
+        setError(errorData.error || "Failed to delete company");
+      }
+    } catch {
+      setError("Something went wrong. Please try again later.");
+    }
+  };
 
   const handleCancelSubscription = async () => {
     const token = localStorage.getItem("token");
@@ -144,7 +157,6 @@ const CompanyDetailsPage = () => {
   };
 
   if (error) return <p className="text-red-500">{error}</p>;
-
   if (!company) return <p>Loading...</p>;
 
   const userOwnsCompany = String(company.user_id) === String(loggedInUserId);
